@@ -21,7 +21,17 @@ htmlcov/
 *.ipynb_checkpoints
 
 # ============ Data: never commit ============
-data/
+# `data/*` rather than `data/`: git cannot re-include anything under an excluded
+# directory, and the .gitkeep files have to survive so a fresh clone has somewhere
+# to download Spider into.
+data/*
+!data/raw/
+!data/processed/
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
 *.sqlite
 *.sqlite3
 *.db
@@ -41,11 +51,24 @@ adapters/
 *.ckpt
 
 # ============ Experiment output ============
-results/
+# Same reason as data/ above: `results/*` so the per-run artefacts can be re-included.
+# Spec invariant 7 -- "an unlogged run did not happen" -- requires the full resolved
+# config of every run on disk, and spec 14 says the CSV is what survives. Both have
+# to be committed; the checkpoints under the same directory must not be, and are
+# already covered by the section above.
+results/*
 runs/
 wandb/
 lightning_logs/
 *.log
+
+!results/.gitkeep
+!results/*/
+!results/*/metrics.csv
+!results/*/config.yaml
+!results/*/eval_*.json
+!results/summary/
+!results/summary/*.csv
 
 # ============ Caches ============
 .cache/
@@ -72,6 +95,10 @@ Thumbs.db
 .idea/
 
 # ============ Exceptions: small summary tables DO get committed ============
-!results/summary/
-!results/summary/*.csv
 !configs/*.yaml
+
+# Per-person `pip freeze` output, for diagnosing environment drift between the two
+# SageMaker spaces. Lives in environment/ rather than env/ because env/ is ignored
+# above as a virtualenv directory.
+!environment/
+!environment/*.txt

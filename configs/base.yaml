@@ -1,0 +1,45 @@
+# CONTRACT FILE. PR + ping before changing. Frozen permanently end of week 8.
+#
+# Everything shared between conditions lives here. Condition configs override
+# `credit_method` and that method's own parameters -- nothing else. A condition
+# config that overrides anything below is a design bug and train.py refuses it.
+
+model:
+  base: Qwen/Qwen2.5-Coder-1.5B-Instruct
+  dtype: float16                 # NEVER bfloat16 -- T4 is Turing, no native bf16
+  attn_implementation: sdpa      # no flash-attn-2 on Turing
+  lora:
+    r: 16
+    alpha: 32
+    dropout: 0.05
+
+training:
+  group_size: 4                  # G: candidates sampled per question
+  lr: 1.0e-5
+  steps: 1000
+  temperature: 0.8
+  max_new_tokens: 512
+  kl_coef: 0.05
+  clip_eps: 0.2
+  seed: 42
+  checkpoint_every: 50           # idle-shutdown insurance
+
+data:
+  train_file: data/processed/spider_train_filtered.jsonl
+  dev_file: data/processed/spider_dev.jsonl
+  n_examples: 2000
+
+execution:
+  timeout_s: 5.0
+  n_workers: 8                   # matches vCPU count; not 16
+
+generation:
+  backend: vllm
+  vllm_dtype: half               # T4 requirement
+
+logging:
+  out_dir: results
+  tensorboard: true
+  csv: true
+
+credit_method: independent       # overridden per condition

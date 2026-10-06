@@ -1,0 +1,14 @@
+# Ablation. One agent, one adapter, one prompt: question + full schema -> SQL.
+# No Selector, no Decomposer, no Refiner, no credit assignment.
+# Group normalisation identical to independent.
+#
+# Must consume the SAME total training compute as the other conditions. If it
+# converges faster, report the wall-clock difference -- do not train it for
+# fewer steps.
+
+defaults: base.yaml
+
+credit_method: monolith
+
+monolith:
+  eps: 1.0e-4

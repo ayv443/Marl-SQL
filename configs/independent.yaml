@@ -1,0 +1,10 @@
+# Baseline. Group-normalised team reward, identical for all three agents.
+#   A_i = (R_i - mean(R)) / (std(R) + eps)
+# Stock trl.GRPOTrainer.
+
+defaults: base.yaml
+
+credit_method: independent
+
+independent:
+  eps: 1.0e-4                    # mandatory: without it std(R)==0 gives NaN

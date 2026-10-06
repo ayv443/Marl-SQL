@@ -1,0 +1,26 @@
+# Pinned per spec Section 2. Both people install from this file, then commit
+# `pip freeze > env/freeze-<name>.txt` so environment drift is diagnosable.
+#
+# Versions left loose on purpose until week 0: pin them to whatever the
+# SageMaker image resolves, record the resolved versions in NOTES.md, and
+# tighten these lines to == afterwards.
+#
+# fp16 only. The T4 is Turing (SM 7.5): no bf16, no flash-attn-2.
+# Do NOT add flash-attn to this file.
+
+torch
+transformers
+peft
+trl
+vllm
+datasets
+accelerate
+
+pyyaml
+gdown
+tensorboard
+gradio
+
+pytest
+
+# sqlite3 is in the standard library. Do not pip install it.

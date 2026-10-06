@@ -1,0 +1,20 @@
+# Our method. Per-agent marginal contribution via default substitution (COMA).
+#   A_raw[k][i] = R_i - R_default[k][i]
+#   A[k][i]     = (A_raw[k][i] - mean(A_raw[k])) / (std(A_raw[k]) + eps)
+#
+# Default substitutions:
+#   selector   -> full unfiltered schema
+#   decomposer -> single-pass generation, no decomposition
+#   refiner    -> skip refinement, use candidate_sql  (FREE)
+
+defaults: base.yaml
+
+credit_method: counterfactual
+
+counterfactual:
+  eps: 1.0e-4
+  cache_selector_default: true   # once per question per step, NOT per episode.
+                                 # false here is the difference between 1.5x and 4x.
+
+training:
+  temperature: 0.9
