@@ -68,10 +68,43 @@ repository**. They live in `docs/` one level up and are shared out of band.
 
 ## Setup
 
+### First time on a new SageMaker space
+
 ```bash
+git clone https://github.com/ayv443/Marl-SQL.git
+cd Marl-SQL
+git checkout <your-branch>
+
+GIT_NAME="Your Name" GIT_EMAIL="you@example.com" bash scripts/dev-setup.sh
+
 pip install -r requirements.txt
 pip freeze > environment/freeze-<yourname>.txt     # commit this
 ```
+
+The first `git push` asks for a username and password. Use your GitHub username and a
+**personal access token** with `repo` scope as the password -- an account password is
+rejected. `dev-setup.sh` enables the credential store, so you are asked once per space.
+
+### Every session after that
+
+```bash
+bash scripts/dev-setup.sh
+```
+
+Idempotent and quick. It matters because a fresh space has no git config and would
+otherwise author your commits as `sagemaker-user`. It also installs the contract-file
+warning hook, and reports Python version, free disk and GPU.
+
+To avoid passing the two variables every time, either put them in `~/.bashrc`:
+
+```bash
+echo 'export GIT_NAME="Your Name"'          >> ~/.bashrc
+echo 'export GIT_EMAIL="you@example.com"'   >> ~/.bashrc
+```
+
+or keep a `my-setup.sh` wrapper at the repo root that exports them and calls the script.
+`dev-setup.sh` excludes that filename from git for you, so it stays local -- which also
+means **it does not come down with a clone**. Recreate it, or use the `~/.bashrc` route.
 
 Everything runs as a module from this directory:
 
