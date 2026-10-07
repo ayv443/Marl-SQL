@@ -67,7 +67,7 @@ def main():
                 table = pd.DataFrame(rows[:50])
                 status = f"{len(rows)} rows in {runtime * 1000:.1f} ms"
                 if gold_rows is not None:
-                    status += "  ✓" if results_match(rows, gold_rows, has_order_by(gold_sql)) else "  ✗"
+                    status += ", correct" if results_match(rows, gold_rows, has_order_by(gold_sql)) else ", wrong"
             outputs += [sql or "(no SQL found)", status, table]
         return outputs
 
@@ -76,7 +76,7 @@ def main():
             db_in = gr.Dropdown(sorted(dbs), label="Database")
             q_in = gr.Textbox(label="Question")
             ev_in = gr.Textbox(label="Evidence / hint (BIRD, optional)")
-            gold_in = gr.Textbox(label="Gold SQL (optional, enables ✓/✗)")
+            gold_in = gr.Textbox(label="Gold SQL (optional, shows correct / wrong)")
             btn = gr.Button("Run all four models")
             outs = []
             with gr.Row():

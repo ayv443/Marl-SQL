@@ -145,6 +145,7 @@ def add_common_args(ap):
     ap.add_argument("--load_4bit", type=int, default=0)
     ap.add_argument("--output_dir", default=None)
     ap.add_argument("--wandb_project", default="text2sql-rl")
+    ap.add_argument("--notify_every", type=int, default=50)
 
 
 def setup_run(method, args):
@@ -162,7 +163,7 @@ def common_training_kwargs(args, run_name, output_dir):
         output_dir=output_dir, run_name=run_name, seed=args.seed,
         learning_rate=args.lr, max_steps=args.max_steps, warmup_ratio=0.03,
         fp16=True, gradient_checkpointing=True, gradient_checkpointing_kwargs={"use_reentrant": False},
-        logging_steps=5, save_steps=args.save_steps, save_total_limit=None,
+        logging_steps=1, save_steps=args.save_steps, save_total_limit=None,
         report_to="wandb",
     )
 

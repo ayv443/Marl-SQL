@@ -25,17 +25,17 @@ neither of you has to wait for the other's GPU.
 Data prep is deterministic (seed 42), so **both** of you run `download_data.sh` + `prepare_data.py`
 and get identical splits. Only these small files travel through git (`.gitignore` already allows them):
 
-| File | From → To | Needed for |
+| File | From -> To | Needed for |
 | --- | --- | --- |
-| `data/processed/tags.json` | B → A | GRPO/RLOO train on "mixed" questions only |
+| `data/processed/tags.json` | B -> A | GRPO/RLOO train on "mixed" questions only |
 | `data/processed/dpo_pairs.jsonl` | B (for DPO) | |
-| `data/processed/filter_log.json`, `passk_train.json` | B → report | Phase 1 numbers |
-| Final LoRA adapters (`final/` or best checkpoint, ~70 MB each) | A → B (Google Drive or S3 link) | B evaluates all four models in one place |
+| `data/processed/filter_log.json`, `passk_train.json` | B -> report | Phase 1 numbers |
+| Final LoRA adapters (`final/` or best checkpoint, ~70 MB each) | A -> B (Google Drive or S3 link) | B evaluates all four models in one place |
 | W&B runs | both, one shared W&B **team** project | Training curves for the report |
 
 ## Day 1 (together, ~2 hours, today)
 
-1. **Both:** request SageMaker quotas in *Service Quotas → Amazon SageMaker*: `ml.g4dn.2xlarge for training job usage`,
+1. **Both:** request SageMaker quotas in *Service Quotas -> Amazon SageMaker*: `ml.g4dn.2xlarge for training job usage`,
    `ml.g4dn.2xlarge for spot training job usage` and `ml.g4dn.2xlarge for notebook instance usage` (or Studio
    JupyterLab apps). Set each to 1. Approval can take days, so do this first.
 2. **A:** create a private GitHub repo, push this `text2sql-rl` folder, add B as a collaborator.
@@ -47,15 +47,15 @@ and get identical splits. Only these small files travel through git (`.gitignore
 
 | Day | Person A | Person B |
 | --- | --- | --- |
-| 1–2 | `download_data.sh`, `prepare_data.py`, `python reward.py --split val`. Try the reward on a few hand-written wrong queries. **Freeze `reward.py`** once you both agree it's right. | `download_data.sh`, `prepare_data.py`. Note the filter counts. `python evaluate.py --split val --limit 50` to check vLLM works (else `--engine hf`). |
-| 2–3 | Upload data to S3 and launch a 20-step test job with `launch_sagemaker.py` to prove the job pipeline works. Smoke test runs with `--only_mixed 0` until B's tags arrive. | **Feasibility run:** `sample.py --split train --n 8`. Report pass@1, pass@8, share of mixed questions. **Go/no-go decision together.** Commit `tags.json`. |
-| 3–4 | Smoke test GRPO + RLOO (50 steps each): s/step, peak memory (`nvidia-smi`). | `make_dpo_pairs.py`, commit pairs. DPO smoke test (50 steps). Baseline eval of the untrained model on spider_dev + bird_dev. |
+| 1-2 | `download_data.sh`, `prepare_data.py`, `python reward.py --split val`. Try the reward on a few hand-written wrong queries. **Freeze `reward.py`** once you both agree it's right. | `download_data.sh`, `prepare_data.py`. Note the filter counts. `python evaluate.py --split val --limit 50` to check vLLM works (else `--engine hf`). |
+| 2-3 | Upload data to S3 and launch a 20-step test job with `launch_sagemaker.py` to prove the job pipeline works. Smoke test runs with `--only_mixed 0` until B's tags arrive. | **Feasibility run:** `sample.py --split train --n 8`. Report pass@1, pass@8, share of mixed questions. **Go/no-go decision together.** Commit `tags.json`. |
+| 3-4 | Smoke test GRPO + RLOO (50 steps each): s/step, peak memory (`nvidia-smi`). | `make_dpo_pairs.py`, commit pairs. DPO smoke test (50 steps). Baseline eval of the untrained model on spider_dev + bird_dev. |
 | 5 | **Together (30 min call):** compare smoke-test timings and **lock the model size** (1.5B or 0.5B for all three) and `max_steps`, so GRPO and RLOO generate the same number of completions and everything fits the deadline. | |
 
-Rough time maths for the call: `full-run hours = s/step × max_steps / 3600`. If a single run is over
-~8–10 h, reduce `max_steps` or move to 0.5B **now**, not halfway through.
+Rough time maths for the call: `full-run hours = s/step x max_steps / 3600`. If a single run is over
+~8-10 h, reduce `max_steps` or move to 0.5B **now**, not halfway through.
 
-## Weeks 2–3: full training
+## Weeks 2-3: full training
 
 - **A:** launch GRPO seed 0 and RLOO seed 0 as SageMaker jobs (spot). Both can run at the same time if
   the quota allows 2 instances, otherwise one after the other. Watch W&B: reward going up, `kl` not exploding,
@@ -69,16 +69,16 @@ Rough time maths for the call: `full-run hours = s/step × max_steps / 3600`. If
 
 - **A:** send final checkpoints to B. Pull the cost numbers (GPU-hours, s/step, peak memory) from W&B/SageMaker.
   pass@k: `sample.py --split spider_dev --n 16 --adapter ... --tag grpo` (and rloo).
-- **B:** `val_curve.py` for all three methods → choose the best checkpoint of each **on val** → evaluate base, DPO,
-  GRPO and RLOO on all 5 benchmarks → official scripts → `analysis.py compare` + `efficiency` (on an idle instance) → fill in both results tables.
+- **B:** `val_curve.py` for all three methods -> choose the best checkpoint of each **on val** -> evaluate base, DPO,
+  GRPO and RLOO on all 5 benchmarks -> official scripts -> `analysis.py compare` + `efficiency` (on an idle instance) -> fill in both results tables.
 
 ## Week 5: add-ons + report
 
 - **Both:** error analysis, ~50 failures for each of your own methods (B also does base).
-- **A:** zero-variance plot, and the DPO→GRPO run (`train_rl.py --init_adapter <dpo adapter>`) if there's time.
+- **A:** zero-variance plot, and the DPO->GRPO run (`train_rl.py --init_adapter <dpo adapter>`) if there's time.
 - **Both:** write your own sections (table above), then do intro/discussion/conclusion together; rehearse the demo.
 
-If the due date is sooner, squash weeks 2–5 together. The must-haves are: Phase 1 numbers, one seed of each method,
+If the due date is sooner, squash weeks 2-5 together. The must-haves are: Phase 1 numbers, one seed of each method,
 val curve, both results tables. Add-ons only after those are done.
 
 ## Rules so the comparison stays fair

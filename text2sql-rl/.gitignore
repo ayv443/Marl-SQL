@@ -4,6 +4,7 @@ wandb/
 outputs/
 eval_repos/
 results/curve/
+/logs/
 # data is big: ignore it, except the small files the two of us must share
 !data/
 data/*
@@ -13,3 +14,8 @@ data/processed/*
 !data/processed/tags.json
 !data/processed/dpo_pairs.jsonl
 !data/processed/passk_train.json
+# proof of training gets committed
+!proof/**/*.log
+!proof/**/*.jsonl
+!proof/**/*.txt
+!proof/**/*.json

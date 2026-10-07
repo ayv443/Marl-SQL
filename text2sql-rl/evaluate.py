@@ -8,6 +8,7 @@ from collections import defaultdict
 from common import PROCESSED_DIR, db_full_path, extract_sql, load_jsonl, save_jsonl
 from generation import Generator
 from reward import R_CORRECT, gold_rows_for, has_order_by, score_many
+from monitor import Monitor
 
 
 def one_line(sql):
@@ -22,8 +23,13 @@ def main():
     ap.add_argument("--engine", default="vllm", choices=["vllm", "hf"])
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--out_dir", default="results")
+    ap.add_argument("--notify", type=int, default=1)
     args = ap.parse_args()
+    with Monitor(f"eval-{args.tag}-{args.split}", settings=vars(args), notify=bool(args.notify)) as mon:
+        run(args, mon)
 
+
+def run(args, mon):
     rows = load_jsonl(f"{PROCESSED_DIR}/{args.split}.jsonl")[:args.limit]
     gen = Generator(args.adapter, args.engine)
     outputs = [o[0] for o in gen.generate([r["prompt"] for r in rows], n=1, temperature=0.0)]
@@ -49,6 +55,7 @@ def main():
         "EX_by_difficulty": {d: sum(v) / len(v) for d, v in by_diff.items()},
     }
     print(json.dumps(metrics, indent=2))
+    mon.result = metrics
 
     out = os.path.join(args.out_dir, args.tag, args.split)
     os.makedirs(out, exist_ok=True)

@@ -9,6 +9,7 @@ from tqdm import tqdm
 
 from common import DATA_DIR, PROCESSED_DIR, build_prompt, db_full_path, save_jsonl
 from reward import _pool, execute
+from monitor import Monitor
 
 SEED = 42
 VAL_TARGET = 400
@@ -104,7 +105,9 @@ def main():
                      "gold_sql": ex["SQL"], "difficulty": ex.get("difficulty")})
     save_jsonl(add_prompts(bird), f"{PROCESSED_DIR}/bird_dev.jsonl")
     print("done ->", PROCESSED_DIR)
+    return {**reasons, "train": len(train), "val": len(val)}
 
 
 if __name__ == "__main__":
-    main()
+    with Monitor("prepare-data") as mon:
+        mon.result = main()

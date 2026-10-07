@@ -13,6 +13,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from monitor import Monitor
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -20,12 +22,16 @@ def main():
     ap.add_argument("--engine", default="vllm")
     ap.add_argument("--include_base", type=int, default=1)
     args = ap.parse_args()
+    with Monitor("val-curve", settings=vars(args)) as mon:
+        run(args, mon)
 
+
+def run(args, mon):
     rows = []
     if args.include_base:  # step 0 = untrained model
         if not os.path.exists("results/base/val/metrics.json"):
             subprocess.run([sys.executable, "evaluate.py", "--split", "val", "--tag", "base",
-                            "--engine", args.engine], check=True)
+                            "--engine", args.engine, "--notify", "0"], check=True)
         base_ex = json.load(open("results/base/val/metrics.json"))["EX"]
 
     for run in args.runs:
@@ -39,7 +45,7 @@ def main():
             metrics_file = f"results/{tag}/val/metrics.json"
             if not os.path.exists(metrics_file):
                 subprocess.run([sys.executable, "evaluate.py", "--split", "val", "--adapter", ck,
-                                "--tag", tag, "--engine", args.engine], check=True)
+                                "--tag", tag, "--engine", args.engine, "--notify", "0"], check=True)
             rows.append({"method": method, "step": step, "val_EX": json.load(open(metrics_file))["EX"]})
             print(rows[-1])
 
@@ -61,6 +67,11 @@ def main():
     plt.tight_layout()
     plt.savefig("results/val_curve.png", dpi=150)
     print("saved results/val_curve.png")
+    best = {}
+    for r in rows:
+        if r["val_EX"] >= best.get(r["method"], {"val_EX": -1})["val_EX"]:
+            best[r["method"]] = r
+    mon.result = {m: f"best val EX {r['val_EX']:.3f} at step {r['step']}" for m, r in best.items()}
 
 
 if __name__ == "__main__":

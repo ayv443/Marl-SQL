@@ -1,6 +1,7 @@
 # GRPO and RLOO training, same settings for both.
 # python train_rl.py --method grpo --max_steps 600
 import argparse
+import os
 import json
 
 from datasets import Dataset
@@ -9,6 +10,7 @@ from trl import GRPOConfig, GRPOTrainer, RLOOConfig, RLOOTrainer
 from common import (MAX_COMPLETION_LEN, MAX_PROMPT_LEN, PROCESSED_DIR, add_common_args,
                     common_training_kwargs, drop_long_prompts, last_checkpoint, load_jsonl,
                     load_model, lora_config, save_final, setup_run)
+from monitor import Monitor, TrainingMonitorCallback
 from reward import execution_reward, valid_sql_reward
 
 
@@ -36,6 +38,11 @@ def main():
     args = ap.parse_args()
 
     run_name, out = setup_run(args.method, args)
+    with Monitor(run_name, os.path.join(out, "logs"), vars(args)) as mon:
+        train(args, run_name, out, mon)
+
+
+def train(args, run_name, out, mon):
     model, tok = load_model(args.model, bool(args.load_4bit))
     peft_config = lora_config(args.lora_rank)
     if args.init_adapter:
@@ -68,6 +75,7 @@ def main():
         train_dataset=dataset,
         processing_class=tok,
         peft_config=peft_config,
+        callbacks=[TrainingMonitorCallback(mon, args.notify_every)],
     )
     trainer.train(resume_from_checkpoint=last_checkpoint(out))
     save_final(trainer, out)

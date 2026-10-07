@@ -7,6 +7,7 @@ from math import comb
 from common import PROCESSED_DIR, db_full_path, extract_sql, load_jsonl, save_jsonl
 from generation import Generator
 from reward import R_CORRECT, gold_rows_for, has_order_by, score_many
+from monitor import Monitor
 
 
 def pass_at_k(n, c, k):
@@ -25,7 +26,11 @@ def main():
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--tag", default="base")
     args = ap.parse_args()
+    with Monitor(f"sample-{args.split}-{args.tag}", settings=vars(args), notify=True) as mon:
+        run(args, mon)
 
+
+def run(args, mon):
     rows = load_jsonl(f"{PROCESSED_DIR}/{args.split}.jsonl")[:args.limit]
     gen = Generator(args.adapter, args.engine)
     outputs = gen.generate([r["prompt"] for r in rows], n=args.n, temperature=args.temperature)
@@ -48,6 +53,7 @@ def main():
         summary[f"share_{t}"] = sum(v == t for v in tags.values()) / len(tags)
     summary["valid_sql_rate"] = sum(ok for _, ok in scores) / len(scores)
     print(json.dumps(summary, indent=2))
+    mon.result = summary
 
     name = f"{args.split}" if args.tag == "base" else f"{args.split}_{args.tag}"
     save_jsonl(samples, f"{PROCESSED_DIR}/samples_{name}.jsonl")

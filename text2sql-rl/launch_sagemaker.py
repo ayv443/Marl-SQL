@@ -8,7 +8,9 @@ import tempfile
 import sagemaker
 from sagemaker.pytorch import PyTorch
 
-CODE_FILES = ["common.py", "reward.py", "train_rl.py", "train_dpo.py", "requirements.txt"]
+from monitor import send_telegram
+
+CODE_FILES = ["common.py", "reward.py", "monitor.py", "train_rl.py", "train_dpo.py", "requirements.txt"]
 
 
 def main():
@@ -52,7 +54,9 @@ def main():
         py_version="py312",
         hyperparameters=hp,
         environment={"WANDB_API_KEY": os.environ.get("WANDB_API_KEY", ""),
-                     "WANDB_PROJECT": "text2sql-rl"},
+                     "WANDB_PROJECT": "text2sql-rl",
+                     "TELEGRAM_BOT_TOKEN": os.environ.get("TELEGRAM_BOT_TOKEN", ""),
+                     "TELEGRAM_CHAT_ID": os.environ.get("TELEGRAM_CHAT_ID", "")},
         checkpoint_s3_uri=f"s3://{bucket}/text2sql/checkpoints/{run}",
         checkpoint_local_path="/opt/ml/checkpoints",
         use_spot_instances=bool(args.spot),
@@ -62,7 +66,9 @@ def main():
         disable_profiler=True,
     )
     est.fit({"data": f"s3://{bucket}/text2sql/data"}, wait=False)
-    print(f"launched {est.latest_training_job.name}  (run={run}, hyperparameters={hp})")
+    job = est.latest_training_job.name
+    print(f"launched {job}  (run={run}, hyperparameters={hp})")
+    send_telegram(f"[{run}] SageMaker job launched: {job}\nhyperparameters: {hp}")
 
 
 if __name__ == "__main__":

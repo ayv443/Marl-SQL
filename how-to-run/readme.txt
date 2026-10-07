@@ -24,6 +24,8 @@ Contents
   15. Common problems
   16. Saving money
   17. SOLO GUIDE: doing the whole project by yourself
+  18. Telegram updates (training progress and errors on your phone)
+  19. Proof of training on AWS (log files)
 
 
 -------------------------------------------------------------
@@ -123,6 +125,11 @@ The T4 has no bf16, so everything runs in fp16.
 
 3.5 Check the GPU:
       nvidia-smi             (should show a Tesla T4)
+
+3.6 (Recommended) Set up Telegram updates now, it takes 5 minutes: see section 18.
+    Then put these lines in ~/SageMaker/.bashrc_t2s too:
+      export TELEGRAM_BOT_TOKEN=<token>
+      export TELEGRAM_CHAT_ID=<chat id>
 
 
 -------------------------------------------------------------
@@ -269,8 +276,12 @@ command again and it resumes from the last checkpoint.
       aws s3 sync data/processed            s3://BUCKET/text2sql/data/processed
       aws s3 sync data/spider_data/database s3://BUCKET/text2sql/data/spider_data/database
 
-8.3 Make sure the W&B key is set in this terminal:
+8.3 Make sure the W&B key and the Telegram settings are set in this terminal
+    (the launcher copies them into the job):
       export WANDB_API_KEY=<your key>
+      export TELEGRAM_BOT_TOKEN=<token>
+      export TELEGRAM_CHAT_ID=<chat id>
+    Or just: source ~/SageMaker/.bashrc_t2s
 
 8.4 Launch (any extra --arguments are passed straight to the training script):
 
@@ -284,6 +295,7 @@ command again and it resumes from the last checkpoint.
     Change 600 to whatever you agreed in step 7. For extra seeds, change --seed 1, 2.
     If your quota is only 1 instance, launch the second job after the first finishes.
     Use --spot 0 if spot jobs keep getting stuck waiting for capacity.
+    By default you get a Telegram update every 50 steps. Change it with e.g. --notify_every 25.
 
 8.5 Watch the jobs:
     - SageMaker console -> Training -> Training jobs -> click the job -> "View logs"
@@ -459,8 +471,13 @@ vLLM error on the T4
 "dropped N examples with prompt > 2048 tokens"
     -> normal, a few Spider databases have huge schemas.
 
+No Telegram messages
+    -> run "python monitor.py --test" in the notebook. If that works but jobs don't send
+       anything, you didn't export TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID before running
+       launch_sagemaker.py (step 8.3). Relaunch the job.
+
 Training job fails straight away
-    -> check the CloudWatch log. Usually: data not uploaded to S3 (step 8.2),
+    -> you get a Telegram message with the error. Also check the CloudWatch log. Usually: data not uploaded to S3 (step 8.2),
        tags.json missing from s3://BUCKET/text2sql/data/processed, or quota not approved.
 
 Training job stuck at "Starting" / "Waiting for spot capacity"
@@ -644,7 +661,7 @@ Make the runs shorter if needed:
 17.6 SOLO CHECKLIST (tick these off)
 ------------------------------------
   [ ] Quota approved for g4dn.2xlarge (notebook + training + spot training)
-  [ ] Repo on GitHub, W&B logged in
+  [ ] Repo on GitHub, W&B logged in, Telegram test message received
   [ ] data/processed created, filter numbers written down
   [ ] reward.py check prints 1.000, reward frozen
   [ ] Feasibility done, GO decision, tags.json + dpo_pairs.jsonl made
@@ -661,5 +678,118 @@ Make the runs shorter if needed:
   [ ] analysis.py compare + efficiency done
   [ ] Results tables filled in
   [ ] Demo works (and a backup video recorded)
+  [ ] Proof collected for every run (section 19)
   [ ] Report written
   [ ] Notebook STOPPED, unneeded S3 files deleted
+
+
+
+-------------------------------------------------------------
+18. TELEGRAM UPDATES (TRAINING PROGRESS AND ERRORS ON YOUR PHONE)
+-------------------------------------------------------------
+Every script sends you plain text messages when it starts, finishes, fails or gets stopped.
+Training also sends progress every 50 steps and a message for every checkpoint.
+It is optional: if the two settings below are not set, nothing is sent and everything
+else works the same.
+
+18.1 Create a bot (once):
+     1. In Telegram, search for @BotFather and open the chat.
+     2. Send:  /newbot
+     3. Give it a name (e.g. text2sql training) and a username ending in "bot"
+        (e.g. eby_text2sql_bot).
+     4. BotFather replies with a token like 1234567890:AAH...  This is TELEGRAM_BOT_TOKEN.
+        Keep it private (anyone with it can send messages as your bot).
+
+18.2 Get your chat id (once):
+     1. Open a chat with your new bot and send it any message, e.g. "hi".
+     2. In a browser open:
+          https://api.telegram.org/bot<TOKEN>/getUpdates
+        (replace <TOKEN> with your token, keep the word "bot" in front of it)
+     3. Find "chat":{"id":123456789 ...  That number is TELEGRAM_CHAT_ID.
+        If the page shows "result":[] send the bot another message and refresh.
+
+18.3 Set them in the notebook terminal (and in ~/SageMaker/.bashrc_t2s):
+      export TELEGRAM_BOT_TOKEN=1234567890:AAH...
+      export TELEGRAM_CHAT_ID=123456789
+
+18.4 Test:
+      python monitor.py --test
+     You should get "test message from SageMaker notebook ... gpu: Tesla T4 ...".
+
+18.5 What you will receive (example):
+      [grpo-1.5b-s0] SageMaker job launched: grpo-1-5b-s0-2026-10-09-01-02-03-456
+      [grpo-1.5b-s0] STARTED
+      where: SageMaker training job grpo-1-5b-s0-2026-... (ml.g4dn.2xlarge)
+      gpu: Tesla T4
+      [grpo-1.5b-s0] training started at step 0 of 600
+      [grpo-1.5b-s0] step 50/600 (8%)
+      24.8 s/step, elapsed 0h 20m 40s, remaining about 3h 47m 20s
+      gpu peak memory: 11.2 GB
+      loss=0.01, reward=0.31, rewards/valid_sql_reward/mean=0.92, kl=0.002, ...
+      [grpo-1.5b-s0] checkpoint saved at step 100
+      [grpo-1.5b-s0] WARNING: loss is NaN at step 230. Consider stopping the run.
+      [grpo-1.5b-s0] FAILED after 1h 2m 3s ... error: <last part of the error message>
+      [grpo-1.5b-s0] STOPPED: SIGTERM received (job stopped or spot instance taken back)
+      [grpo-1.5b-s0] FINISHED after 4h 1m 10s ... last metrics: ...
+
+     Scripts that send messages: train_rl.py, train_dpo.py (via SageMaker or in the
+     notebook), sample.py, evaluate.py, val_curve.py, prepare_data.py, launch_sagemaker.py.
+     val_curve.py runs evaluate.py many times; those inner runs don't message you, only
+     the final result does.
+
+     If you get a STOPPED (SIGTERM) message for a spot job, just run the same
+     launch_sagemaker.py command again and it continues from the last checkpoint.
+
+
+-------------------------------------------------------------
+19. PROOF OF TRAINING ON AWS (LOG FILES)
+-------------------------------------------------------------
+Every run writes three files. For training jobs they are saved next to the checkpoints, so
+they are uploaded to S3 automatically:
+      s3://BUCKET/text2sql/checkpoints/<run name>/logs/
+For notebook runs (smoke tests) they are in outputs/<run name>/logs/, and for sample.py,
+evaluate.py, val_curve.py and prepare_data.py in text2sql-rl/logs/.
+
+  <run>_<time>.log            readable log with a timestamp on every line:
+                              - where it ran: SageMaker training job name + ARN + instance
+                                type (ml.g4dn.2xlarge), or notebook name + EC2 instance id/type
+                              - full nvidia-smi output (shows the Tesla T4)
+                              - all settings / hyperparameters and the exact command
+                              - one line per training step: step, seconds/step, loss,
+                                reward, KL, valid SQL rate, ...
+                              - every checkpoint saved, errors with the full traceback,
+                                and how long the run took
+  <run>_<time>_steps.jsonl    one JSON line per training step with ALL metrics, time,
+                              seconds per step and peak GPU memory (good for plots)
+  <run>_<time>_summary.json   start/end time, duration, status (FINISHED / FAILED /
+                              STOPPED), environment, settings and final metrics
+
+Training logs every single step (logging_steps=1), in these files and in W&B.
+
+19.1 Collect everything for one run into proof/<run name>/ (run in the notebook,
+     after the job has finished):
+      bash collect_proof.sh dpo-1.5b-s0
+      bash collect_proof.sh grpo-1.5b-s0
+      bash collect_proof.sh rloo-1.5b-s0
+
+     Each folder then contains:
+       training_job.json          AWS's own record of the job (from describe-training-job):
+                                  instance type, start/end time, TrainingTimeInSeconds,
+                                  BillableTimeInSeconds, status, hyperparameters
+       training_job_summary.txt   the important parts of that, readable
+       cloudwatch_log.txt         the complete console output of the job, as stored by AWS
+       logs/                      the three files described above
+
+     If the script picks the wrong job (e.g. you ran it twice), pass the job name:
+      bash collect_proof.sh grpo-1.5b-s0 grpo-1-5b-s0-2026-10-09-01-02-03-456
+     (job names are printed by launch_sagemaker.py and shown in the SageMaker console).
+
+19.2 Extra proof you can screenshot for the report / appendix:
+     - SageMaker console -> Training jobs -> the job page (status, instance, billable time)
+     - Billing -> Bills: the SageMaker charges
+     - W&B run page -> System tab (GPU usage over time) and Overview (host name, command)
+
+19.3 Keep the proof safe: commit the proof/ folder to the repo (it is small):
+      git add proof/
+      git commit -m "Training proof for dpo, grpo, rloo"
+      git push

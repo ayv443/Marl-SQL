@@ -1,6 +1,7 @@
 # DPO training on the pairs from make_dpo_pairs.py
 # python train_dpo.py --epochs 1
 import argparse
+import os
 
 from datasets import Dataset
 from trl import DPOConfig, DPOTrainer
@@ -8,6 +9,7 @@ from trl import DPOConfig, DPOTrainer
 from common import (MAX_COMPLETION_LEN, MAX_PROMPT_LEN, PROCESSED_DIR, add_common_args,
                     common_training_kwargs, drop_long_prompts, last_checkpoint, load_jsonl,
                     load_model, lora_config, save_final, setup_run)
+from monitor import Monitor, TrainingMonitorCallback
 
 
 def main():
@@ -19,6 +21,11 @@ def main():
     args = ap.parse_args()
 
     run_name, out = setup_run("dpo", args)
+    with Monitor(run_name, os.path.join(out, "logs"), vars(args)) as mon:
+        train(args, run_name, out, mon)
+
+
+def train(args, run_name, out, mon):
     model, tok = load_model(args.model, bool(args.load_4bit))
 
     pairs = load_jsonl(f"{PROCESSED_DIR}/dpo_pairs.jsonl")
@@ -37,7 +44,8 @@ def main():
     )
     # with LoRA the reference model is just the base model with the adapter off
     trainer = DPOTrainer(model=model, ref_model=None, args=config, train_dataset=dataset,
-                         processing_class=tok, peft_config=lora_config(args.lora_rank))
+                         processing_class=tok, peft_config=lora_config(args.lora_rank),
+                         callbacks=[TrainingMonitorCallback(mon, args.notify_every)])
     trainer.train(resume_from_checkpoint=last_checkpoint(out))
     save_final(trainer, out)
 

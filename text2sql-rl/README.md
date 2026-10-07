@@ -9,20 +9,22 @@ Who does what is in [TEAM_PLAN.md](TEAM_PLAN.md).
 | File | What it does | Plan phase |
 | --- | --- | --- |
 | `common.py` | Paths, prompt + schema format, SQL extraction, model/LoRA loading, shared training config | all |
-| `reward.py` | **The shared reward** (+1 / 0 / −0.1), read-only SQLite, 5 s timeout, 8 workers. Freeze after Phase 1 | 1 |
+| `reward.py` | **The shared reward** (+1 / 0 / -0.1), read-only SQLite, 5 s timeout, 8 workers. Freeze after Phase 1 | 1 |
 | `download_data.sh` | Spider, test-suite DBs, BIRD dev, Spider-Syn/DK, official eval repos | 1 |
 | `prepare_data.py` | Filters train, holds out ~400 val questions by DB, caches gold results, builds prompts | 1 |
 | `generation.py` | vLLM or HF generation (with or without a LoRA adapter) | 1, 4 |
 | `sample.py` | Feasibility run (8 samples/question, pass@k, mixed tags); also the pass@k add-on | 1 |
 | `make_dpo_pairs.py` | DPO pairs from the feasibility samples | 2 |
-| `train_dpo.py` | DPO | 2–3 |
-| `train_rl.py` | GRPO **and** RLOO (`--method grpo/rloo`), same settings for both | 2–3 |
+| `train_dpo.py` | DPO | 2-3 |
+| `train_rl.py` | GRPO **and** RLOO (`--method grpo/rloo`), same settings for both | 2-3 |
 | `launch_sagemaker.py` | Runs a training script as a detached SageMaker Training Job (spot + S3 checkpoints) | 3 |
 | `val_curve.py` | Evaluates every checkpoint on the val slice and plots the shared curve | 3 |
 | `evaluate.py` | Greedy eval: EX, valid-SQL rate, EX by difficulty, prediction files for the official scripts | 4 |
 | `run_official_eval.sh` | Official Spider EX + Test-Suite; how to run the BIRD EX/Soft-F1/R-VES scripts | 4 |
 | `analysis.py` | Bootstrap CIs, McNemar, commonly-correct efficiency analysis | 4, add-ons |
 | `app.py` | Gradio demo (4 models side by side) | 8 |
+| `monitor.py` | Telegram messages (start, progress, checkpoints, errors) + log files of every step | all |
+| `collect_proof.sh` | Collects AWS proof of a training run (job record, CloudWatch log, step logs) | 3 |
 
 ## Order to run things
 
@@ -43,7 +45,7 @@ python sample.py --split train --limit 50 --n 8   # 2-minute test first
 python sample.py --split train --n 8 --temperature 0.8
 python make_dpo_pairs.py
 
-# 3. smoke tests, ~50 steps each (Phase 3) — note s/step and peak memory (nvidia-smi)
+# 3. smoke tests, ~50 steps each (Phase 3) - note s/step and peak memory (nvidia-smi)
 python train_dpo.py --max_steps 50
 python train_rl.py --method grpo --max_steps 50
 python train_rl.py --method rloo --max_steps 50
@@ -77,11 +79,11 @@ python analysis.py efficiency --split bird_dev
 
 ## Settings worth stating in the report
 
-- Same prompt, LoRA (r=16, α=32, all attention + MLP projections), lr, fp16 and completion length (256) for all methods.
-- GRPO and RLOO: 4 completions/question, temperature 0.8, KL β = 0.04 (set explicitly; TRL's GRPO default is 0),
-  4 prompts (16 completions) per step, same `--max_steps` → same number of generated completions.
+- Same prompt, LoRA (r=16, alpha=32, all attention + MLP projections), lr, fp16 and completion length (256) for all methods.
+- GRPO and RLOO: 4 completions/question, temperature 0.8, KL beta = 0.04 (set explicitly; TRL's GRPO default is 0),
+  4 prompts (16 completions) per step, same `--max_steps` -> same number of generated completions.
 - TRL 0.24 GRPO uses `loss_type="dapo"` and `scale_rewards="group"` by default; RLOO uses no std normalisation.
-- DPO β = 0.1 is the DPO temperature, not a KL penalty coefficient.
+- DPO beta = 0.1 is the DPO temperature, not a KL penalty coefficient.
 - A second reward function, `valid_sql_reward`, has weight 0. It does not affect training; it is only there so
   W&B logs the valid-SQL rate. Other things to watch in W&B: `reward`, `kl`, `completions/mean_length`,
   `frac_reward_zero_std` (zero-variance groups) and `entropy`.
