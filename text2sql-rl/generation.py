@@ -9,7 +9,7 @@ class Generator:
         if engine == "vllm":
             from vllm import LLM
             from vllm.lora.request import LoRARequest
-            self.llm = LLM(model=base, dtype="half", gpu_memory_utilization=0.85, max_model_len=8192,
+            self.llm = LLM(model=base, dtype="half", gpu_memory_utilization=0.85, max_model_len=32768,
                            enable_prefix_caching=True, seed=0, enable_lora=adapter is not None, max_lora_rank=64)
             if adapter:
                 self.lora = LoRARequest("adapter", 1, adapter)

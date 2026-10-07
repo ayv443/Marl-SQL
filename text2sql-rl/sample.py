@@ -4,7 +4,8 @@ import argparse
 import json
 from math import comb
 
-from common import PROCESSED_DIR, db_full_path, extract_sql, load_jsonl, save_jsonl
+from common import (MAX_PROMPT_LEN, PROCESSED_DIR, db_full_path, extract_sql, load_jsonl,
+                    prompt_token_lengths, save_jsonl)
 from generation import Generator
 from reward import R_CORRECT, gold_rows_for, has_order_by, score_many
 from monitor import Monitor
@@ -32,6 +33,13 @@ def main():
 
 def run(args, mon):
     rows = load_jsonl(f"{PROCESSED_DIR}/{args.split}.jsonl")[:args.limit]
+    if args.split == "train":
+        # training drops prompts longer than MAX_PROMPT_LEN, so skip them here as well
+        lengths = prompt_token_lengths([r["prompt"] for r in rows])
+        keep = [r for r, n in zip(rows, lengths) if n <= MAX_PROMPT_LEN]
+        print(f"skipping {len(rows) - len(keep)} of {len(rows)} questions with prompt > {MAX_PROMPT_LEN} tokens")
+        mon.result["skipped_long_prompts"] = len(rows) - len(keep)
+        rows = keep
     gen = Generator(args.adapter, args.engine)
     outputs = gen.generate([r["prompt"] for r in rows], n=args.n, temperature=args.temperature)
 
@@ -53,7 +61,7 @@ def run(args, mon):
         summary[f"share_{t}"] = sum(v == t for v in tags.values()) / len(tags)
     summary["valid_sql_rate"] = sum(ok for _, ok in scores) / len(scores)
     print(json.dumps(summary, indent=2))
-    mon.result = summary
+    mon.result.update(summary)
 
     name = f"{args.split}" if args.tag == "base" else f"{args.split}_{args.tag}"
     save_jsonl(samples, f"{PROCESSED_DIR}/samples_{name}.jsonl")

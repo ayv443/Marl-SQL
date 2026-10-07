@@ -28,7 +28,11 @@ WHERE WE ARE (updated as we go)
   [x] GRPO plan, CLAUDE.md and code bundle sent to the teammate.
   [x] 6.1 failure check: only 3 of 400 attempts "no SQL found", 94 real SQL errors
       (wrong tables/columns). Reward is fine.
-  [ ] NOW: section 6.2 full feasibility run (about 1.5 h), started 7 Oct.
+  [x] First full feasibility attempt crashed: a few training prompts are ~8,850 tokens
+      (huge schemas), more than vLLM's 8,192 limit. Fixed: sample.py now skips training
+      questions with prompts > 2048 tokens (training drops those anyway) and vLLM allows
+      32,768 tokens (for BIRD evaluation). git pull, then restart 6.2.
+  [ ] NOW: section 6.2 full feasibility run (about 1.5 h).
   [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, send tags.json (+ its sha256sum) to the teammate.
   [ ] Then: section 7 smoke tests for DPO and RLOO (teammate does GRPO), agree model size
       and max_steps with her, section 8 launch DPO + RLOO.
@@ -331,7 +335,10 @@ EOF
     6.3 attempts per second on the T4. Re-run the test after the fix (git pull first); with
     the new extraction pass@1 and valid_sql_rate go up and the mixed share may change.
 
-6.2 Full run. 6631 questions x 8 attempts = about 53,000 attempts, roughly 2-2.5 hours
+6.2 Full run. It first prints "skipping N of 6631 questions with prompt > 2048 tokens":
+    those questions have huge database schemas and are dropped by all three trainers too,
+    so they are not sampled either. Write N down for the report.
+    6631 questions x 8 attempts = about 53,000 attempts, roughly 2-2.5 hours
     with vLLM on the T4 (several hours more with --engine hf),
     so run it in the background so closing the browser doesn't kill it:
       nohup python sample.py --split train --n 8 --temperature 0.8 > logs_sample.txt 2>&1 &
@@ -621,8 +628,12 @@ Loss is NaN
 vLLM error on the T4
     -> use --engine hf in sample.py, evaluate.py and val_curve.py.
 
-"dropped N examples with prompt > 2048 tokens"
-    -> normal, a few Spider databases have huge schemas.
+"dropped N examples with prompt > 2048 tokens"  /  "skipping N of 6631 questions ..."
+    -> normal, a few Spider databases have huge schemas. Same cut-off everywhere.
+
+"ValueError: The decoder prompt (length ...) is longer than the maximum model length"
+    -> you have old code (vLLM limit 8192). git pull: the limit is now 32768 and sample.py
+       skips over-long training prompts.
 
 Training job fails at the start with "wandb: ERROR api_key not configured (no-tty)"
     -> the job got no W&B key: run "source ~/SageMaker/.bashrc_t2s" (or export

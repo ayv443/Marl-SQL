@@ -173,6 +173,12 @@ def common_training_kwargs(args, run_name, output_dir):
     )
 
 
+def prompt_token_lengths(prompts, model_name=MODEL_NAME):
+    from transformers import AutoTokenizer
+    tok = AutoTokenizer.from_pretrained(model_name)
+    return [len(tok.apply_chat_template(p, tokenize=True, add_generation_prompt=True)) for p in prompts]
+
+
 def drop_long_prompts(dataset, tok, max_len=MAX_PROMPT_LEN):
     def fits(ex):
         ids = tok.apply_chat_template(ex["prompt"], tokenize=True, add_generation_prompt=True)
