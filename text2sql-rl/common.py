@@ -99,9 +99,12 @@ def completion_text(completion):
 
 
 def extract_sql(text):
-    m = re.search(r"<answer>(.*?)(</answer>|$)", text, re.S | re.I)
+    # 1) inside <answer> tags, 2) inside a ``` block, 3) plain SQL starting a line
+    m = re.search(r"<answer>(.*?)(?:</answer>|$)", text, re.S | re.I)
     if m is None:
         m = re.search(r"```(?:sql)?(.*?)```", text, re.S | re.I)
+    if m is None:
+        m = re.search(r"^\s*((?:SELECT|WITH)\b.*?)(?:;|\n\s*\n|\Z)", text, re.S | re.I | re.M)
     if m is None:
         return None
     sql = m.group(1).strip().rstrip(";").strip()

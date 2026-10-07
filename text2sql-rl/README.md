@@ -89,3 +89,4 @@ python analysis.py efficiency --split bird_dev
   `frac_reward_zero_std` (zero-variance groups) and `entropy`.
 - Timeout uses SQLite's progress handler inside a thread pool, not one process per query (safe inside the training process).
 - BIRD prompts include the evidence hints.
+- SQL is taken from `<answer>` tags, a ``` block, or plain SQL starting a line (the untrained model mostly ignores the tags), so the reward checks the result, not the format.

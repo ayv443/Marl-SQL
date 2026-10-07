@@ -265,12 +265,45 @@ EOF
 -------------------------------------------------------------
 6. FEASIBILITY RUN (GO / NO-GO) AND DPO PAIRS   (Person B)
 -------------------------------------------------------------
-6.1 Quick test on 50 questions first (couple of minutes):
+6.1 Quick test on 50 questions first (about 3 minutes, the first time also downloads the
+    3 GB model):
       python sample.py --split train --limit 50 --n 8
-    If vLLM crashes, add --engine hf to every sample.py / evaluate.py / val_curve.py
-    command from now on (slower, but works).
 
-6.2 Full run. This takes a while (roughly 1 h with vLLM, several hours with --engine hf),
+    vLLM works on the T4. You will see this line, it is harmless (vLLM just uses a
+    different attention method, "Using FlexAttention backend"):
+      ERROR ... Cannot use FA version 2 ... compute capability >= 8
+    Only if vLLM really crashes: add --engine hf to every sample.py / evaluate.py /
+    val_curve.py command from now on (slower, but works).
+
+    Check valid_sql_rate in the output. It should be high (roughly 0.8-0.9). If it is low,
+    the model is probably writing SQL in a format extract_sql() in common.py doesn't
+    recognise. See why attempts failed with:
+
+python - <<'EOF'
+import json
+from collections import Counter
+from common import extract_sql
+rows = [json.loads(l) for l in open("data/processed/samples_train.jsonl")]
+bad = [c for r in rows for c, rw in zip(r["completions"], r["rewards"]) if rw < 0]
+print(len(bad), "failed attempts out of", sum(len(r["completions"]) for r in rows))
+print(Counter("no SQL found" if extract_sql(c) is None else "SQL found but errored" for c in bad))
+for c in bad[:6]:
+    print("-----\n" + c)
+EOF
+
+    What happened to us (7 Oct): the first test gave valid_sql_rate 0.29 because the
+    untrained model answers with plain "SELECT ..." and ignores the <answer> tags, and the
+    first version of extract_sql() only looked inside tags or ``` blocks (245 of 284
+    failures were "no SQL found"). extract_sql() now also accepts plain SQL that starts a
+    line. This was fixed before any training, so all three methods use the same version.
+    Mention it in the report: the reward checks the SQL result, not the answer format.
+
+    Our 50-question test (old extraction): pass@1 0.245, pass@8 0.60, 58% mixed, about
+    6.3 attempts per second on the T4. Re-run the test after the fix (git pull first); with
+    the new extraction pass@1 and valid_sql_rate go up and the mixed share may change.
+
+6.2 Full run. 6631 questions x 8 attempts = about 53,000 attempts, roughly 2-2.5 hours
+    with vLLM on the T4 (several hours more with --engine hf),
     so run it in the background so closing the browser doesn't kill it:
       nohup python sample.py --split train --n 8 --temperature 0.8 > logs_sample.txt 2>&1 &
       tail -f logs_sample.txt          (Ctrl+C stops watching, not the job)
