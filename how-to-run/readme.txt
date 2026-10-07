@@ -32,7 +32,8 @@ Contents
 - An AWS account with SageMaker (both of us have one).
 - A GitHub account.
 - A Weights & Biases (wandb.ai) account, free is fine.
-- About 100 GB of disk on the notebook (datasets + models + checkpoints).
+- About 50 GB of disk on the notebook (datasets + models + checkpoints). 30-40 GB also
+  works if you follow the space-saving tips in section 16.
 
 Instance used everywhere: ml.g4dn.2xlarge = 1 x NVIDIA T4 (16 GB), 8 vCPUs, 32 GB RAM.
 The T4 has no bf16, so everything runs in fp16.
@@ -90,7 +91,7 @@ The T4 has no bf16, so everything runs in fp16.
 3.1 SageMaker console -> Notebooks -> Notebook instances -> Create notebook instance
       Name:            text2sql-<yourname>
       Instance type:   ml.g4dn.2xlarge   (ml.t3.xlarge while waiting for quota)
-      Volume size:     100 GB
+      Volume size:     50 GB
       IAM role:        the one from step 1.3
     Wait until it says InService, then click "Open JupyterLab".
 
@@ -106,7 +107,9 @@ The T4 has no bf16, so everything runs in fp16.
 
       conda create -p ~/SageMaker/envs/t2s python=3.11 -y
       source activate ~/SageMaker/envs/t2s
-      pip install -r requirements.txt vllm==0.10.2 matplotlib scipy gradio pandas "sagemaker<3" gdown
+      pip install --no-cache-dir -r requirements.txt vllm==0.10.2 matplotlib scipy gradio pandas "sagemaker<3" gdown
+
+    --no-cache-dir stops pip keeping a second copy of every download, which saves a few GB.
 
     Every time you open a new terminal later, run:
       cd ~/SageMaker/text2sql-rl
@@ -486,6 +489,20 @@ KeyError: 'train_1234' (or similar) from reward.py
 - Training jobs use spot by default, which is a lot cheaper than on-demand.
 - Set an AWS budget alert: Billing -> Budgets -> Create budget.
 - At the end of the project, delete the S3 checkpoints you don't need.
+
+Disk space on the notebook (rough sizes):
+    Python environment ............ 8-10 GB
+    Qwen 1.5B model ............... ~3 GB
+    Spider + test-suite + BIRD .... ~6-8 GB
+    Checkpoints (1 seed, 3 methods) ~4 GB
+    Everything else ............... ~1-2 GB
+    Total ......................... ~25-30 GB
+  To save space:
+    - always pip install with --no-cache-dir
+    - train with --save_steps 200 (half as many checkpoints)
+    - delete checkpoints of runs you're finished with (rm -rf outputs/<run>/checkpoint-*)
+    - check free space with: df -h ~/SageMaker
+  Training jobs have their own 30 GB disk, so they don't use the notebook's space.
 
 
 =============================================================

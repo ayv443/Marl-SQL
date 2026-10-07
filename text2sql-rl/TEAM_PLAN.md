@@ -40,7 +40,7 @@ and get identical splits. Only these small files travel through git (`.gitignore
    JupyterLab apps). Set each to 1. Approval can take days, so do this first.
 2. **A:** create a private GitHub repo, push this `text2sql-rl` folder, add B as a collaborator.
 3. **B:** create a W&B team, invite A, create project `text2sql-rl`.
-4. **Both:** start a notebook (g4dn.2xlarge, 100 GB disk), clone the repo, run the setup line from the README.
+4. **Both:** start a notebook (g4dn.2xlarge, 50 GB disk), clone the repo, run the setup line from the README.
    If GPU quota isn't approved yet, use an `ml.t3.xlarge` CPU notebook for data prep (it needs no GPU).
 
 ## Week 1: get everything running

@@ -30,7 +30,7 @@ All commands run from this folder in a SageMaker notebook/JupyterLab terminal (m
 
 ```bash
 # 0. setup
-pip install -r requirements.txt vllm==0.10.2 matplotlib scipy gradio pandas "sagemaker<3" gdown
+pip install --no-cache-dir -r requirements.txt vllm==0.10.2 matplotlib scipy gradio pandas "sagemaker<3" gdown
 wandb login
 
 # 1. data (Phase 1)
