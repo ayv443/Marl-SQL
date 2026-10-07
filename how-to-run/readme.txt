@@ -58,8 +58,10 @@ WHERE WE ARE (updated as we go)
       errors, checkpoint saving works. Loss 0.693 -> ~0.33-0.50, preference accuracy
       0 -> ~0.8, reward margin 0 -> ~1.0-1.6. Full DPO (~495 steps) = about 4 h 15 min.
   [ ] NOW: delete the smoke output (rm -rf outputs/, and the smoke run in W&B), start the
-      full DPO run (section 8.2). Teammates: setup + GRPO / RLOO smoke tests, then agree
-      max_steps (GRPO = RLOO) and start their runs. (Second attempt failed because
+      full DPO run (section 8.2). Teammates: setup + GRPO / RLOO smoke tests.
+  [x] Decided 8 Oct: 1.5B model, max_steps 600 for both GRPO and RLOO. If their smoke test
+      passes (rules in their plan, section 10.3) they start the full run without waiting.
+      Their real run must print "training on 3457 questions (only_mixed=True)". (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
   [ ] Then: section 7 DPO smoke test (they do GRPO / RLOO smoke tests), agree model size and

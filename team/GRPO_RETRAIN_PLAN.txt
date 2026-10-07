@@ -114,12 +114,7 @@ These are the same for DPO, GRPO and RLOO. Do not change any of them on your own
   Checkpoint every .............. 100 steps (default --save_steps 100)
   Reward ........................ +1 correct result, 0 wrong result, -0.1 error/no SQL/timeout
 
-  (*) Final model size and max_steps are agreed with Eby (and the other trainer) after the
-      smoke tests (section 10). Write the agreed values here:
-
-        Model:      ______________________________
-        max_steps:  ______________________________
-        Agreed on:  ______________  (date)
+  (*) Fixed on 8 Oct (section 10.3): 1.5B model, max_steps 600 for both GRPO and RLOO.
 
 The run will be called  grpo-1.5b-s0  (or grpo-0.5b-s0). The scripts name it automatically
 from the method, model and seed.
@@ -381,12 +376,19 @@ so it isn't confused with the real run.
 
 10.2 Check tags.json:
       python -c "import json, collections; t=json.load(open('data/processed/tags.json')); print(len(t), collections.Counter(t.values()))"
-     It prints the number of tagged questions (5732) and how many are all_wrong / mixed /
-     all_right. Send Eby the "mixed" count to confirm you have the same file.
+     It must print 5732 questions with mixed 3457 (all_wrong 890, all_right 1385). If not,
+     STOP and tell Eby.
 
-10.3 Agree the final model size and max_steps with Eby (based on the smoke tests) and write
-     them in section 1. GRPO and RLOO must use the SAME max_steps. If the model size changes
-     to 0.5B, Eby redoes the feasibility run with 0.5B and you pull a new tags.json.
+10.3 Decided 8 Oct: model Qwen2.5-Coder-1.5B-Instruct and max_steps 600 for BOTH GRPO and
+     RLOO, whatever your seconds per step is. You don't need to wait for Eby: if your smoke
+     test (section 9) PASSES, start the full run (sections 11-12) right away.
+     The smoke test PASSES if all of these are true:
+       - it reaches step 50 and the log ends with "FINISHED after ..."
+       - no nan in the loss and no "WARNING: loss is NaN"
+       - no errors (CUDA out of memory, cuda.h / Triton, fp16 / "unscale")
+       - peak GPU memory below 14.5 GB (the script in section 9 prints it)
+     If it FAILS: don't change any code or settings (no other lr, no 4-bit, no fewer steps).
+     Send Eby the last 50 lines of the newest outputs/*/logs/*.log and wait.
 
 
 -------------------------------------------------------------
@@ -424,7 +426,8 @@ so it isn't confused with the real run.
 12.3 Check it started properly (first minutes):
       tail -f logs_grpo.txt        (Ctrl+C stops watching, not the run)
      You should see, in this order: the environment and nvidia-smi output, your settings
-     (lr 5e-05, max_steps, method grpo), "training on N questions (only_mixed=True)",
+     (lr 5e-05, max_steps, method grpo), "training on 3457 questions (only_mixed=True)"
+     (if it's not 3457: stop it with pkill -f train_rl.py and tell Eby),
      "dropped 0 examples with prompt > 2048 tokens", the wandb "View run at ..." line,
      "training started at step 0, max_steps=600", then one line per step.
      Send Eby the "training on N questions" number and the W&B run link.
