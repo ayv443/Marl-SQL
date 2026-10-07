@@ -52,8 +52,14 @@ WHERE WE ARE (updated as we go)
       For max_steps: ~3460 mixed questions / 4 per step = ~865 steps per pass over the data.
   [x] 6.4 DPO pairs: 7917 pairs from 4347 questions (890 used the gold SQL as "chosen",
       exactly the all_wrong questions). 1 DPO epoch = 7917 / 16 = ~495 steps.
-  [ ] NOW: set git identity and push tags.json (6.5), tell both teammates to git pull.
-      Then the DPO smoke test (section 7). (Second attempt failed because
+  [x] tags.json pushed (6.5); teammates told to start their setup now.
+  [x] DPO smoke test (7 Oct): 50 steps in 26.6 min, ~31 s/step, peak GPU 11.84 GB of ~15 GB,
+      no NaN / fp16 / Triton
+      errors, checkpoint saving works. Loss 0.693 -> ~0.33-0.50, preference accuracy
+      0 -> ~0.8, reward margin 0 -> ~1.0-1.6. Full DPO (~495 steps) = about 4 h 15 min.
+  [ ] NOW: delete the smoke output (rm -rf outputs/, and the smoke run in W&B), start the
+      full DPO run (section 8.2). Teammates: setup + GRPO / RLOO smoke tests, then agree
+      max_steps (GRPO = RLOO) and start their runs. (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
   [ ] Then: section 7 DPO smoke test (they do GRPO / RLOO smoke tests), agree model size and
