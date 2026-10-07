@@ -27,7 +27,7 @@ temperature 0.8, beta 0.04, only "mixed" questions from `tags.json`, the **same*
 | `tags.json` | Eby commits it after the feasibility run; the others `git pull`. |
 | Code check | Before launching, each trainer sends Eby `git log -1` (must be the latest commit) and a clean `git status`. |
 | Training proof | Each trainer runs `collect_proof.sh` and pushes `proof/<run>/` to their own branch (`grpo-run`, `rloo-run`). |
-| Checkpoints | A temporary S3 download link (too big for git). Eby checks them with section 22 of their plan. |
+| Checkpoints | A Google Drive link to a .tar.gz of the adapter files (~0.5 GB, too big for git). Eby checks them with section 22 of their plan. |
 | W&B | One team project `text2sql-rl` (or public personal projects if a team isn't possible). |
 
 ## Order
@@ -35,7 +35,7 @@ temperature 0.8, beta 0.04, only "mixed" questions from `tags.json`, the **same*
 1. Eby: feasibility run, go/no-go, DPO pairs, push `tags.json`.
 2. Teammates (meanwhile): setup, data prep (numbers must match: 7040 / 6631 / 409), reward check, 50-step smoke test.
 3. All: compare smoke-test timings, agree model size and `max_steps`.
-4. All: launch DPO, GRPO, RLOO as SageMaker jobs at the same time.
+4. All: start DPO, GRPO, RLOO inside your own Studio space (nohup) at the same time. No S3, no training jobs.
 5. Teammates: proof to their branch, checkpoint links to Eby. Aditya: demo while RLOO trains.
 6. Eby: validation curve, final evaluation, statistics, results tables. Then the report together.
 

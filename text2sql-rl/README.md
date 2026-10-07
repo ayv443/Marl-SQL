@@ -17,14 +17,14 @@ Who does what is in [TEAM_PLAN.md](TEAM_PLAN.md).
 | `make_dpo_pairs.py` | DPO pairs from the feasibility samples | 2 |
 | `train_dpo.py` | DPO | 2-3 |
 | `train_rl.py` | GRPO **and** RLOO (`--method grpo/rloo`), same settings for both | 2-3 |
-| `launch_sagemaker.py` | Runs a training script as a detached SageMaker Training Job (spot + S3 checkpoints) | 3 |
+| `launch_sagemaker.py` | Optional: runs training as a SageMaker Training Job (needs S3). Not used: we train inside Studio | - |
 | `val_curve.py` | Evaluates every checkpoint on the val slice and plots the shared curve | 3 |
 | `evaluate.py` | Greedy eval: EX, valid-SQL rate, EX by difficulty, prediction files for the official scripts | 4 |
 | `run_official_eval.sh` | Official Spider EX + Test-Suite; how to run the BIRD EX/Soft-F1/R-VES scripts | 4 |
 | `analysis.py` | Bootstrap CIs, McNemar, commonly-correct efficiency analysis | 4, add-ons |
 | `app.py` | Gradio demo (4 models side by side) | 8 |
 | `monitor.py` | Telegram messages (start, progress, checkpoints, errors) + log files of every step | all |
-| `collect_proof.sh` | Collects AWS proof of a training run (job record, CloudWatch log, step logs) | 3 |
+| `collect_proof.sh` | Collects proof of a training run done in Studio (step logs, checkpoint histories, Studio space, AWS identity, code commit, versions) | 3 |
 
 ## Order to run things
 
@@ -46,17 +46,17 @@ python sample.py --split train --n 8 --temperature 0.8
 python make_dpo_pairs.py
 
 # 3. smoke tests, ~50 steps each (Phase 3) - note s/step and peak memory (nvidia-smi)
-python train_dpo.py --max_steps 50
-python train_rl.py --method grpo --max_steps 50
-python train_rl.py --method rloo --max_steps 50
+python train_dpo.py --max_steps 50 --lr 5e-5
+python train_rl.py --method grpo --max_steps 50 --lr 5e-5
+python train_rl.py --method rloo --max_steps 50 --lr 5e-5
 
-# 4. full runs as SageMaker jobs
-python launch_sagemaker.py --script train_dpo.py --seed 0
-python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps 600
-python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps 600
+# 4. full runs inside the Studio space, in the background (each person their own method)
+nohup python train_dpo.py --lr 5e-5 --seed 0 > logs_dpo.txt 2>&1 &
+nohup python train_rl.py --method grpo --seed 0 --max_steps 600 --lr 5e-5 > logs_grpo.txt 2>&1 &
+nohup python train_rl.py --method rloo --seed 0 --max_steps 600 --lr 5e-5 > logs_rloo.txt 2>&1 &
+bash collect_proof.sh dpo-1.5b-s0      # after each run finishes
 
-# 5. evaluation (Phase 4)
-aws s3 sync s3://<bucket>/text2sql/checkpoints/grpo-1.5b-s0 outputs/grpo-1.5b-s0   # same for dpo, rloo
+# 5. evaluation (Phase 4); GRPO / RLOO adapters arrive via Google Drive (readme.txt section 14)
 python val_curve.py --runs outputs/dpo-1.5b-s0 outputs/grpo-1.5b-s0 outputs/rloo-1.5b-s0
 python evaluate.py --split spider_dev --tag base
 python evaluate.py --split spider_dev --tag grpo --adapter outputs/grpo-1.5b-s0/checkpoint-XXX   # best on val

@@ -40,10 +40,11 @@ WHERE WE ARE (updated as we go)
   [x] 899 of 6631 training questions have prompts > 2048 tokens (a few databases with very
       big schemas) and are skipped by sampling and by all three trainers: 5,732 training
       questions remain. Same subset for every method; eval sets are not cut.
-  [x] S3 checked (8 Oct): shared course AWS account, bucket
-      sagemaker-ap-southeast-2-443142193439 is writable, default_bucket() works in t2s.
-      Training jobs not tested yet (first launch will show it).
-  [ ] NOW: section 6.2 full feasibility run (about 1.5 h). Meanwhile: upload data to S3 (8.2). (Second attempt failed because
+  [x] S3 checked (8 Oct): shared course AWS account, bucket writable.
+  [x] Decided 8 Oct: NO S3 / training jobs for anyone. Everyone trains inside their own
+      Studio space with nohup (section 8), proof with collect_proof.sh (section 19),
+      teammates share adapters via Google Drive (section 14).
+  [ ] NOW: section 6.2 full feasibility run. (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
   [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, 6.5 commit + push tags.json, tell both to git pull.
@@ -60,13 +61,13 @@ Contents
   5. Check the reward function
   6. Feasibility run (go / no-go) and DPO pairs
   7. Smoke tests (50 steps of each method)
-  8. Full training as SageMaker training jobs
-  9. Getting the trained models back
+  8. Full training inside your Studio space (no S3)
+  9. Getting the trained models together
   10. Validation curve and picking the best checkpoint
   11. Final evaluation (Spider, variants, BIRD)
   12. Statistics, pass@k and efficiency analysis
   13. Gradio demo
-  14. Sharing files between the two of us
+  14. Sharing files between us
   15. Common problems
   16. Saving money
   17. SOLO GUIDE: doing the whole project by yourself
@@ -91,22 +92,20 @@ The T4 has no bf16, so everything runs in fp16.
 1. AWS SETUP (BOTH PEOPLE, DO THIS FIRST)
 -------------------------------------------------------------
 1.1 Pick one region and stay in it the whole project (e.g. us-east-1 or ap-southeast-2).
-    Everything (Studio, S3 bucket, training jobs) must be in the same region.
+    (Our course account uses ap-southeast-2, Sydney.)
 
 1.2 Request GPU quota. In the AWS console:
       Service Quotas -> AWS services -> Amazon SageMaker
-    Search for and request an increase to 1 (or 2 if you want two jobs at once) for:
+    Search for and request an increase to 1 for:
       - Studio JupyterLab Apps running on ml.g4dn.2xlarge instance
         (called "ml.g4dn.2xlarge for notebook instance usage" if you use notebook instances)
-      - ml.g4dn.2xlarge for training job usage
-      - ml.g4dn.2xlarge for spot training job usage
+    Training job quotas are not needed: we train inside Studio (section 8).
     This can take a few days. While waiting, you can do steps 2-5 on a cheap CPU
     space (ml.t3.xlarge). Data prep does not need a GPU.
 
-1.3 IAM role. Studio runs with the execution role of your SageMaker domain
-    (AmazonSageMaker-ExecutionRole-...). It needs the AmazonSageMakerFullAccess policy
-    (it has it by default) so it can use S3 and launch training jobs. If
-    launch_sagemaker.py says AccessDenied, attach that policy to the role in IAM.
+1.3 IAM role. Studio runs with the course's execution role
+    (43008-RL-Spr26-sagemaker-execution-role). Nothing to change: we don't use S3 or
+    training jobs, so no extra permissions are needed.
 
 
 -------------------------------------------------------------
@@ -224,9 +223,9 @@ EOF
 
     Studio idle shutdown: Studio can stop a JupyterLab space that looks idle, and that
     kills anything running in its terminals. Long notebook runs (feasibility sampling,
-    evaluation, val_curve) are started with nohup (see below) and you should keep the
-    browser tab open while they run. Training jobs (section 8) run on separate machines
-    and are not affected.
+    evaluation, val_curve, and training itself, section 8) are started with nohup and you
+    should keep the browser tab open while they run. If a run gets stopped anyway, start
+    the same command again: training resumes from its last checkpoint.
 
 3.8 Using a classic notebook instance instead of Studio (only if you don't use Studio):
     - SageMaker console -> Notebooks -> Notebook instances -> Create, ml.g4dn.2xlarge,
@@ -422,56 +421,39 @@ Smoke test output goes to outputs/<method>-1.5b-s0/. Delete it before the real r
 
 
 -------------------------------------------------------------
-8. FULL TRAINING AS SAGEMAKER TRAINING JOBS
+8. FULL TRAINING (INSIDE YOUR STUDIO SPACE, NO S3)
 -------------------------------------------------------------
-Training jobs run on their own machine, so you can close the notebook and they keep going.
-They use spot instances (much cheaper).
-If AWS takes a spot instance back, SageMaker restarts the SAME job by itself when
-capacity is back and it continues from the last checkpoint in S3 (you get a "STOPPED:
-SIGTERM" Telegram message, later a new "STARTED" one). Check the job in the console:
-  - status still "InProgress" (status message like "Interrupted" / "Waiting for spot
-    capacity" / "Restarting"): do nothing, it resumes on its own. Do NOT launch it again,
-    two jobs would write to the same checkpoint folder.
-  - status "Stopped" or "Failed" (e.g. you pressed Stop, or the max wait time ran out):
-    run the same launch_sagemaker.py command again; the new job continues from the last
-    checkpoint because it uses the same S3 checkpoint folder.
+Decided 8 Oct: we don't use SageMaker training jobs or S3. Each person trains their method
+in their own Studio JupyterLab space on a T4, in the background with nohup, exactly like
+the feasibility run. (launch_sagemaker.py is still in the code in case jobs + S3 are ever
+needed, but nobody uses it now.)
 
-8.1 Find your default bucket (do this once):
-      python -c "import sagemaker; print(sagemaker.Session().default_bucket())"
-    It looks like sagemaker-<region>-<account id>. Below this is called BUCKET.
+8.1 Before starting:
+      - The space runs on ml.g4dn.2xlarge (or ml.g4dn.xlarge) and the GPU is empty:
+          nvidia-smi                 (no processes, memory near 0 MiB)
+      - Settings loaded and code up to date:
+          source ~/SageMaker/.bashrc_t2s
+          cd ~/Marl-SQL && git pull && git status --untracked-files=no && cd text2sql-rl
+        (git status: "up to date with 'origin/text2sql-rl'", no modified files)
+      - The smoke-test output is deleted (rm -rf outputs/), and wandb login works.
 
-8.2 Upload the data the jobs need (once, and again if data/processed changes, e.g. after
-    pulling tags.json):
-      aws s3 sync data/processed            s3://BUCKET/text2sql/data/processed
-      aws s3 sync data/spider_data/database s3://BUCKET/text2sql/data/spider_data/database
-
-8.3 Make sure the W&B key and the Telegram settings are set in this terminal
-    (the launcher copies them into the job):
-      export WANDB_API_KEY=<your key>
-      export TELEGRAM_BOT_TOKEN=<token>
-      export TELEGRAM_CHAT_ID=<chat id>
-    Or just: source ~/SageMaker/.bashrc_t2s
-
-8.4 Launch (any extra --arguments are passed straight to the training script):
+8.2 Start the run (keep the command exactly like this):
 
     You (Eby):
-      python launch_sagemaker.py --script train_dpo.py --seed 0 --lr 5e-5
+      nohup python train_dpo.py --lr 5e-5 --seed 0 > logs_dpo.txt 2>&1 &
 
     GRPO teammate and Aditya (section 12 of their plans, on their accounts, SAME max_steps):
-      python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps 600 --lr 5e-5
-      python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps 600 --lr 5e-5
+      nohup python train_rl.py --method grpo --seed 0 --max_steps 600 --lr 5e-5 > logs_grpo.txt 2>&1 &
+      nohup python train_rl.py --method rloo --seed 0 --max_steps 600 --lr 5e-5 > logs_rloo.txt 2>&1 &
 
-    Change 600 to whatever you agreed in step 7. For extra seeds, change --seed 1, 2.
-    If your quota is only 1 instance, launch the second job after the first finishes.
-    Use --spot 0 if spot jobs keep getting stuck waiting for capacity.
-    If ml.g4dn.2xlarge has no capacity in your region, add --instance_type ml.g4dn.xlarge
-    (same T4 GPU, 4 CPUs / 16 GB RAM, enough for this). You need quota for it too.
-    By default you get a Telegram update every 50 steps. Change it with e.g. --notify_every 25.
+    Change 600 to whatever was agreed in section 7. For extra seeds use --seed 1, 2.
+    Telegram (if set up) sends progress every 50 steps (--notify_every to change it).
 
-8.5 Watch the jobs:
-    - SageMaker console -> Training -> Training jobs -> click the job -> "View logs"
-      (CloudWatch). The first ~10 minutes is installing packages and downloading the model.
-    - W&B project text2sql-rl. Runs are named grpo-1.5b-s0, rloo-1.5b-s0, dpo-1.5b-s0.
+8.3 Watch it:
+      tail -f logs_dpo.txt         (Ctrl+C stops watching, not the run)
+    One line per step:  step 120/600 | 29.8 s/step | loss=..., reward=..., kl=...
+    and "checkpoint saved: checkpoint-100" every 100 steps. W&B shows the charts
+    (project text2sql-rl, runs dpo-1.5b-s0, grpo-1.5b-s0, rloo-1.5b-s0).
 
     GRPO / RLOO, what to look at in W&B:
       train/reward                          should go up
@@ -484,25 +466,44 @@ SIGTERM" Telegram message, later a new "STARTED" one). Check the job in the cons
     DPO:
       train/rewards/margins, train/rewards/accuracies should go up, train/loss down.
 
-    If several of these go bad at once, stop the job (console -> Stop) and use the last
-    good checkpoint.
+    If several of these go bad at once, stop the run (kill <PID>, find it with
+    ps aux | grep train_) and tell the others before changing anything.
 
-8.6 Each job saves a checkpoint every 100 steps to
-      s3://BUCKET/text2sql/checkpoints/<run name>/checkpoint-100, checkpoint-200, ...
-    and the final adapter to .../<run name>/final
+8.4 If it stops (space stopped, Studio idle shutdown, a crash, you closed it by mistake):
+    checkpoints are saved every 100 steps in outputs/<run>/checkpoint-N on the space's
+    disk, which survives a stop. Make sure nothing is still running (nvidia-smi, then
+    ps aux | grep -E "train_|EngineCore"), then run the SAME command again. It continues
+    from the last checkpoint (the log says "training started at step 300 ..."). You lose at
+    most the steps since the last checkpoint. Never run two copies at the same time.
+
+    To avoid stops: keep the browser tab open with tail -f running, and don't stop the
+    space until the log says FINISHED.
+
+8.5 While it trains the GPU is busy: don't start evaluation or other GPU work on the same
+    space. CPU work (writing, analysis of earlier results) is fine.
+
+8.6 When it finishes (log: "FINISHED after ..."), the run is in:
+      outputs/<run>/checkpoint-100, checkpoint-200, ..., final/, logs/
+    Keep all checkpoints (needed for the validation curve). About 1.5 GB per run.
+    Then collect the proof (section 19): bash collect_proof.sh <run>
 
 
 -------------------------------------------------------------
-9. GETTING THE TRAINED MODELS BACK
+9. GETTING THE TRAINED MODELS TOGETHER
 -------------------------------------------------------------
-On your (Eby's) space, your own run:
-      aws s3 sync s3://BUCKET/text2sql/checkpoints/dpo-1.5b-s0 outputs/dpo-1.5b-s0
+Your DPO run is already on your space in outputs/dpo-1.5b-s0.
 
-GRPO and RLOO live in the teammates' AWS accounts. Each pushes their proof to their own
-branch (grpo-run, rloo-run) and sends you one download link for the checkpoints. Get and
-check them with section 22 of their plans (22.3 to 22.5: proof from the branch,
-checkpoints into outputs/grpo-1.5b-s0 and outputs/rloo-1.5b-s0, check base model / LoRA /
-steps, quick load test).
+GRPO and RLOO are on the teammates' spaces. Each of them:
+  - pushes their proof folder to their own branch (grpo-run, rloo-run), and
+  - shares a Google Drive link to a .tar.gz of their adapters (section 14).
+Get and check them with section 22 of their plans:
+      cd ~/Marl-SQL
+      git fetch origin grpo-run
+      git checkout origin/grpo-run -- text2sql-rl/proof/grpo-1.5b-s0
+      cd text2sql-rl && mkdir -p outputs
+      gdown --fuzzy "<Google Drive link>" -O /tmp/grpo.tar.gz
+      tar xzf /tmp/grpo.tar.gz -C outputs
+    (same with rloo), then the checks in 22.4 and 22.5 of their plans.
 
 The folder structure you should end up with:
       outputs/dpo-1.5b-s0/checkpoint-100/  ...  final/
@@ -567,7 +568,7 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
        dialect            : SQLite
      then run it once per model:
        cd eval_repos/mini_dev/evaluation && sh run_evaluation.sh && cd -
-     R-VES measures speed, so run it when NO training job or other eval is running on
+     R-VES measures speed, so run it when NO training or other eval is running on
      that machine, and do all four models in the same session.
 
 11.4 Fill in the two results tables from the plan using these numbers.
@@ -593,8 +594,8 @@ pass@k for k = 1, 4, 8, 16 (Person A, for each model):
       (same for dpo and rloo)
   Results: data/processed/passk_spider_dev_<tag>.json
 
-Compute cost table (Person A): take seconds/step, total time and GPU memory from
-W&B (System tab) and the SageMaker job page ("Billable seconds").
+Compute cost table: take seconds/step, total time and peak GPU memory from each run's
+proof/<run>/summary.txt (and W&B), plus the Studio instance type and its hourly price.
 
 
 -------------------------------------------------------------
@@ -611,23 +612,26 @@ if they exist.
 
 
 -------------------------------------------------------------
-14. SHARING FILES BETWEEN THE TWO OF US
+14. SHARING FILES BETWEEN US
 -------------------------------------------------------------
-Small files (tags.json, dpo_pairs.jsonl, filter_log.json): git push / git pull.
+Code, fixes, tags.json: GitHub. Eby pushes to text2sql-rl, the others git pull.
+Training proof: each trainer pushes proof/<run>/ to their own branch (grpo-run, rloo-run).
 
-Model checkpoints (different AWS accounts): make a temporary download link.
-  Person A:
-      cd outputs   (or download from S3 first with aws s3 sync)
-      tar czf grpo-1.5b-s0.tar.gz grpo-1.5b-s0
-      aws s3 cp grpo-1.5b-s0.tar.gz s3://BUCKET/share/
-      aws s3 presign s3://BUCKET/share/grpo-1.5b-s0.tar.gz --expires-in 604800
-  Send Person B the printed link (it works for 7 days). Person B:
-      mkdir -p outputs && cd outputs
-      curl -L -o grpo.tar.gz "<link>"
-      tar xzf grpo.tar.gz
+Model checkpoints (on different Studio spaces, no S3): Google Drive.
+  The trainer packs only the adapter files (no optimizer state, about 0.5 GB per run):
+      cd ~/Marl-SQL/text2sql-rl/outputs
+      tar czf ~/grpo-1.5b-s0-adapters.tar.gz --exclude=optimizer.pt --exclude=scheduler.pt \
+          --exclude=rng_state.pth --exclude=scaler.pt --exclude=training_args.bin grpo-1.5b-s0
+  Then in the JupyterLab file browser (home folder): right-click the .tar.gz -> Download,
+  upload it to Google Drive, Share -> General access "Anyone with the link" -> Copy link,
+  and send the link.
 
-  A LoRA checkpoint is small (~100-300 MB with optimizer state), so this is quick.
-  If the tar is too big, only send the checkpoint folders you need for the val curve.
+  Eby (on the evaluation space):
+      cd ~/Marl-SQL/text2sql-rl && mkdir -p outputs
+      gdown --fuzzy "<link>" -O /tmp/grpo.tar.gz
+      tar xzf /tmp/grpo.tar.gz -C outputs
+  If gdown fails, download it in the browser and upload it with the file browser instead.
+  When done, the trainer can switch the Drive link back to "Restricted".
 
 
 -------------------------------------------------------------
@@ -663,6 +667,7 @@ vLLM error on the T4
        Other buckets in "aws s3 ls" belong to other students / the course: never touch them,
        and only use the text2sql/ folder in sagemaker-ap-southeast-2-443142193439.
        GPU quota in a shared account is shared with the whole class, so capacity can run out.
+       (Since 8 Oct we don't use S3 at all: training runs inside Studio, section 8.)
 
 "ValueError: Free memory on device (0.97/14.56 GiB) on startup is less than desired
  GPU memory utilization"
@@ -681,10 +686,9 @@ vLLM error on the T4
     -> you have old code (vLLM limit 8192). git pull: the limit is now 32768 and sample.py
        skips over-long training prompts.
 
-Training job fails at the start with "wandb: ERROR api_key not configured (no-tty)"
-    -> the job got no W&B key: run "source ~/SageMaker/.bashrc_t2s" (or export
-       WANDB_API_KEY) BEFORE launch_sagemaker.py, check with: echo ${WANDB_API_KEY:0:6}
-       and relaunch. Inside a job W&B can't ask you to log in, so the key is required.
+"wandb: ERROR api_key not configured" or no run in W&B
+    -> run "wandb login" once in the space (or source ~/SageMaker/.bashrc_t2s, which sets
+       WANDB_API_KEY), then start again. Check: echo ${WANDB_API_KEY:0:6}
 
 "telegram message failed after 3 tries: ... Connection reset by peer"
     -> a short network problem between AWS and Telegram. The script tries 3 times and then
@@ -692,16 +696,16 @@ Training job fails at the start with "wandb: ERROR api_key not configured (no-tt
        "python monitor.py --test" to check the token and chat id.
 
 No Telegram messages
-    -> run "python monitor.py --test" in the notebook. If that works but jobs don't send
-       anything, you didn't export TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID before running
-       launch_sagemaker.py (step 8.3). Relaunch the job.
+    -> run "python monitor.py --test". If that works but a run sends nothing, the terminal
+       you started it from didn't have the Telegram settings: source ~/SageMaker/.bashrc_t2s
+       before starting the next run.
 
-Training job fails straight away
-    -> you get a Telegram message with the error. Also check the CloudWatch log. Usually: data not uploaded to S3 (step 8.2),
-       tags.json missing from s3://BUCKET/text2sql/data/processed, or quota not approved.
+Training stopped in the middle (space stopped, idle shutdown, crash)
+    -> run the same nohup command again, it resumes from the last checkpoint (section 8.4).
 
-Training job stuck at "Starting" / "Waiting for spot capacity"
-    -> wait, or stop it and relaunch with --spot 0, or with --instance_type ml.g4dn.xlarge.
+Can't start the space on ml.g4dn.2xlarge (no capacity)
+    -> try ml.g4dn.xlarge (same T4 GPU), or try again later; the course account's GPU quota
+       is shared with other students.
 
 pip install fails because of versions
     -> make sure you are in the t2s conda environment (step 3.3), not the default one.
@@ -711,57 +715,48 @@ The notebook was stopped and the environment is gone
        "source activate ~/SageMaker/envs/t2s" again.
 
 KeyError: 'train_1234' (or similar) from reward.py
-    -> data/processed is out of date. Re-run prepare_data.py (and re-upload to S3).
+    -> data/processed is out of date. Re-run prepare_data.py.
 
 
 -------------------------------------------------------------
 16. SAVING MONEY
 -------------------------------------------------------------
 - STOP the Studio space whenever you're not using it (Studio -> JupyterLab -> your
-  space -> Stop). A running g4dn.2xlarge space costs money every hour even when idle.
-  Your files in the home folder are kept.
+  space -> Stop), but NEVER while a training or evaluation run is going (section 8.4).
+  A running g4dn.2xlarge space costs money every hour even when idle. Files are kept.
 - Use a cheap ml.t3.xlarge space for anything that doesn't need a GPU (data prep,
-  launching jobs, analysis.py, writing). Stop the space, change the instance, run it again.
-- Training jobs use spot by default, which is a lot cheaper than on-demand.
-- Set an AWS budget alert: Billing -> Budgets -> Create budget.
-- At the end of the project, delete the S3 checkpoints you don't need.
+  analysis.py, writing). Stop the space, change the instance, run it again.
+- Set an AWS budget alert if the course account allows it: Billing -> Budgets.
 
 Disk space in the Studio space (rough sizes):
     Python environment ............ 8-10 GB
     Qwen 1.5B model ............... ~3 GB
     Spider + test-suite + BIRD .... ~6-8 GB
-    Checkpoints (1 seed, 3 methods) ~4 GB
+    Your training run ............. ~1.5 GB (checkpoints with optimizer state)
+    Teammates' adapters ........... ~0.5 GB each
     Everything else ............... ~1-2 GB
     Total ......................... ~25-30 GB
   To save space:
     - always pip install with --no-cache-dir
-    - train with --save_steps 200 (half as many checkpoints)
-    - delete checkpoints of runs you're finished with (rm -rf outputs/<run>/checkpoint-*)
-    - check free space with: df -h ~/SageMaker
-  Training jobs have their own 30 GB disk, so they don't use the notebook's space.
-
+    - delete checkpoints only after the validation curve and final evaluation are done
+    - check free space with: df -h ~
 
 =============================================================
 17. SOLO GUIDE: DOING THE WHOLE PROJECT BY YOURSELF
 =============================================================
-Use this if the other person drops out. Everything runs on YOUR AWS account. The steps are
+Use this if the others drop out. Everything runs in YOUR Studio space. The steps are
 the same as sections 1-13, just in one order, with nothing to send to anyone. Section 14
-(sharing) doesn't apply: the files are already on your notebook and the checkpoints are
-already in your own S3 bucket.
+(sharing) doesn't apply: all checkpoints are already on your space.
 
-The trick to finishing alone: let SageMaker training jobs do the long GPU work in the
-background while you use the notebook for everything else. You're never waiting on one
-thing at a time.
+Without S3 / training jobs, the three trainings run one after another on your one GPU
+(each roughly 4-8 hours for 1.5B), so plan for 1-2 days of GPU time and use the waiting
+time for the report.
 
 
-17.1 FIRST: ASK FOR MORE QUOTA
-------------------------------
-In Service Quotas (section 1.2), ask for 3 instead of 1 for:
-  - ml.g4dn.2xlarge for training job usage
-  - ml.g4dn.2xlarge for spot training job usage
-With 3 you can train DPO, GRPO and RLOO at the SAME time, which saves days.
-With only 1 you have to run them one after another (see the timeline in 17.4).
-Keep the JupyterLab (Studio) quota at 1.
+17.1 QUOTA
+----------
+You only need the Studio JupyterLab quota for ml.g4dn.2xlarge (or xlarge). Training jobs
+are not used.
 
 
 17.2 IF YOU ARE TAKING OVER HALFWAY
@@ -787,11 +782,10 @@ Check what already exists before redoing anything:
 
 17.3 ORDER OF WORK (ONE PERSON)
 -------------------------------
-Each line gives the section to follow. [GPU] = needs the g4dn notebook,
-[JOB] = runs as a SageMaker job (keeps going after you close the notebook),
-[CPU] = a cheap t3 notebook is fine.
+Each line gives the section to follow. [GPU] = needs the g4dn space,
+[CPU] = a cheap t3 space is fine.
 
-  Step 1   [CPU]  Section 1: quotas (ask for 3 training instances), IAM role.
+  Step 1   [CPU]  Section 1: Studio GPU quota.
   Step 2   [CPU]  Section 2: your own private GitHub repo + W&B project (no team needed).
   Step 3   [CPU]  Section 3: notebook + environment. Use t3.xlarge until GPU quota arrives.
   Step 4   [CPU]  Section 4: download_data.sh, prepare_data.py.
@@ -803,25 +797,21 @@ Each line gives the section to follow. [GPU] = needs the g4dn notebook,
                     python train_rl.py --method grpo --max_steps 50 --lr 5e-5
                     python train_rl.py --method rloo --max_steps 50 --lr 5e-5
                   Pick the model size and max_steps. Then rm -rf outputs/
-  Step 8   [CPU]  Section 8.1-8.3: upload data to S3, export WANDB_API_KEY.
-  Step 9   [JOB]  Section 8.4: launch all three:
-                    python launch_sagemaker.py --script train_dpo.py --seed 0 --lr 5e-5
-                    python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps <N> --lr 5e-5
-                    python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps <N> --lr 5e-5
-                  With quota 1: launch DPO first (shortest), then GRPO, then RLOO.
-  Step 10  [GPU]  While the jobs run: evaluate the untrained model now, so it's done:
+  Step 8   [GPU]  Section 8: train DPO in the space (nohup), then GRPO, then RLOO, one after
+                  another (same command style, the same --max_steps for GRPO and RLOO):
+                    nohup python train_dpo.py --lr 5e-5 --seed 0 > logs_dpo.txt 2>&1 &
+                    nohup python train_rl.py --method grpo --seed 0 --max_steps <N> --lr 5e-5 > logs_grpo.txt 2>&1 &
+                    nohup python train_rl.py --method rloo --seed 0 --max_steps <N> --lr 5e-5 > logs_rloo.txt 2>&1 &
+                  Start the next one only after the previous log says FINISHED.
+  Step 9   [GPU]  Between trainings (or before the first): evaluate the untrained model once:
                     for SPLIT in val spider_dev spider_syn spider_dk spider_realistic bird_dev; do
                       python evaluate.py --split $SPLIT --tag base
                     done
                     bash run_official_eval.sh base
-                  and set up the BIRD mini_dev paths (section 11.3) and run it for base.
-                  Then STOP the GPU notebook or switch it to t3 while you wait.
-  Step 11  [CPU]  While the jobs run: check W&B once or twice a day (section 8.5). Write the
-                  method sections for DPO, GRPO and RLOO.
-  Step 12  [GPU]  When the jobs finish, download all three from S3 (no sharing needed):
-                    aws s3 sync s3://BUCKET/text2sql/checkpoints/dpo-1.5b-s0  outputs/dpo-1.5b-s0
-                    aws s3 sync s3://BUCKET/text2sql/checkpoints/grpo-1.5b-s0 outputs/grpo-1.5b-s0
-                    aws s3 sync s3://BUCKET/text2sql/checkpoints/rloo-1.5b-s0 outputs/rloo-1.5b-s0
+  Step 10  [CPU]  While training runs: check the log and W&B a few times (section 8.3), write
+                  the method sections for DPO, GRPO and RLOO.
+  Step 11  [CPU]  After each run: bash collect_proof.sh <run> (section 19).
+  Step 12         (no download step: all checkpoints are already in outputs/)
   Step 13  [GPU]  Section 10: val_curve.py, pick the best checkpoint of each method.
   Step 14  [GPU]  Section 11: evaluate dpo, grpo, rloo on all splits (base is already done),
                   official Spider script, BIRD scripts (all four models in one session for R-VES).
@@ -838,8 +828,7 @@ These are rough guesses for 1.5B. Use your own smoke test numbers.
   Day 1      Steps 1-5 (most of it is waiting for downloads / quota).
   Day 2      Step 6 feasibility run (a few hours, mostly waiting) + start report.
   Day 3      Step 7 smoke tests, decide size + max_steps, Steps 8-10.
-  Days 4-6   Training jobs running (Step 11). With quota 1, add ~2 extra days because they
-             run one after another.
+  Days 4-6   The three trainings, one after another in your space (Steps 8-11).
   Day 7      Steps 12-14 (evaluation, mostly waiting on the GPU).
   Day 8      Step 15 + tables + plots.
   Day 9+     Extras, demo, report.
@@ -867,7 +856,7 @@ Cut first (in this order, top = cut first):
 
 Keep even when short on time (they're cheap and add marks):
   - analysis.py compare (CIs + McNemar), takes a few seconds
-  - The compute cost table, copied from W&B / SageMaker
+  - The compute cost table, from the runs' summary.json / W&B
   - Soft-F1 and R-VES, which come out of the same BIRD script run as EX
 
 Make the runs shorter if needed:
@@ -879,18 +868,17 @@ Make the runs shorter if needed:
 
 17.6 SOLO CHECKLIST (tick these off)
 ------------------------------------
-  [ ] Quota approved for g4dn.2xlarge (notebook + training + spot training)
+  [ ] Quota approved for a g4dn Studio space
   [ ] Repo on GitHub, W&B logged in, Telegram test message received
   [ ] data/processed created, filter numbers written down
   [ ] reward.py check prints 1.000, reward frozen
   [ ] Feasibility done, GO decision, tags.json + dpo_pairs.jsonl made
   [ ] Smoke tests done, model size + max_steps decided
-  [ ] Data uploaded to S3
-  [ ] DPO job finished
-  [ ] GRPO job finished
-  [ ] RLOO job finished
+  [ ] DPO run finished (log: FINISHED)
+  [ ] GRPO run finished
+  [ ] RLOO run finished
   [ ] Base model evaluated on all splits
-  [ ] Checkpoints downloaded, val_curve.png made, best checkpoints picked
+  [ ] val_curve.png made, best checkpoints picked
   [ ] DPO / GRPO / RLOO evaluated on all splits
   [ ] Official Spider EX + TS done for all four
   [ ] BIRD EX / Soft-F1 / R-VES done for all four (one session, idle machine)
@@ -899,7 +887,7 @@ Make the runs shorter if needed:
   [ ] Demo works (and a backup video recorded)
   [ ] Proof collected for every run (section 19)
   [ ] Report written
-  [ ] Notebook STOPPED, unneeded S3 files deleted
+  [ ] Space STOPPED
 
 
 
@@ -936,9 +924,8 @@ else works the same.
      You should get "test message from SageMaker notebook ... gpu: Tesla T4 ...".
 
 18.5 What you will receive (example):
-      [grpo-1.5b-s0] SageMaker job launched: grpo-1-5b-s0-2026-10-09-01-02-03-456
       [grpo-1.5b-s0] STARTED
-      where: SageMaker training job grpo-1-5b-s0-2026-... (ml.g4dn.2xlarge)
+      where: <hostname of your Studio space>
       gpu: Tesla T4
       [grpo-1.5b-s0] training started at step 0 of 600
       [grpo-1.5b-s0] step 50/600 (8%)
@@ -949,31 +936,28 @@ else works the same.
       [grpo-1.5b-s0] WARNING: loss is NaN at step 230. Consider stopping the run.
       [grpo-1.5b-s0] FAILED after 1h 2m 3s ... error: <last part of the error message>
       [grpo-1.5b-s0] STOPPED: SIGTERM received (job stopped or spot instance taken back)
+                     (in Studio: the run was killed or the space stopped -> section 8.4)
       [grpo-1.5b-s0] FINISHED after 4h 1m 10s ... last metrics: ...
 
-     Scripts that send messages: train_rl.py, train_dpo.py (via SageMaker or in the
-     notebook), sample.py, evaluate.py, val_curve.py, prepare_data.py, launch_sagemaker.py.
+     Scripts that send messages: train_rl.py, train_dpo.py, sample.py, evaluate.py,
+     val_curve.py, prepare_data.py.
      val_curve.py runs evaluate.py many times; those inner runs don't message you, only
      the final result does.
 
-     STOPPED (SIGTERM) for a spot job: see the start of section 8. Usually SageMaker
-     restarts the job by itself; only relaunch if the job status is Stopped or Failed.
+     STOPPED: start the same command again, it resumes from the last checkpoint (8.4).
 
 
 -------------------------------------------------------------
 19. PROOF OF TRAINING ON AWS (LOG FILES)
 -------------------------------------------------------------
-Every run writes three files. For training jobs they are saved next to the checkpoints, so
-they are uploaded to S3 automatically:
-      s3://BUCKET/text2sql/checkpoints/<run name>/logs/
-For notebook runs (smoke tests) they are in outputs/<run name>/logs/, and for sample.py,
-evaluate.py, val_curve.py and prepare_data.py in text2sql-rl/logs/.
+Every run writes three files into outputs/<run name>/logs/ (training runs) or
+text2sql-rl/logs/ (sample.py, evaluate.py, val_curve.py, prepare_data.py):
 
   <run>_<time>.log            readable log with a timestamp on every line:
-                              - where it ran: SageMaker training job name + ARN + instance
-                                type (ml.g4dn.2xlarge), or notebook name + EC2 instance id/type
+                              - where it ran: hostname, the SageMaker Studio space
+                                (domain, space, app), python / torch versions, the command
                               - full nvidia-smi output (shows the Tesla T4)
-                              - all settings / hyperparameters and the exact command
+                              - all settings / hyperparameters
                               - one line per training step: step, seconds/step, loss,
                                 reward, KL, valid SQL rate, ...
                               - every checkpoint saved, errors with the full traceback,
@@ -983,32 +967,35 @@ evaluate.py, val_curve.py and prepare_data.py in text2sql-rl/logs/.
   <run>_<time>_summary.json   start/end time, duration, status (FINISHED / FAILED /
                               STOPPED), environment, settings and final metrics
 
+A run that was stopped and resumed has one set of files per start, all in the same folder.
 Training logs every single step (logging_steps=1), in these files and in W&B.
 
-19.1 Collect everything for one run into proof/<run name>/ (run in the notebook,
-     after the job has finished):
+19.1 Collect everything for one run into proof/<run name>/ (in text2sql-rl/, after the run
+     has finished):
       bash collect_proof.sh dpo-1.5b-s0
-      bash collect_proof.sh grpo-1.5b-s0
-      bash collect_proof.sh rloo-1.5b-s0
 
-     Each folder then contains:
-       training_job.json          AWS's own record of the job (from describe-training-job):
-                                  instance type, start/end time, TrainingTimeInSeconds,
-                                  BillableTimeInSeconds, status, hyperparameters
-       training_job_summary.txt   the important parts of that, readable
-       cloudwatch_log.txt         the complete console output of the job, as stored by AWS
-       logs/                      the three files described above
+     The folder then contains:
+       logs/                      the three files above (all starts of the run)
+       checkpoints/<name>/        trainer_state.json (the trainer's own record of every
+                                  logged step) + adapter_config.json, for every checkpoint
+       studio_space.json          which SageMaker Studio domain / space / app it ran in
+       aws_identity.json          the AWS account and role (the course account)
+       nvidia_smi.txt             the GPU
+       git_commit.txt             the exact code commit (and that no code was modified)
+       versions.txt               trl / transformers / peft / torch versions
+       summary.txt                short readable summary of all of the above
 
-     If the script picks the wrong job (e.g. you ran it twice), pass the job name:
-      bash collect_proof.sh grpo-1.5b-s0 grpo-1-5b-s0-2026-10-09-01-02-03-456
-     (job names are printed by launch_sagemaker.py and shown in the SageMaker console).
+     The teammates run the same for grpo-1.5b-s0 / rloo-1.5b-s0 and push it to their own
+     branch; Eby takes it from there (section 9).
 
 19.2 Extra proof you can screenshot for the report / appendix:
-     - SageMaker console -> Training jobs -> the job page (status, instance, billable time)
-     - Billing -> Bills: the SageMaker charges
+     - Studio -> JupyterLab -> your space running on ml.g4dn.2xlarge (instance shown)
+     - the terminal with the log showing the steps and "FINISHED after ..."
      - W&B run page -> System tab (GPU usage over time) and Overview (host name, command)
+     - Billing (if the course account lets you see it): SageMaker Studio charges
 
-19.3 Keep the proof safe: commit the proof/ folder to the repo (it is small):
-      git add proof/
+19.3 Keep the proof safe: commit it to the repo (small text files, allowed by .gitignore):
+      cd ~/Marl-SQL
+      git add text2sql-rl/proof/
       git commit -m "Training proof for dpo, grpo, rloo"
       git push
