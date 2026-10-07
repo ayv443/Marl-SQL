@@ -402,6 +402,8 @@ command again and it resumes from the last checkpoint.
     Change 600 to whatever you agreed in step 7. For extra seeds, change --seed 1, 2.
     If your quota is only 1 instance, launch the second job after the first finishes.
     Use --spot 0 if spot jobs keep getting stuck waiting for capacity.
+    If ml.g4dn.2xlarge has no capacity in your region, add --instance_type ml.g4dn.xlarge
+    (same T4 GPU, 4 CPUs / 16 GB RAM, enough for this). You need quota for it too.
     By default you get a Telegram update every 50 steps. Change it with e.g. --notify_every 25.
 
 8.5 Watch the jobs:
@@ -595,7 +597,7 @@ Training job fails straight away
        tags.json missing from s3://BUCKET/text2sql/data/processed, or quota not approved.
 
 Training job stuck at "Starting" / "Waiting for spot capacity"
-    -> wait, or stop it and relaunch with --spot 0.
+    -> wait, or stop it and relaunch with --spot 0, or with --instance_type ml.g4dn.xlarge.
 
 pip install fails because of versions
     -> make sure you are in the t2s conda environment (step 3.3), not the default one.

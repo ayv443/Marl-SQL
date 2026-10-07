@@ -23,6 +23,7 @@ def main():
     ap.add_argument("--role", default=None)
     ap.add_argument("--spot", type=int, default=1)
     ap.add_argument("--max_hours", type=int, default=24)
+    ap.add_argument("--instance_type", default="ml.g4dn.2xlarge")  # ml.g4dn.xlarge has the same T4
     args, extra = ap.parse_known_args()  # extra args are passed to the script
 
     sess = sagemaker.Session()
@@ -48,7 +49,7 @@ def main():
         entry_point=args.script,
         source_dir=src,
         role=role,
-        instance_type="ml.g4dn.2xlarge",
+        instance_type=args.instance_type,
         instance_count=1,
         framework_version="2.8.0",
         py_version="py312",
@@ -67,8 +68,8 @@ def main():
     )
     est.fit({"data": f"s3://{bucket}/text2sql/data"}, wait=False)
     job = est.latest_training_job.name
-    print(f"launched {job}  (run={run}, hyperparameters={hp})")
-    send_telegram(f"[{run}] SageMaker job launched: {job}\nhyperparameters: {hp}")
+    print(f"launched {job} on {args.instance_type}  (run={run}, hyperparameters={hp})")
+    send_telegram(f"[{run}] SageMaker job launched: {job} on {args.instance_type}\nhyperparameters: {hp}")
 
 
 if __name__ == "__main__":
