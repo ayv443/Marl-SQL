@@ -21,12 +21,19 @@ EOF
 
 for SPLIT in spider_dev spider_syn spider_dk spider_realistic; do
   [ -f $R/$SPLIT/pred.txt ] || continue
+  TABLE=data/spider_data/tables.json
+  # Spider-DK has its own tables.json that includes its 3 extra databases
+  [ $SPLIT = spider_dk ] && TABLE=eval_repos/Spider-DK/tables.json
   echo "=== $TAG / $SPLIT : EX (original databases) ==="
   python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred.txt \
-      --db $DB --table data/spider_data/tables.json --etype exec | tee $R/$SPLIT/official_ex.txt
+      --db $DB --table $TABLE --etype exec | tee $R/$SPLIT/official_ex.txt
+  if [ $SPLIT = spider_dk ]; then
+    echo "=== $TAG / spider_dk : no TS (test-suite databases don't include Spider-DK's extra databases) ==="
+    continue
+  fi
   echo "=== $TAG / $SPLIT : TS (test-suite databases) ==="
   python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred.txt \
-      --db data/testsuite_databases --table data/spider_data/tables.json --etype exec | tee $R/$SPLIT/official_ts.txt
+      --db data/testsuite_databases --table $TABLE --etype exec | tee $R/$SPLIT/official_ts.txt
 done
 
 # BIRD: edit the paths in eval_repos/mini_dev/evaluation/run_evaluation.sh to:

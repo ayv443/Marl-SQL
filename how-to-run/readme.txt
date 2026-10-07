@@ -145,6 +145,12 @@ The T4 has no bf16, so everything runs in fp16.
       data/spider_variants/        Spider-Syn and Spider-DK json
       eval_repos/                  official evaluation code (test-suite, BIRD mini_dev)
 
+    download_data.sh also copies Spider-DK's 3 extra databases into data/spider_data/test_database/.
+    If prepare_data.py prints "WARNING spider_dk: skipped ... new_concert_singer ...", run:
+      mkdir -p data/spider_data/test_database
+      cp -rn eval_repos/Spider-DK/database/* data/spider_data/test_database/
+    and run prepare_data.py again.
+
     Spider-Realistic must be downloaded by hand: get spider-realistic.json from
     https://zenodo.org/record/5205322 and save it as
     data/spider_variants/spider_realistic.json  (upload it through the JupyterLab file browser).
@@ -382,6 +388,8 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
       bash run_official_eval.sh rloo
      Results are printed and saved in results/<tag>/<split>/official_ex.txt and official_ts.txt.
      Use the "execution" row, "all" column.
+     Spider-DK only gets EX, no TS: it has 3 extra databases (new_concert_singer,
+     new_orchestra, new_pets_1) that the test-suite databases don't include. Say so in the report.
 
 11.3 BIRD official EX, Soft-F1 and R-VES:
      Open eval_repos/mini_dev/evaluation/run_evaluation.sh and set the paths at the top to:

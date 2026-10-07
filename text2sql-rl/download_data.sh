@@ -33,6 +33,9 @@ mkdir -p data/spider_variants
 [ -d eval_repos/Spider-DK ]  || git clone -q https://github.com/ygan/Spider-DK  eval_repos/Spider-DK
 cp eval_repos/Spider-Syn/Spider-Syn/dev.json data/spider_variants/spider_syn.json 2>/dev/null || echo "!! find Spider-Syn dev.json manually"
 cp eval_repos/Spider-DK/Spider-DK.json      data/spider_variants/spider_dk.json  2>/dev/null || echo "!! find Spider-DK.json manually"
+# Spider-DK has 3 extra databases (new_concert_singer, new_orchestra, new_pets_1), merge them in
+mkdir -p data/spider_data/test_database
+cp -rn eval_repos/Spider-DK/database/* data/spider_data/test_database/ 2>/dev/null || echo "!! copy eval_repos/Spider-DK/database/* into data/spider_data/test_database/ manually"
 # Spider-Realistic: download spider-realistic.json from https://zenodo.org/record/5205322
 # and save it as data/spider_variants/spider_realistic.json
 
