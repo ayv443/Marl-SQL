@@ -32,7 +32,12 @@ WHERE WE ARE (updated as we go)
       (huge schemas), more than vLLM's 8,192 limit. Fixed: sample.py now skips training
       questions with prompts > 2048 tokens (training drops those anyway) and vLLM allows
       32,768 tokens (for BIRD evaluation). git pull, then restart 6.2.
-  [ ] NOW: section 6.2 full feasibility run (about 1.5 h).
+  [x] 899 of 6631 training questions have prompts > 2048 tokens (a few databases with very
+      big schemas) and are skipped by sampling and by all three trainers: 5,732 training
+      questions remain. Same subset for every method; eval sets are not cut.
+  [ ] NOW: section 6.2 full feasibility run (about 1.5 h). (Second attempt failed because
+      the crashed first run's vLLM process was still holding the GPU: see section 15,
+      "Free memory on device ... is less than desired".)
   [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, send tags.json (+ its sha256sum) to the teammate.
   [ ] Then: section 7 smoke tests for DPO and RLOO (teammate does GRPO), agree model size
       and max_steps with her, section 8 launch DPO + RLOO.
@@ -630,6 +635,17 @@ vLLM error on the T4
 
 "dropped N examples with prompt > 2048 tokens"  /  "skipping N of 6631 questions ..."
     -> normal, a few Spider databases have huge schemas. Same cut-off everywhere.
+
+"ValueError: Free memory on device (0.97/14.56 GiB) on startup is less than desired
+ GPU memory utilization"
+    -> something else is still using the GPU, usually a leftover vLLM "EngineCore" process
+       from a run that crashed, or the same command started twice. Check and stop it:
+         nvidia-smi
+         ps aux | grep -E "sample.py|evaluate.py|EngineCore" | grep -v grep
+         pkill -f sample.py; pkill -f evaluate.py; pkill -f EngineCore
+         sleep 5; nvidia-smi        (should now show 14+ GB free)
+       If memory is still used, kill -9 <PID> for each process ps showed. Then start again.
+       Make it a habit: check nvidia-smi before starting any GPU run.
 
 "ValueError: The decoder prompt (length ...) is longer than the maximum model length"
     -> you have old code (vLLM limit 8192). git pull: the limit is now 32768 and sample.py
