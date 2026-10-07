@@ -178,7 +178,19 @@ class Monitor:
         if error:
             msg += "\nerror:\n" + error[-1500:]
         self.message(msg)
+        if exc_type is not None:
+            stop_child_processes()
         return False
+
+
+def stop_child_processes():
+    # after a crash, vLLM's EngineCore process can keep running and hold the GPU
+    import multiprocessing
+    for child in multiprocessing.active_children():
+        child.terminate()
+        child.join(timeout=10)
+        if child.is_alive():
+            child.kill()
 
 
 def short_metrics(logs):

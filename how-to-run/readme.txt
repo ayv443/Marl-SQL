@@ -646,6 +646,8 @@ vLLM error on the T4
          sleep 5; nvidia-smi        (should now show 14+ GB free)
        If memory is still used, kill -9 <PID> for each process ps showed. Then start again.
        Make it a habit: check nvidia-smi before starting any GPU run.
+       (Since 7 Oct the scripts stop vLLM's EngineCore themselves when they crash, so this
+       should not happen any more with the current code.)
 
 "ValueError: The decoder prompt (length ...) is longer than the maximum model length"
     -> you have old code (vLLM limit 8192). git pull: the limit is now 32768 and sample.py
