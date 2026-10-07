@@ -1,0 +1,15 @@
+__pycache__/
+.ipynb_checkpoints/
+wandb/
+outputs/
+eval_repos/
+results/curve/
+# data is big: ignore it, except the small files the two of us must share
+!data/
+data/*
+!data/processed/
+data/processed/*
+!data/processed/filter_log.json
+!data/processed/tags.json
+!data/processed/dpo_pairs.jsonl
+!data/processed/passk_train.json
