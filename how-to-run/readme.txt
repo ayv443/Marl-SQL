@@ -26,9 +26,9 @@ WHERE WE ARE (updated as we go)
   [x] vLLM works on the T4. 50-question feasibility test after the fix: pass@1 0.615,
       pass@8 0.90, 62% mixed, valid SQL 0.76.
   [x] GRPO plan, CLAUDE.md and code bundle sent to the teammate.
-  [ ] NEXT: section 6.1 - run the "why did attempts fail" check on the 50-question
-      samples. If "no SQL found" is small (about 20 or fewer of 400), start the full
-      feasibility run (section 6.2, about 1.5 h).
+  [x] 6.1 failure check: only 3 of 400 attempts "no SQL found", 94 real SQL errors
+      (wrong tables/columns). Reward is fine.
+  [ ] NOW: section 6.2 full feasibility run (about 1.5 h), started 7 Oct.
   [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, send tags.json (+ its sha256sum) to the teammate.
   [ ] Then: section 7 smoke tests for DPO and RLOO (teammate does GRPO), agree model size
       and max_steps with her, section 8 launch DPO + RLOO.
