@@ -4,12 +4,14 @@ HOW TO RUN THE TEXT-TO-SQL RL PROJECT (DPO vs GRPO vs RLOO)
 The code is in the folder text2sql-rl/. This file explains, step by step, how to run
 all of it on AWS SageMaker.
 
-Who does what (since 7 Oct):
-  - Eby: data, reward check, feasibility run, DPO, RLOO, and ALL evaluation.
-  - GRPO: trained by a teammate on her own AWS account with exactly this code and these
-    settings. She follows a separate plan (GRPO_RETRAIN_PLAN.txt, kept outside git in
-    the grpo-teammate-plan folder on Eby's laptop) and gets the code as a git bundle.
-    Section 22 of that plan explains how to receive and check her model.
+Who does what (since 8 Oct), three AWS accounts training at the same time:
+  - Eby: data, reward check, feasibility run, tags.json, DPO, and ALL evaluation.
+  - GRPO teammate: GRPO, on her own AWS account.
+  - Aditya: RLOO on his own AWS account, plus the Gradio demo.
+  Both teammates use this GitHub branch (git pull for updates) and follow their own plan,
+  kept outside git on Eby's laptop: grpo-teammate-plan/GRPO_RETRAIN_PLAN.txt and
+  rloo-teammate-plan/RLOO_PLAN.txt (each with a CLAUDE.md for Claude Code). Section 22 of
+  each plan explains how Eby receives and checks their model.
   (Where this guide says "Person A" / "Person B", read it with this split in mind.
   Section 17 is the plan if you end up doing everything alone.)
 
@@ -26,6 +28,9 @@ WHERE WE ARE (updated as we go)
   [x] vLLM works on the T4. 50-question feasibility test after the fix: pass@1 0.615,
       pass@8 0.90, 62% mixed, valid SQL 0.76.
   [x] GRPO plan, CLAUDE.md and code bundle sent to the teammate.
+  [x] 8 Oct: Aditya added her to GitHub, so no more bundles: both teammates use git pull.
+      Aditya trains RLOO (+ demo). Send him rloo-teammate-plan/RLOO_PLAN.txt + CLAUDE.md,
+      and send her the new GRPO_RETRAIN_PLAN.txt + CLAUDE.md (GitHub version) once.
   [x] 6.1 failure check: only 3 of 400 attempts "no SQL found", 94 real SQL errors
       (wrong tables/columns). Reward is fine.
   [x] First full feasibility attempt crashed: a few training prompts are ~8,850 tokens
@@ -38,10 +43,10 @@ WHERE WE ARE (updated as we go)
   [ ] NOW: section 6.2 full feasibility run (about 1.5 h). (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
-  [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, send tags.json (+ its sha256sum) to the teammate.
-  [ ] Then: section 7 smoke tests for DPO and RLOO (teammate does GRPO), agree model size
-      and max_steps with her, section 8 launch DPO + RLOO.
-  [ ] Then: get her GRPO model (her plan section 22), sections 10-13.
+  [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, 6.5 commit + push tags.json, tell both to git pull.
+  [ ] Then: section 7 DPO smoke test (they do GRPO / RLOO smoke tests), agree model size and
+      max_steps with both (GRPO and RLOO the same), section 8 launch DPO.
+  [ ] Then: get GRPO and RLOO models (section 22 of their plans), sections 10-13.
 
 Contents
   0. What you need
@@ -365,12 +370,15 @@ EOF
     Prints e.g. "9000 pairs from 4800 questions (1200 questions used the gold SQL as 'chosen')".
     Output: data/processed/dpo_pairs.jsonl
 
-6.5 Share with Person A through git (the .gitignore already allows these files):
-      git add data/processed/tags.json data/processed/dpo_pairs.jsonl \
-              data/processed/filter_log.json data/processed/passk_train.json
-      git commit -m "feasibility results"
+6.5 Share tags.json with both teammates through git (the .gitignore allows it):
+      cd ~/Marl-SQL
+      git add text2sql-rl/data/processed/tags.json
+      git commit -m "Feasibility tags"
       git push
-    Person A then runs "git pull".
+    Then tell them: "tags.json is pushed, git pull". Commit only tags.json now: they already
+    have their own filter_log.json from prepare_data.py, and a committed copy would make
+    their git pull complain. filter_log.json, passk_train.json and dpo_pairs.jsonl can be
+    committed at the end of the project as a record.
 
 
 -------------------------------------------------------------
@@ -381,13 +389,12 @@ run "watch -n 2 nvidia-smi" to see GPU memory.
 
   You (Eby):
       python train_dpo.py --max_steps 50 --lr 5e-5
-      python train_rl.py --method rloo --max_steps 50 --lr 5e-5
-      (add --only_mixed 0 to the RLOO one if tags.json doesn't exist yet)
 
-  Teammate (her plan section 9, on her account):
+  GRPO teammate (her plan section 9) and Aditya (his plan section 9), on their accounts:
       python train_rl.py --method grpo --max_steps 50 --lr 5e-5 --only_mixed 0
-  She sends you her s/step and peak GPU memory, so you can decide model size and
-  max_steps together.
+      python train_rl.py --method rloo --max_steps 50 --lr 5e-5 --only_mixed 0
+  They send you their s/step and peak GPU memory, so the three of you can decide model
+  size and max_steps together (GRPO and RLOO must use the same max_steps).
 
 For each one write down:
   - seconds per step (shown in the progress bar, e.g. "25.3s/it")
@@ -446,10 +453,10 @@ SIGTERM" Telegram message, later a new "STARTED" one). Check the job in the cons
 
     You (Eby):
       python launch_sagemaker.py --script train_dpo.py --seed 0 --lr 5e-5
-      python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps 600 --lr 5e-5
 
-    Teammate (her plan section 12, on her account, SAME max_steps as RLOO):
+    GRPO teammate and Aditya (section 12 of their plans, on their accounts, SAME max_steps):
       python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps 600 --lr 5e-5
+      python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps 600 --lr 5e-5
 
     Change 600 to whatever you agreed in step 7. For extra seeds, change --seed 1, 2.
     If your quota is only 1 instance, launch the second job after the first finishes.
@@ -485,14 +492,14 @@ SIGTERM" Telegram message, later a new "STARTED" one). Check the job in the cons
 -------------------------------------------------------------
 9. GETTING THE TRAINED MODELS BACK
 -------------------------------------------------------------
-On your (Eby's) space, your own two runs:
-      aws s3 sync s3://BUCKET/text2sql/checkpoints/dpo-1.5b-s0  outputs/dpo-1.5b-s0
-      aws s3 sync s3://BUCKET/text2sql/checkpoints/rloo-1.5b-s0 outputs/rloo-1.5b-s0
+On your (Eby's) space, your own run:
+      aws s3 sync s3://BUCKET/text2sql/checkpoints/dpo-1.5b-s0 outputs/dpo-1.5b-s0
 
-GRPO lives in the teammate's AWS account. She sends two download links (checkpoints +
-proof). Download, unpack and check her model with section 22 of GRPO_RETRAIN_PLAN.txt
-(22.3 to 22.5: unpack into outputs/grpo-1.5b-s0, check base model / LoRA / steps, quick
-load test).
+GRPO and RLOO live in the teammates' AWS accounts. Each pushes their proof to their own
+branch (grpo-run, rloo-run) and sends you one download link for the checkpoints. Get and
+check them with section 22 of their plans (22.3 to 22.5: proof from the branch,
+checkpoints into outputs/grpo-1.5b-s0 and outputs/rloo-1.5b-s0, check base model / LoRA /
+steps, quick load test).
 
 The folder structure you should end up with:
       outputs/dpo-1.5b-s0/checkpoint-100/  ...  final/
