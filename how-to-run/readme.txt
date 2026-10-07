@@ -371,8 +371,16 @@ Smoke test output goes to outputs/<method>-1.5b-s0/. Delete it before the real r
 8. FULL TRAINING AS SAGEMAKER TRAINING JOBS
 -------------------------------------------------------------
 Training jobs run on their own machine, so you can close the notebook and they keep going.
-They use spot instances (much cheaper). If AWS takes the instance back, launch the same
-command again and it resumes from the last checkpoint.
+They use spot instances (much cheaper).
+If AWS takes a spot instance back, SageMaker restarts the SAME job by itself when
+capacity is back and it continues from the last checkpoint in S3 (you get a "STOPPED:
+SIGTERM" Telegram message, later a new "STARTED" one). Check the job in the console:
+  - status still "InProgress" (status message like "Interrupted" / "Waiting for spot
+    capacity" / "Restarting"): do nothing, it resumes on its own. Do NOT launch it again,
+    two jobs would write to the same checkpoint folder.
+  - status "Stopped" or "Failed" (e.g. you pressed Stop, or the max wait time ran out):
+    run the same launch_sagemaker.py command again; the new job continues from the last
+    checkpoint because it uses the same S3 checkpoint folder.
 
 8.1 Find your default bucket (do this once):
       python -c "import sagemaker; print(sagemaker.Session().default_bucket())"
@@ -852,8 +860,8 @@ else works the same.
      val_curve.py runs evaluate.py many times; those inner runs don't message you, only
      the final result does.
 
-     If you get a STOPPED (SIGTERM) message for a spot job, just run the same
-     launch_sagemaker.py command again and it continues from the last checkpoint.
+     STOPPED (SIGTERM) for a spot job: see the start of section 8. Usually SageMaker
+     restarts the job by itself; only relaunch if the job status is Stopped or Failed.
 
 
 -------------------------------------------------------------
