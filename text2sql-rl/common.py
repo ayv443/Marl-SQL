@@ -45,6 +45,8 @@ def _short(v, n=40):
 @lru_cache(maxsize=None)
 def schema_text(db_file):
     # CREATE TABLE statements with keys and 3 example values per column
+    if not os.path.exists(db_file):
+        raise FileNotFoundError(f"database not found: {db_file}")
     conn = sqlite3.connect(f"file:{db_file}?mode=ro", uri=True)
     conn.text_factory = lambda b: b.decode(errors="ignore")
     cur = conn.cursor()

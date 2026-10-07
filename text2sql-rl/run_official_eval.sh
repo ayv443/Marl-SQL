@@ -4,6 +4,9 @@ set -e
 TAG=${1:-base}
 TS=eval_repos/test-suite-sql-eval
 R=results/$TAG
+# test_database has every Spider database (train + dev + test), use it if it's there
+DB=data/spider_data/database
+[ -d data/spider_data/test_database ] && DB=data/spider_data/test_database
 
 # gold file in the format the spider script wants
 python - <<'EOF'
@@ -20,7 +23,7 @@ for SPLIT in spider_dev spider_syn spider_dk spider_realistic; do
   [ -f $R/$SPLIT/pred.txt ] || continue
   echo "=== $TAG / $SPLIT : EX (original databases) ==="
   python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred.txt \
-      --db data/spider_data/database --table data/spider_data/tables.json --etype exec | tee $R/$SPLIT/official_ex.txt
+      --db $DB --table data/spider_data/tables.json --etype exec | tee $R/$SPLIT/official_ex.txt
   echo "=== $TAG / $SPLIT : TS (test-suite databases) ==="
   python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred.txt \
       --db data/testsuite_databases --table data/spider_data/tables.json --etype exec | tee $R/$SPLIT/official_ts.txt
