@@ -8,7 +8,7 @@ happens on one machine (Eby's), so every model is evaluated the same way.
 | --- | --- | --- | --- |
 | Trains | **DPO** | **GRPO** | **RLOO** |
 | Also | Data prep, reward check, feasibility run, `tags.json`, DPO pairs, **all evaluation**, results tables | | Gradio demo (`app.py`) |
-| Instructions | `how-to-run/readme.txt` | `GRPO_RETRAIN_PLAN.txt` (sent by Eby) | `RLOO_PLAN.txt` (sent by Eby) |
+| Instructions | `how-to-run/readme.txt` | `team/GRPO_RETRAIN_PLAN.txt` + `team/CLAUDE_grpo.md` | `team/RLOO_PLAN.txt` + `team/CLAUDE_rloo.md` |
 | Report | Data & filtering, reward, DPO, evaluation setup, benchmark results | GRPO method + training dynamics | RLOO method + training dynamics, demo |
 | Together | Intro, related work, comparison / discussion, conclusion, demo rehearsal | | |
 
@@ -23,7 +23,7 @@ temperature 0.8, beta 0.04, only "mixed" questions from `tags.json`, the **same*
 
 | What | How |
 | --- | --- |
-| Code and fixes | This GitHub branch. Eby pushes, the others `git pull`. Nobody else pushes to `text2sql-rl`. |
+| Code, fixes and plans | This GitHub branch (plans in `team/`). Eby pushes, the others `git pull`. Nobody else pushes to `text2sql-rl`. |
 | `tags.json` | Eby commits it after the feasibility run; the others `git pull`. |
 | Code check | Before launching, each trainer sends Eby `git log -1` (must be the latest commit) and a clean `git status`. |
 | Training proof | Each trainer runs `collect_proof.sh` and pushes `proof/<run>/` to their own branch (`grpo-run`, `rloo-run`). |

@@ -2,7 +2,7 @@
 
 Qwen2.5-Coder-1.5B-Instruct + LoRA, trained on Spider with DPO, GRPO and RLOO, evaluated on
 Spider dev (EX, TS), Spider-Syn/DK/Realistic, and BIRD dev (EX, Soft-F1, R-VES).
-Who does what is in [TEAM_PLAN.md](TEAM_PLAN.md).
+Who does what is in [TEAM_PLAN.md](TEAM_PLAN.md); the GRPO and RLOO owners' step-by-step plans are in `../team/`.
 
 ## Files
 
