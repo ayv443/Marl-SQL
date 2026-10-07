@@ -590,6 +590,11 @@ vLLM error on the T4
 "dropped N examples with prompt > 2048 tokens"
     -> normal, a few Spider databases have huge schemas.
 
+Training job fails at the start with "wandb: ERROR api_key not configured (no-tty)"
+    -> the job got no W&B key: run "source ~/SageMaker/.bashrc_t2s" (or export
+       WANDB_API_KEY) BEFORE launch_sagemaker.py, check with: echo ${WANDB_API_KEY:0:6}
+       and relaunch. Inside a job W&B can't ask you to log in, so the key is required.
+
 "telegram message failed after 3 tries: ... Connection reset by peer"
     -> a short network problem between AWS and Telegram. The script tries 3 times and then
        carries on; the run itself is not affected. If it happens every time, run
