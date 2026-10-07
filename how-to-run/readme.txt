@@ -40,7 +40,10 @@ WHERE WE ARE (updated as we go)
   [x] 899 of 6631 training questions have prompts > 2048 tokens (a few databases with very
       big schemas) and are skipped by sampling and by all three trainers: 5,732 training
       questions remain. Same subset for every method; eval sets are not cut.
-  [ ] NOW: section 6.2 full feasibility run (about 1.5 h). (Second attempt failed because
+  [x] S3 checked (8 Oct): shared course AWS account, bucket
+      sagemaker-ap-southeast-2-443142193439 is writable, default_bucket() works in t2s.
+      Training jobs not tested yet (first launch will show it).
+  [ ] NOW: section 6.2 full feasibility run (about 1.5 h). Meanwhile: upload data to S3 (8.2). (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
   [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, 6.5 commit + push tags.json, tell both to git pull.
@@ -642,6 +645,24 @@ vLLM error on the T4
 
 "dropped N examples with prompt > 2048 tokens"  /  "skipping N of 6631 questions ..."
     -> normal, a few Spider databases have huge schemas. Same cut-off everywhere.
+
+"AttributeError: module 'sagemaker' has no attribute 'Session'"
+    -> you are not in the t2s environment, so Studio's default Python (SageMaker SDK v3)
+       ran the command. Run "source ~/SageMaker/.bashrc_t2s" first; t2s has SDK 2.x
+       (check: python -c "import sagemaker; print(sagemaker.__version__)" -> 2.257.x).
+       The "SageMakerV2DeprecationWarning" lines are harmless; hide them with:
+         echo 'export SAGEMAKER_SUPPRESS_V2_WARNING=1' >> ~/SageMaker/.bashrc_t2s
+
+"I can't access S3" / checking S3 works
+    -> our AWS account is the university's shared course account (role
+       43008-RL-Spr26-sagemaker-execution-role): we can't change IAM, but S3 works.
+       Test writing to our folder in the SageMaker bucket:
+         echo test > /tmp/t.txt
+         aws s3 cp /tmp/t.txt s3://sagemaker-ap-southeast-2-443142193439/text2sql/test.txt
+         aws s3 rm s3://sagemaker-ap-southeast-2-443142193439/text2sql/test.txt
+       Other buckets in "aws s3 ls" belong to other students / the course: never touch them,
+       and only use the text2sql/ folder in sagemaker-ap-southeast-2-443142193439.
+       GPU quota in a shared account is shared with the whole class, so capacity can run out.
 
 "ValueError: Free memory on device (0.97/14.56 GiB) on startup is less than desired
  GPU memory utilization"
