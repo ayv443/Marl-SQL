@@ -2,8 +2,37 @@ HOW TO RUN THE TEXT-TO-SQL RL PROJECT (DPO vs GRPO vs RLOO)
 =============================================================
 
 The code is in the folder text2sql-rl/. This file explains, step by step, how to run
-all of it on AWS SageMaker. Person A = GRPO + RLOO, Person B = data + DPO + evaluation
-(see text2sql-rl/TEAM_PLAN.md for who does what and when).
+all of it on AWS SageMaker.
+
+Who does what (since 7 Oct):
+  - Eby: data, reward check, feasibility run, DPO, RLOO, and ALL evaluation.
+  - GRPO: trained by a teammate on her own AWS account with exactly this code and these
+    settings. She follows a separate plan (GRPO_RETRAIN_PLAN.txt, kept outside git in
+    the grpo-teammate-plan folder on Eby's laptop) and gets the code as a git bundle.
+    Section 22 of that plan explains how to receive and check her model.
+  (Where this guide says "Person A" / "Person B", read it with this split in mind.
+  Section 17 is the plan if you end up doing everything alone.)
+
+Learning rate for ALL three methods: --lr 5e-5 (agreed 7 Oct; top of the plan's
+1e-5 to 5e-5 range, after a pilot run showed 1e-5 barely changed the model).
+
+
+=============================================================
+WHERE WE ARE (updated as we go)
+=============================================================
+  [x] Data downloaded and prepared (section 4): 8659 -> 7040 kept, 6631 train / 409 val,
+      Spider-DK 535 after merging its databases. Spider-Realistic not downloaded (optional).
+  [x] Reward check passed (section 5), also after the extract_sql() fix.
+  [x] vLLM works on the T4. 50-question feasibility test after the fix: pass@1 0.615,
+      pass@8 0.90, 62% mixed, valid SQL 0.76.
+  [x] GRPO plan, CLAUDE.md and code bundle sent to the teammate.
+  [ ] NEXT: section 6.1 - run the "why did attempts fail" check on the 50-question
+      samples. If "no SQL found" is small (about 20 or fewer of 400), start the full
+      feasibility run (section 6.2, about 1.5 h).
+  [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, send tags.json (+ its sha256sum) to the teammate.
+  [ ] Then: section 7 smoke tests for DPO and RLOO (teammate does GRPO), agree model size
+      and max_steps with her, section 8 launch DPO + RLOO.
+  [ ] Then: get her GRPO model (her plan section 22), sections 10-13.
 
 Contents
   0. What you need
@@ -338,12 +367,15 @@ EOF
 Run these directly in the notebook terminal (not as jobs). Open a second terminal and
 run "watch -n 2 nvidia-smi" to see GPU memory.
 
-  Person B:
-      python train_dpo.py --max_steps 50
+  You (Eby):
+      python train_dpo.py --max_steps 50 --lr 5e-5
+      python train_rl.py --method rloo --max_steps 50 --lr 5e-5
+      (add --only_mixed 0 to the RLOO one if tags.json doesn't exist yet)
 
-  Person A (if tags.json hasn't arrived yet, add --only_mixed 0):
-      python train_rl.py --method grpo --max_steps 50
-      python train_rl.py --method rloo --max_steps 50
+  Teammate (her plan section 9, on her account):
+      python train_rl.py --method grpo --max_steps 50 --lr 5e-5 --only_mixed 0
+  She sends you her s/step and peak GPU memory, so you can decide model size and
+  max_steps together.
 
 For each one write down:
   - seconds per step (shown in the progress bar, e.g. "25.3s/it")
@@ -400,12 +432,12 @@ SIGTERM" Telegram message, later a new "STARTED" one). Check the job in the cons
 
 8.4 Launch (any extra --arguments are passed straight to the training script):
 
-    Person A:
-      python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps 600
-      python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps 600
+    You (Eby):
+      python launch_sagemaker.py --script train_dpo.py --seed 0 --lr 5e-5
+      python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps 600 --lr 5e-5
 
-    Person B:
-      python launch_sagemaker.py --script train_dpo.py --seed 0
+    Teammate (her plan section 12, on her account, SAME max_steps as RLOO):
+      python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps 600 --lr 5e-5
 
     Change 600 to whatever you agreed in step 7. For extra seeds, change --seed 1, 2.
     If your quota is only 1 instance, launch the second job after the first finishes.
@@ -441,14 +473,16 @@ SIGTERM" Telegram message, later a new "STARTED" one). Check the job in the cons
 -------------------------------------------------------------
 9. GETTING THE TRAINED MODELS BACK
 -------------------------------------------------------------
-On the notebook of whoever does the evaluation (Person B):
+On your (Eby's) space, your own two runs:
       aws s3 sync s3://BUCKET/text2sql/checkpoints/dpo-1.5b-s0  outputs/dpo-1.5b-s0
+      aws s3 sync s3://BUCKET/text2sql/checkpoints/rloo-1.5b-s0 outputs/rloo-1.5b-s0
 
-Person A's models live in Person A's account, so Person A sends them (see section 14), and
-Person B puts them in outputs/grpo-1.5b-s0 and outputs/rloo-1.5b-s0 with the
-checkpoint-XXX folders inside.
+GRPO lives in the teammate's AWS account. She sends two download links (checkpoints +
+proof). Download, unpack and check her model with section 22 of GRPO_RETRAIN_PLAN.txt
+(22.3 to 22.5: unpack into outputs/grpo-1.5b-s0, check base model / LoRA / steps, quick
+load test).
 
-The folder structure Person B should end up with:
+The folder structure you should end up with:
       outputs/dpo-1.5b-s0/checkpoint-100/  ...  final/
       outputs/grpo-1.5b-s0/checkpoint-100/ ...  final/
       outputs/rloo-1.5b-s0/checkpoint-100/ ...  final/
@@ -708,15 +742,15 @@ Each line gives the section to follow. [GPU] = needs the g4dn notebook,
   Step 6   [GPU]  Section 6: sample.py feasibility run (nohup), go/no-go, make_dpo_pairs.py.
                   While it runs: start the report (intro, related work, data section).
   Step 7   [GPU]  Section 7: smoke tests, one after another:
-                    python train_dpo.py --max_steps 50
-                    python train_rl.py --method grpo --max_steps 50
-                    python train_rl.py --method rloo --max_steps 50
+                    python train_dpo.py --max_steps 50 --lr 5e-5
+                    python train_rl.py --method grpo --max_steps 50 --lr 5e-5
+                    python train_rl.py --method rloo --max_steps 50 --lr 5e-5
                   Pick the model size and max_steps. Then rm -rf outputs/
   Step 8   [CPU]  Section 8.1-8.3: upload data to S3, export WANDB_API_KEY.
   Step 9   [JOB]  Section 8.4: launch all three:
-                    python launch_sagemaker.py --script train_dpo.py --seed 0
-                    python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps <N>
-                    python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps <N>
+                    python launch_sagemaker.py --script train_dpo.py --seed 0 --lr 5e-5
+                    python launch_sagemaker.py --script train_rl.py --method grpo --seed 0 --max_steps <N> --lr 5e-5
+                    python launch_sagemaker.py --script train_rl.py --method rloo --seed 0 --max_steps <N> --lr 5e-5
                   With quota 1: launch DPO first (shortest), then GRPO, then RLOO.
   Step 10  [GPU]  While the jobs run: evaluate the untrained model now, so it's done:
                     for SPLIT in val spider_dev spider_syn spider_dk spider_realistic bird_dev; do
