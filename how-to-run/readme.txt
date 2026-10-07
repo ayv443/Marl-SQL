@@ -9,7 +9,7 @@ Contents
   0. What you need
   1. AWS setup (both people, do this first)
   2. GitHub + Weights & Biases setup
-  3. Start the notebook and install everything
+  3. Start SageMaker Studio and install everything
   4. Download and prepare the data
   5. Check the reward function
   6. Feasibility run (go / no-go) and DPO pairs
@@ -45,38 +45,34 @@ The T4 has no bf16, so everything runs in fp16.
 1. AWS SETUP (BOTH PEOPLE, DO THIS FIRST)
 -------------------------------------------------------------
 1.1 Pick one region and stay in it the whole project (e.g. us-east-1 or ap-southeast-2).
-    Everything (notebook, S3 bucket, training jobs) must be in the same region.
+    Everything (Studio, S3 bucket, training jobs) must be in the same region.
 
 1.2 Request GPU quota. In the AWS console:
       Service Quotas -> AWS services -> Amazon SageMaker
     Search for and request an increase to 1 (or 2 if you want two jobs at once) for:
-      - ml.g4dn.2xlarge for notebook instance usage
+      - Studio JupyterLab Apps running on ml.g4dn.2xlarge instance
+        (called "ml.g4dn.2xlarge for notebook instance usage" if you use notebook instances)
       - ml.g4dn.2xlarge for training job usage
       - ml.g4dn.2xlarge for spot training job usage
-    This can take a few days. While waiting, you can do steps 2-4 on a cheap CPU
-    notebook (ml.t3.xlarge). Data prep does not need a GPU.
+    This can take a few days. While waiting, you can do steps 2-5 on a cheap CPU
+    space (ml.t3.xlarge). Data prep does not need a GPU.
 
-1.3 IAM role. When you create the notebook instance, choose
-    "Create a new role" (AmazonSageMaker-ExecutionRole-...). Give it access to
-    "Any S3 bucket". This role already has permission to launch training jobs.
+1.3 IAM role. Studio runs with the execution role of your SageMaker domain
+    (AmazonSageMaker-ExecutionRole-...). It needs the AmazonSageMakerFullAccess policy
+    (it has it by default) so it can use S3 and launch training jobs. If
+    launch_sagemaker.py says AccessDenied, attach that policy to the role in IAM.
 
 
 -------------------------------------------------------------
 2. GITHUB + WEIGHTS & BIASES SETUP
 -------------------------------------------------------------
-2.1 Person A: create a PRIVATE GitHub repo (e.g. text2sql-rl), then on your laptop:
-      cd text2sql-rl
-      git init
-      git add .
-      git commit -m "initial code"
-      git branch -M main
-      git remote add origin https://github.com/<you>/text2sql-rl.git
-      git push -u origin main
-    Add Person B as a collaborator (repo Settings -> Collaborators).
+2.1 The code is on GitHub in the repo ayv443/Marl-SQL, branch text2sql-rl:
+      https://github.com/ayv443/Marl-SQL/tree/text2sql-rl
+    The repo owner adds the other person as a collaborator (repo Settings -> Collaborators).
 
-2.2 To clone a private repo on SageMaker you need a GitHub personal access token
-    (GitHub -> Settings -> Developer settings -> Personal access tokens -> classic, tick "repo").
-    Use the token as the password when git asks.
+2.2 If the repo is private, cloning on SageMaker asks for a password: use a GitHub personal
+    access token (GitHub -> Settings -> Developer settings -> Personal access tokens ->
+    classic, tick "repo") instead of your GitHub password.
 
 2.3 W&B is free. Sign up with your UTS student email and apply for the free academic
     plan (more storage, and teams are allowed). Then Person B creates a team, invites
@@ -88,48 +84,111 @@ The T4 has no bf16, so everything runs in fp16.
 
 
 -------------------------------------------------------------
-3. START THE NOTEBOOK AND INSTALL EVERYTHING
+3. START SAGEMAKER AND INSTALL EVERYTHING
 -------------------------------------------------------------
-3.1 SageMaker console -> Notebooks -> Notebook instances -> Create notebook instance
-      Name:            text2sql-<yourname>
-      Instance type:   ml.g4dn.2xlarge   (ml.t3.xlarge while waiting for quota)
-      Volume size:     50 GB
-      IAM role:        the one from step 1.3
-    Wait until it says InService, then click "Open JupyterLab".
+We use SageMaker Studio (JupyterLab). Your terminal prompt looks like
+"sagemaker-user@default:~$" and your home folder is /home/sagemaker-user.
+In Studio the WHOLE home folder is kept when the space is stopped, so nothing gets lost.
+(If you use a classic notebook instance instead, see 3.8.)
 
-3.2 Open a Terminal in JupyterLab (File -> New -> Terminal).
-    IMPORTANT: only the ~/SageMaker folder survives when the notebook is stopped.
-    Keep everything inside it.
+3.1 Create the space:
+      SageMaker console -> Studio -> Open Studio -> JupyterLab -> Create JupyterLab space
+      Name:            text2sql
+      Instance:        ml.g4dn.2xlarge   (ml.t3.xlarge is fine for steps 3-5, no GPU needed)
+      Storage:         50 GB (30-40 GB works with the tips in section 16)
+    Click "Run space", wait, then "Open JupyterLab".
+    You can change the instance type later: stop the space, change it, run it again.
 
-      cd ~/SageMaker
-      git clone https://github.com/<you>/text2sql-rl.git
+3.2 Open a terminal (File -> New -> Terminal) and get the code:
+
+      cd ~
+      git clone https://github.com/ayv443/Marl-SQL.git
+      cd Marl-SQL
+      git checkout text2sql-rl
       cd text2sql-rl
 
-3.3 Make a Python environment inside ~/SageMaker so it survives restarts:
+    Check you're on the right branch:
+      git branch              (the line with * must say text2sql-rl)
+
+    Later, to get the newest code:
+      cd ~/Marl-SQL && git pull && cd text2sql-rl
+
+3.3 Make the Python environment (once, takes ~10 minutes):
 
       conda create -p ~/SageMaker/envs/t2s python=3.11 -y
       source activate ~/SageMaker/envs/t2s
       pip install --no-cache-dir -r requirements.txt vllm==0.10.2 matplotlib scipy gradio pandas "sagemaker<3" gdown
 
     --no-cache-dir stops pip keeping a second copy of every download, which saves a few GB.
+    "(t2s)" at the start of the prompt means the environment is switched on.
 
-    Every time you open a new terminal later, run:
-      cd ~/SageMaker/text2sql-rl
-      source activate ~/SageMaker/envs/t2s
+3.4 Get your keys ready:
+      - W&B API key: https://wandb.ai/authorize
+      - Telegram bot token and chat id: section 18 (5 minutes, recommended)
 
-3.4 Log in to W&B:
-      wandb login            (paste your API key)
-      export WANDB_API_KEY=<your key>
-    Put the export line at the end of ~/SageMaker/.bashrc_t2s and run
-    "source ~/SageMaker/.bashrc_t2s" in each new terminal, or just paste it each time.
+3.5 Save your keys in a settings file (once). Paste this whole block into the terminal,
+    with your own values in place of the three "paste_..." parts:
 
-3.5 Check the GPU:
+mkdir -p ~/SageMaker
+cat > ~/SageMaker/.bashrc_t2s <<'EOF'
+export WANDB_API_KEY=paste_your_wandb_key_here
+export TELEGRAM_BOT_TOKEN=paste_your_bot_token_here
+export TELEGRAM_CHAT_ID=paste_your_chat_id_here
+cd ~/Marl-SQL/text2sql-rl
+[ "$CONDA_PREFIX" = "$HOME/SageMaker/envs/t2s" ] || source activate ~/SageMaker/envs/t2s
+EOF
+
+    (The block above is not indented on purpose: the last line must be exactly EOF with
+    no spaces in front, otherwise the terminal keeps waiting for more input. If that
+    happens, press Ctrl+C and paste it again.)
+
+    What it does: "cat > file <<'EOF' ... EOF" writes the lines in between into the file.
+    The last two lines go to the code folder and switch on the environment (only if it
+    isn't on already).
+
+    Check it:
+      cat ~/SageMaker/.bashrc_t2s          (shows your 5 lines)
+
+    To change something later:
+      nano ~/SageMaker/.bashrc_t2s         (edit, Ctrl+O, Enter to save, Ctrl+X to exit)
+
+    This file has your keys in it. It is outside the repo, never copy it into the repo.
+
+3.6 Load the settings. In EVERY new terminal run:
+      source ~/SageMaker/.bashrc_t2s
+
+    Or make every new terminal do it automatically (run this ONCE only, running it twice
+    adds the line twice):
+      echo 'source ~/SageMaker/.bashrc_t2s' >> ~/.bashrc
+
+    Check it worked:
+      echo $TELEGRAM_CHAT_ID               (prints your chat id)
+      which python                         (prints /home/sagemaker-user/SageMaker/envs/t2s/bin/python)
+      wandb login                          (once; it uses WANDB_API_KEY, or paste the key)
+      python monitor.py --test             (you get a Telegram message)
+
+    If you see "bash: activate: No such file or directory": the environment was already
+    switched on, it's harmless. The [ "$CONDA_PREFIX" ... ] line in 3.5 stops it happening.
+
+    If you see "python: can't open file '.../monitor.py'": you're not in the code folder.
+    Run: cd ~/Marl-SQL/text2sql-rl
+
+3.7 Check the GPU (only when the space runs on ml.g4dn.2xlarge):
       nvidia-smi             (should show a Tesla T4)
 
-3.6 (Recommended) Set up Telegram updates now, it takes 5 minutes: see section 18.
-    Then put these lines in ~/SageMaker/.bashrc_t2s too:
-      export TELEGRAM_BOT_TOKEN=<token>
-      export TELEGRAM_CHAT_ID=<chat id>
+    Studio idle shutdown: Studio can stop a JupyterLab space that looks idle, and that
+    kills anything running in its terminals. Long notebook runs (feasibility sampling,
+    evaluation, val_curve) are started with nohup (see below) and you should keep the
+    browser tab open while they run. Training jobs (section 8) run on separate machines
+    and are not affected.
+
+3.8 Using a classic notebook instance instead of Studio (only if you don't use Studio):
+    - SageMaker console -> Notebooks -> Notebook instances -> Create, ml.g4dn.2xlarge,
+      volume 50 GB, then "Open JupyterLab".
+    - Only ~/SageMaker survives a stop/start there, so clone into it:
+        cd ~/SageMaker && git clone https://github.com/ayv443/Marl-SQL.git
+      and in 3.5 use  cd ~/SageMaker/Marl-SQL/text2sql-rl  instead.
+    - ~/.bashrc is reset on every restart, so run the "source" line yourself each time.
 
 
 -------------------------------------------------------------
@@ -162,11 +221,18 @@ The T4 has no bf16, so everything runs in fp16.
 4.2 Prepare:
       python prepare_data.py
 
-    It prints something like:
+    Our actual run printed (yours should be the same, same data + same seed):
       Spider train: 8659 questions
-      filter: {'empty_result': ..., 'gold_error': ..., 'timeout_over_5s': ..., 'kept': ...}
-      train: ~7800 questions | val: ~400 questions from ~10 DBs
-    Write these numbers down, they go in the report (also saved in data/processed/filter_log.json).
+      filter: {'empty_result': 1616, 'gold_error': 3, 'kept': 7040}
+      train: 6631 questions | val: 409 questions from 10 DBs
+    and the eval sets: Spider dev 1034, Spider-Syn 1034, Spider-DK 535 (once its 3 extra
+    databases are merged, see 4.1), BIRD dev 1534, Spider-Realistic 508 (if downloaded).
+    No query hit the 5 s timeout. Note for the report: 1616 of 8659 (about 19%) training
+    questions were dropped because the gold query returns no rows.
+    These numbers are also saved in data/processed/filter_log.json.
+
+    "skipping spider_realistic: ... not found" means you haven't downloaded it yet (4.1).
+    It is optional; without it you just have one robustness set fewer.
 
     Output folder data/processed/ now has:
       train.jsonl, val.jsonl, spider_dev.jsonl, bird_dev.jsonl,
@@ -174,7 +240,7 @@ The T4 has no bf16, so everything runs in fp16.
       gold_cache.pkl, filter_log.json
 
     The split uses a fixed seed (42), so both people get exactly the same train/val split.
-    Takes ~5-15 minutes (BIRD prompts take the longest).
+    Takes under a minute.
 
 
 -------------------------------------------------------------
@@ -505,17 +571,16 @@ KeyError: 'train_1234' (or similar) from reward.py
 -------------------------------------------------------------
 16. SAVING MONEY
 -------------------------------------------------------------
-- STOP the notebook instance whenever you're not using it (Notebook instances ->
-  select -> Actions -> Stop). A running g4dn.2xlarge notebook costs money every hour
-  even when idle. Files in ~/SageMaker are kept.
-- Use a cheap ml.t3.xlarge notebook for anything that doesn't need a GPU (data prep,
-  launching jobs, analysis.py, writing). You can change the instance type of a stopped
-  notebook (Edit).
+- STOP the Studio space whenever you're not using it (Studio -> JupyterLab -> your
+  space -> Stop). A running g4dn.2xlarge space costs money every hour even when idle.
+  Your files in the home folder are kept.
+- Use a cheap ml.t3.xlarge space for anything that doesn't need a GPU (data prep,
+  launching jobs, analysis.py, writing). Stop the space, change the instance, run it again.
 - Training jobs use spot by default, which is a lot cheaper than on-demand.
 - Set an AWS budget alert: Billing -> Budgets -> Create budget.
 - At the end of the project, delete the S3 checkpoints you don't need.
 
-Disk space on the notebook (rough sizes):
+Disk space in the Studio space (rough sizes):
     Python environment ............ 8-10 GB
     Qwen 1.5B model ............... ~3 GB
     Spider + test-suite + BIRD .... ~6-8 GB
@@ -550,7 +615,7 @@ In Service Quotas (section 1.2), ask for 3 instead of 1 for:
   - ml.g4dn.2xlarge for spot training job usage
 With 3 you can train DPO, GRPO and RLOO at the SAME time, which saves days.
 With only 1 you have to run them one after another (see the timeline in 17.4).
-Keep notebook instance usage at 1.
+Keep the JupyterLab (Studio) quota at 1.
 
 
 17.2 IF YOU ARE TAKING OVER HALFWAY
