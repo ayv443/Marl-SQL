@@ -50,8 +50,10 @@ WHERE WE ARE (updated as we go)
       pass@1 0.573, pass@4 0.786, pass@8 0.845, all_wrong 15.5%, mixed 60.3% (~3460
       questions), all_right 24.2%, valid SQL 0.760. Clear GO (6.3).
       For max_steps: ~3460 mixed questions / 4 per step = ~865 steps per pass over the data.
-  [ ] NOW: git pull, set git identity (6.5), make_dpo_pairs.py (6.4), push tags.json (6.5),
-      tell both teammates to git pull. Then the DPO smoke test (section 7). (Second attempt failed because
+  [x] 6.4 DPO pairs: 7917 pairs from 4347 questions (890 used the gold SQL as "chosen",
+      exactly the all_wrong questions). 1 DPO epoch = 7917 / 16 = ~495 steps.
+  [ ] NOW: set git identity and push tags.json (6.5), tell both teammates to git pull.
+      Then the DPO smoke test (section 7). (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
   [ ] Then: section 7 DPO smoke test (they do GRPO / RLOO smoke tests), agree model size and
