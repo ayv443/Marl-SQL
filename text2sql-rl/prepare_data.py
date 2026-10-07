@@ -3,6 +3,7 @@ import json
 import os
 import pickle
 import random
+import shutil
 from collections import Counter
 
 from tqdm import tqdm
@@ -16,6 +17,18 @@ VAL_TARGET = 400
 
 SPIDER = "spider_data"
 BIRD = "bird_dev"
+
+
+def merge_spider_dk_dbs():
+    # Spider-DK uses 3 databases that aren't in Spider, they come with its repo
+    src = os.path.join(os.path.dirname(os.path.abspath(__file__)), "eval_repos", "Spider-DK", "database")
+    dst = os.path.join(DATA_DIR, SPIDER, "test_database")
+    if not os.path.isdir(src):
+        return
+    for db in os.listdir(src):
+        if not os.path.exists(os.path.join(dst, db, f"{db}.sqlite")):
+            shutil.copytree(os.path.join(src, db), os.path.join(dst, db), dirs_exist_ok=True)
+            print(f"copied Spider-DK database {db} into {SPIDER}/test_database")
 
 
 def find_db(db_id, roots=(f"{SPIDER}/database", f"{SPIDER}/test_database")):
@@ -54,6 +67,7 @@ def load_json(rel):
 
 def main():
     os.makedirs(PROCESSED_DIR, exist_ok=True)
+    merge_spider_dk_dbs()
 
     # filter train: drop gold errors, timeouts and empty results
     raw = load_json(f"{SPIDER}/train_spider.json") + load_json(f"{SPIDER}/train_others.json")

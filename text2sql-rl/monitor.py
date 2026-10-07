@@ -40,10 +40,14 @@ def send_telegram(text):
     if not token or not chat_id:
         return
     data = urllib.parse.urlencode({"chat_id": chat_id, "text": text[:4000]}).encode()
-    try:
-        urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", data=data, timeout=10)
-    except Exception as e:
-        print(f"telegram message failed: {e}", flush=True)
+    for attempt in range(3):
+        try:
+            urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", data=data, timeout=10)
+            return
+        except Exception as e:
+            error = e
+            time.sleep(2 * (attempt + 1))
+    print(f"telegram message failed after 3 tries: {error}", flush=True)
 
 
 def _ec2_metadata():

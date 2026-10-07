@@ -204,11 +204,12 @@ EOF
       data/spider_variants/        Spider-Syn and Spider-DK json
       eval_repos/                  official evaluation code (test-suite, BIRD mini_dev)
 
-    download_data.sh also copies Spider-DK's 3 extra databases into data/spider_data/test_database/.
-    If prepare_data.py prints "WARNING spider_dk: skipped ... new_concert_singer ...", run:
-      mkdir -p data/spider_data/test_database
-      cp -rn eval_repos/Spider-DK/database/* data/spider_data/test_database/
-    and run prepare_data.py again.
+    Spider-DK uses 3 extra databases (new_concert_singer, new_orchestra, new_pets_1) that
+    come with its repo in eval_repos/Spider-DK/database/. prepare_data.py copies them into
+    data/spider_data/test_database/ by itself and prints "copied Spider-DK database ...".
+    If it still prints "WARNING spider_dk: skipped ...", check the folder exists:
+      ls eval_repos/Spider-DK/database
+    If it doesn't, run download_data.sh again (it clones the Spider-DK repo).
 
     Spider-Realistic must be downloaded by hand: get spider-realistic.json from
     https://zenodo.org/record/5205322 and save it as
@@ -225,8 +226,9 @@ EOF
       Spider train: 8659 questions
       filter: {'empty_result': 1616, 'gold_error': 3, 'kept': 7040}
       train: 6631 questions | val: 409 questions from 10 DBs
-    and the eval sets: Spider dev 1034, Spider-Syn 1034, Spider-DK 535 (once its 3 extra
-    databases are merged, see 4.1), BIRD dev 1534, Spider-Realistic 508 (if downloaded).
+    and the eval sets: Spider dev 1034, Spider-Syn 1034, Spider-DK 535, BIRD dev 1534,
+    Spider-Realistic 508 (if downloaded). The first time, you also see 3 lines
+    "copied Spider-DK database ...".
     No query hit the 5 s timeout. Note for the report: 1616 of 8659 (about 19%) training
     questions were dropped because the gold query returns no rows.
     These numbers are also saved in data/processed/filter_log.json.
@@ -544,6 +546,11 @@ vLLM error on the T4
 
 "dropped N examples with prompt > 2048 tokens"
     -> normal, a few Spider databases have huge schemas.
+
+"telegram message failed after 3 tries: ... Connection reset by peer"
+    -> a short network problem between AWS and Telegram. The script tries 3 times and then
+       carries on; the run itself is not affected. If it happens every time, run
+       "python monitor.py --test" to check the token and chat id.
 
 No Telegram messages
     -> run "python monitor.py --test" in the notebook. If that works but jobs don't send
