@@ -46,10 +46,14 @@ WHERE WE ARE (updated as we go)
   [x] Decided 8 Oct: NO S3 / training jobs for anyone. Everyone trains inside their own
       Studio space with nohup (section 8), proof with collect_proof.sh (section 19),
       teammates share adapters via Google Drive (section 14).
-  [ ] NOW: section 6.2 full feasibility run. (Second attempt failed because
+  [x] 6.2 full feasibility run finished 7 Oct (3h 58m on the T4 space, 5732 questions x 8):
+      pass@1 0.573, pass@4 0.786, pass@8 0.845, all_wrong 15.5%, mixed 60.3% (~3460
+      questions), all_right 24.2%, valid SQL 0.760. Clear GO (6.3).
+      For max_steps: ~3460 mixed questions / 4 per step = ~865 steps per pass over the data.
+  [ ] NOW: git pull, set git identity (6.5), make_dpo_pairs.py (6.4), push tags.json (6.5),
+      tell both teammates to git pull. Then the DPO smoke test (section 7). (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
-  [ ] Then: 6.3 go/no-go, 6.4 DPO pairs, 6.5 commit + push tags.json, tell both to git pull.
   [ ] Then: section 7 DPO smoke test (they do GRPO / RLOO smoke tests), agree model size and
       max_steps with both (GRPO and RLOO the same), section 8 launch DPO.
   [ ] Then: get GRPO and RLOO models (section 22 of their plans), sections 10-13.
@@ -374,7 +378,14 @@ EOF
     Prints e.g. "9000 pairs from 4800 questions (1200 questions used the gold SQL as 'chosen')".
     Output: data/processed/dpo_pairs.jsonl
 
-6.5 Share tags.json with both teammates through git (the .gitignore allows it):
+6.5 Share tags.json with both teammates through git (the .gitignore allows it).
+    First time pushing from the Studio space: set your name for commits, and use a GitHub
+    personal access token (GitHub -> Settings -> Developer settings -> Personal access
+    tokens -> classic, tick "repo") as the password when git push asks:
+      git config --global user.name "Eby Kurian"
+      git config --global user.email "ebyyykurian@gmail.com"
+      git config --global credential.helper store     (remembers the token after the first push)
+    Then:
       cd ~/Marl-SQL
       git add text2sql-rl/data/processed/tags.json
       git commit -m "Feasibility tags"
