@@ -9,7 +9,9 @@ class Generator:
         if engine == "vllm":
             from vllm import LLM
             from vllm.lora.request import LoRARequest
-            self.llm = LLM(model=base, dtype="half", gpu_memory_utilization=0.85, max_model_len=32768,
+            # 0.6 leaves room for FlexAttention's block mask on the T4 (0.85 ran out of memory
+            # on the long validation prompts)
+            self.llm = LLM(model=base, dtype="half", gpu_memory_utilization=0.6, max_model_len=32768,
                            enable_prefix_caching=True, seed=0, enable_lora=adapter is not None, max_lora_rank=64)
             if adapter:
                 self.lora = LoRARequest("adapter", 1, adapter)

@@ -77,8 +77,12 @@ WHERE WE ARE (updated as we go)
       For the report: RLOO's logged "reward" includes the KL penalty, so compare
       rewards/execution_reward/mean between GRPO and RLOO, not "reward"; and RLOO's
       frac_reward_zero_std is ~0 because KL-adjusted rewards never tie (not comparable).
-  [ ] NOW: unpack GRPO into outputs/, quick load tests, commit DPO + GRPO proofs; get Aditya's
-      adapters (Drive link), check and unpack them; then section 10 (val curve).
+  [x] All three adapters unpacked on Eby's space and checked (1.5B, r 16, 7 modules, 495/495,
+      600/600, 600/600). Load test on 20 val questions: base 0.35, DPO 0.25, GRPO 0.55,
+      RLOO 0.45 EX (too few questions to judge, only proves they load). Proofs committed.
+  [x] First val_curve attempt: CUDA out of memory in vLLM's FlexAttention on the long val
+      prompts. Fixed: gpu_memory_utilization 0.85 -> 0.6 in generation.py.
+  [ ] NOW: git pull, run val_curve.py (section 10), then final evaluation (section 11).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
@@ -733,6 +737,12 @@ Script printed "FINISHED after ..." but the process is still running
        run. The results were already saved (FINISHED is printed after saving). Stop it:
          pkill -f sample.py; pkill -f evaluate.py; pkill -f EngineCore
        and check nvidia-smi is empty. git pull to get the fix.
+
+"torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.31 GiB" inside
+ flex_attention / create_block_mask (during evaluate.py or val_curve.py)
+    -> vLLM reserved 85% of the T4, and FlexAttention's block mask on long validation
+       prompts didn't fit in the rest. Fixed 8 Oct: generation.py now uses
+       gpu_memory_utilization=0.6. git pull, check nvidia-smi is empty, run it again.
 
 "ValueError: The decoder prompt (length ...) is longer than the maximum model length"
     -> you have old code (vLLM limit 8192). git pull: the limit is now 32768 and sample.py
