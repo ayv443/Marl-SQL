@@ -545,7 +545,7 @@ Get and check them with section 22 of their plans:
       git fetch origin grpo-run
       git checkout origin/grpo-run -- text2sql-rl/proof/grpo-1.5b-s0
       cd text2sql-rl && mkdir -p outputs
-      gdown --fuzzy "<Google Drive link>" -O /tmp/grpo.tar.gz
+      gdown "<Google Drive link>" -O /tmp/grpo.tar.gz
       tar xzf /tmp/grpo.tar.gz -C outputs
     (same with rloo), then the checks in 22.4 and 22.5 of their plans.
 
@@ -672,9 +672,11 @@ Model checkpoints (on different Studio spaces, no S3): Google Drive.
 
   Eby (on the evaluation space):
       cd ~/Marl-SQL/text2sql-rl && mkdir -p outputs
-      gdown --fuzzy "<link>" -O /tmp/grpo.tar.gz
+      gdown "<link>" -O /tmp/grpo.tar.gz
       tar xzf /tmp/grpo.tar.gz -C outputs
-  If gdown fails, download it in the browser and upload it with the file browser instead.
+  The link must be a Google Drive FILE link (https://drive.google.com/file/d/.../view...),
+  not a W&B / CoreWeave profile link. If gdown fails, or you already have the file on your
+  laptop, upload it with the JupyterLab file browser (upload button) into your home folder.
   When done, the trainer can switch the Drive link back to "Restricted".
 
 

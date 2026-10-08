@@ -525,7 +525,9 @@ checkpoint-<max_steps>, final/ and logs/.
          -> Download (to your laptop).
       2. Upload it to your Google Drive.
       3. Right-click it in Drive -> Share -> General access: "Anyone with the link" -> Copy link.
-      4. Send Eby the link. After Eby confirms it works you can set it back to "Restricted".
+      4. Send Eby the link. It must look like https://drive.google.com/file/d/.../view?...
+         (a W&B / CoreWeave profile link is NOT the model). After Eby confirms it works you
+         can set it back to "Restricted".
 
 15.5 Keep outputs/grpo-1.5b-s0 on your space until Eby confirms the files work. Then you can
      stop your Studio space.
@@ -715,7 +717,7 @@ This part is for Eby, on Eby's own SageMaker space.
       git checkout origin/grpo-run -- text2sql-rl/proof/grpo-1.5b-s0
       cd text2sql-rl
       mkdir -p outputs
-      gdown --fuzzy "<Google Drive link>" -O /tmp/grpo.tar.gz
+      gdown "<Google Drive link>" -O /tmp/grpo.tar.gz
       tar xzf /tmp/grpo.tar.gz -C outputs
      (if gdown fails: download it in the browser and upload it with the file browser)
       ls outputs/grpo-1.5b-s0       (checkpoint-100 ... checkpoint-<max_steps>, final, logs)
