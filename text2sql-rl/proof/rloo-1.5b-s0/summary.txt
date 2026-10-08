@@ -1,0 +1,6 @@
+run: rloo-1.5b-s0
+rloo-1.5b-s0_20261008-041353_summary.json: FINISHED, 2026-10-08 04:13:53 UTC -> 2026-10-08 10:46:37 UTC (6h 32m 44s)
+steps logged: 600 | last step: 600 of 600 | avg s/step: 39.25 | peak GPU GB: 8.48
+checkpoints: checkpoint-100, checkpoint-200, checkpoint-300, checkpoint-400, checkpoint-500, checkpoint-600
+studio space: RL-56-PJT | domain: d-jgoytzkgqlbl | app: default
+aws: arn:aws:sts::443142193439:assumed-role/43008-RL-Spr26-sagemaker-execution-role/SageMaker

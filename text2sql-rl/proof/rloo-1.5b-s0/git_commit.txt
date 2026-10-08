@@ -1,0 +1,1 @@
+1e7310aeb2fdb17e50b2d03c4c535a495c4aff1f  Thu Oct 8 12:54:03 2026 +1100  Docs: how TRL GRPO and RLOO differ, smoke test uses mixed questions
