@@ -1,0 +1,553 @@
+[2026-10-07 15:25:20 UTC] START dpo-1.5b-s0
+[2026-10-07 15:25:20 UTC] environment: {
+  "time": "2026-10-07 15:25:19 UTC",
+  "hostname": "default",
+  "python": "3.11.17",
+  "command": "train_dpo.py --lr 5e-5 --seed 0",
+  "sagemaker_training_job": "",
+  "sagemaker_training_job_arn": "",
+  "sagemaker_instance_type": "",
+  "aws_region": "ap-southeast-2",
+  "ec2": {},
+  "sagemaker_notebook": {
+    "AppType": "JupyterLab",
+    "DomainId": "d-jgoytzkgqlbl",
+    "SpaceName": "Project-RL",
+    "UserProfileName": "Eby-Kurian-student-uts-edu-au-ee1",
+    "ExecutionRoleArn": "arn:aws:iam::443142193439:role/43008-RL-Spr26-sagemaker-execution-role",
+    "ResourceArn": "arn:aws:sagemaker:ap-southeast-2:443142193439:app/d-jgoytzkgqlbl/Project-RL/JupyterLab/default",
+    "ResourceName": "default",
+    "AppImageVersion": "",
+    "ResourceArnCaseSensitive": "arn:aws:sagemaker:ap-southeast-2:443142193439:app/d-jgoytzkgqlbl/Project-RL/JupyterLab/default",
+    "IpAddressType": "ipv4"
+  },
+  "torch": "2.8.0+cu128",
+  "gpu": "Tesla T4"
+}
+[2026-10-07 15:25:20 UTC] nvidia-smi:
+Wed Oct  7 15:25:20 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.91.07              Driver Version: 595.91.07      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       On  |   00000000:00:1E.0 Off |                    0 |
+| N/A   30C    P0             32W /   70W |       3MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+[2026-10-07 15:25:20 UTC] settings: {"model": "Qwen/Qwen2.5-Coder-1.5B-Instruct", "lora_rank": 16, "lr": 5e-05, "seed": 0, "max_steps": -1, "save_steps": 100, "load_4bit": 0, "output_dir": null, "wandb_project": "text2sql-rl", "notify_every": 50, "beta": 0.1, "epochs": 1, "batch_size": 16}
+[2026-10-07 15:26:06 UTC] training started at step 0, max_steps=495
+[2026-10-07 15:26:32 UTC] step 1/495 | 25.7 s/step | loss=0.6931, rewards/accuracies=0, rewards/margins=0, grad_norm=1.766, learning_rate=0
+[2026-10-07 15:27:03 UTC] step 2/495 | 28.4 s/step | loss=0.6931, rewards/accuracies=0, rewards/margins=0, grad_norm=1.445, learning_rate=3.333e-06
+[2026-10-07 15:27:38 UTC] step 3/495 | 30.8 s/step | loss=0.6926, rewards/accuracies=0.5625, rewards/margins=0.001193, grad_norm=1.893, learning_rate=6.667e-06
+[2026-10-07 15:28:11 UTC] step 4/495 | 31.1 s/step | loss=0.6948, rewards/accuracies=0.4375, rewards/margins=-0.002972, grad_norm=1.222, learning_rate=1e-05
+[2026-10-07 15:28:42 UTC] step 5/495 | 31.1 s/step | loss=0.6895, rewards/accuracies=0.5625, rewards/margins=0.008314, grad_norm=1.384, learning_rate=1.333e-05
+[2026-10-07 15:29:07 UTC] step 6/495 | 30.2 s/step | loss=0.6741, rewards/accuracies=0.5625, rewards/margins=0.04206, grad_norm=1.512, learning_rate=1.667e-05
+[2026-10-07 15:29:39 UTC] step 7/495 | 30.4 s/step | loss=0.6495, rewards/accuracies=0.6875, rewards/margins=0.1029, grad_norm=1.696, learning_rate=2e-05
+[2026-10-07 15:30:04 UTC] step 8/495 | 29.8 s/step | loss=0.6093, rewards/accuracies=0.75, rewards/margins=0.2085, grad_norm=1.909, learning_rate=2.333e-05
+[2026-10-07 15:30:42 UTC] step 9/495 | 30.7 s/step | loss=0.5991, rewards/accuracies=0.875, rewards/margins=0.2576, grad_norm=1.485, learning_rate=2.667e-05
+[2026-10-07 15:31:11 UTC] step 10/495 | 30.5 s/step | loss=0.6236, rewards/accuracies=0.625, rewards/margins=0.263, grad_norm=1.166, learning_rate=3e-05
+[2026-10-07 15:31:33 UTC] step 11/495 | 29.7 s/step | loss=0.8569, rewards/accuracies=0.5, rewards/margins=-0.1059, grad_norm=3.006, learning_rate=3.333e-05
+[2026-10-07 15:32:06 UTC] step 12/495 | 30.0 s/step | loss=0.8715, rewards/accuracies=0.4375, rewards/margins=-0.08541, grad_norm=2.93, learning_rate=3.667e-05
+[2026-10-07 15:32:35 UTC] step 13/495 | 29.9 s/step | loss=0.7145, rewards/accuracies=0.5, rewards/margins=0.1308, grad_norm=1.982, learning_rate=4e-05
+[2026-10-07 15:33:00 UTC] step 14/495 | 29.5 s/step | loss=0.7782, rewards/accuracies=0.6875, rewards/margins=0.02796, grad_norm=2.632, learning_rate=4.333e-05
+[2026-10-07 15:33:33 UTC] step 15/495 | 29.8 s/step | loss=0.495, rewards/accuracies=0.9375, rewards/margins=0.5217, grad_norm=1.516, learning_rate=4.667e-05
+[2026-10-07 15:34:02 UTC] step 16/495 | 29.7 s/step | loss=0.5471, rewards/accuracies=0.625, rewards/margins=0.4287, grad_norm=1.295, learning_rate=5e-05
+[2026-10-07 15:34:29 UTC] step 17/495 | 29.6 s/step | loss=0.5407, rewards/accuracies=0.8125, rewards/margins=0.4267, grad_norm=1.537, learning_rate=4.99e-05
+[2026-10-07 15:35:05 UTC] step 18/495 | 29.9 s/step | loss=0.46, rewards/accuracies=0.9375, rewards/margins=0.6402, grad_norm=1.076, learning_rate=4.979e-05
+[2026-10-07 15:35:34 UTC] step 19/495 | 29.9 s/step | loss=0.687, rewards/accuracies=0.6875, rewards/margins=0.2344, grad_norm=1.927, learning_rate=4.969e-05
+[2026-10-07 15:36:08 UTC] step 20/495 | 30.1 s/step | loss=0.421, rewards/accuracies=0.875, rewards/margins=0.7915, grad_norm=1.204, learning_rate=4.958e-05
+[2026-10-07 15:36:38 UTC] step 21/495 | 30.1 s/step | loss=0.5784, rewards/accuracies=0.5625, rewards/margins=0.4829, grad_norm=1.459, learning_rate=4.948e-05
+[2026-10-07 15:37:04 UTC] step 22/495 | 29.9 s/step | loss=0.4535, rewards/accuracies=0.75, rewards/margins=0.8763, grad_norm=1.194, learning_rate=4.938e-05
+[2026-10-07 15:37:31 UTC] step 23/495 | 29.8 s/step | loss=0.6513, rewards/accuracies=0.875, rewards/margins=0.3616, grad_norm=1.701, learning_rate=4.927e-05
+[2026-10-07 15:37:58 UTC] step 24/495 | 29.7 s/step | loss=0.431, rewards/accuracies=0.9375, rewards/margins=0.932, grad_norm=1.211, learning_rate=4.917e-05
+[2026-10-07 15:38:31 UTC] step 25/495 | 29.8 s/step | loss=0.4898, rewards/accuracies=0.875, rewards/margins=0.7141, grad_norm=1.374, learning_rate=4.906e-05
+[2026-10-07 15:39:02 UTC] step 26/495 | 29.8 s/step | loss=0.6034, rewards/accuracies=0.625, rewards/margins=0.6797, grad_norm=1.413, learning_rate=4.896e-05
+[2026-10-07 15:39:32 UTC] step 27/495 | 29.8 s/step | loss=0.7378, rewards/accuracies=0.5, rewards/margins=0.1335, grad_norm=1.921, learning_rate=4.885e-05
+[2026-10-07 15:40:01 UTC] step 28/495 | 29.8 s/step | loss=0.5391, rewards/accuracies=0.6875, rewards/margins=0.5487, grad_norm=1.465, learning_rate=4.875e-05
+[2026-10-07 15:40:30 UTC] step 29/495 | 29.8 s/step | loss=0.5875, rewards/accuracies=0.6875, rewards/margins=0.5831, grad_norm=1.196, learning_rate=4.865e-05
+[2026-10-07 15:41:04 UTC] step 30/495 | 29.9 s/step | loss=0.6148, rewards/accuracies=0.5625, rewards/margins=0.4459, grad_norm=1.522, learning_rate=4.854e-05
+[2026-10-07 15:41:39 UTC] step 31/495 | 30.1 s/step | loss=0.6081, rewards/accuracies=0.75, rewards/margins=0.6087, grad_norm=2.321, learning_rate=4.844e-05
+[2026-10-07 15:42:12 UTC] step 32/495 | 30.2 s/step | loss=0.315, rewards/accuracies=0.9375, rewards/margins=1.452, grad_norm=1.154, learning_rate=4.833e-05
+[2026-10-07 15:42:42 UTC] step 33/495 | 30.2 s/step | loss=0.6143, rewards/accuracies=0.6875, rewards/margins=0.7251, grad_norm=1.773, learning_rate=4.823e-05
+[2026-10-07 15:43:07 UTC] step 34/495 | 30.0 s/step | loss=0.5129, rewards/accuracies=0.75, rewards/margins=0.8017, grad_norm=1.364, learning_rate=4.813e-05
+[2026-10-07 15:43:41 UTC] step 35/495 | 30.2 s/step | loss=0.4833, rewards/accuracies=0.75, rewards/margins=0.7405, grad_norm=1.488, learning_rate=4.802e-05
+[2026-10-07 15:44:16 UTC] step 36/495 | 30.3 s/step | loss=0.5447, rewards/accuracies=0.8125, rewards/margins=0.796, grad_norm=1.613, learning_rate=4.792e-05
+[2026-10-07 15:44:39 UTC] step 37/495 | 30.1 s/step | loss=0.4857, rewards/accuracies=0.8125, rewards/margins=1.183, grad_norm=1.782, learning_rate=4.781e-05
+[2026-10-07 15:45:15 UTC] step 38/495 | 30.2 s/step | loss=0.4072, rewards/accuracies=0.8125, rewards/margins=0.9437, grad_norm=1.567, learning_rate=4.771e-05
+[2026-10-07 15:45:46 UTC] step 39/495 | 30.3 s/step | loss=0.6034, rewards/accuracies=0.6875, rewards/margins=0.9672, grad_norm=1.814, learning_rate=4.76e-05
+[2026-10-07 15:46:19 UTC] step 40/495 | 30.3 s/step | loss=0.5553, rewards/accuracies=0.8125, rewards/margins=0.7914, grad_norm=1.548, learning_rate=4.75e-05
+[2026-10-07 15:47:02 UTC] step 41/495 | 30.6 s/step | loss=0.668, rewards/accuracies=0.6875, rewards/margins=0.6633, grad_norm=2.967, learning_rate=4.74e-05
+[2026-10-07 15:47:40 UTC] step 42/495 | 30.8 s/step | loss=0.5057, rewards/accuracies=0.6875, rewards/margins=0.9504, grad_norm=2.049, learning_rate=4.729e-05
+[2026-10-07 15:48:03 UTC] step 43/495 | 30.6 s/step | loss=0.8009, rewards/accuracies=0.5625, rewards/margins=0.3177, grad_norm=2.258, learning_rate=4.719e-05
+[2026-10-07 15:48:37 UTC] step 44/495 | 30.7 s/step | loss=0.5168, rewards/accuracies=0.625, rewards/margins=0.9245, grad_norm=1.258, learning_rate=4.708e-05
+[2026-10-07 15:49:05 UTC] step 45/495 | 30.7 s/step | loss=0.7042, rewards/accuracies=0.5625, rewards/margins=0.3305, grad_norm=2.194, learning_rate=4.698e-05
+[2026-10-07 15:49:32 UTC] step 46/495 | 30.6 s/step | loss=0.3661, rewards/accuracies=0.875, rewards/margins=1.692, grad_norm=1.464, learning_rate=4.688e-05
+[2026-10-07 15:50:08 UTC] step 47/495 | 30.7 s/step | loss=0.3639, rewards/accuracies=0.8125, rewards/margins=1.428, grad_norm=1.477, learning_rate=4.677e-05
+[2026-10-07 15:50:38 UTC] step 48/495 | 30.7 s/step | loss=0.5657, rewards/accuracies=0.75, rewards/margins=0.9896, grad_norm=1.776, learning_rate=4.667e-05
+[2026-10-07 15:51:14 UTC] step 49/495 | 30.8 s/step | loss=0.2849, rewards/accuracies=0.875, rewards/margins=1.837, grad_norm=1.016, learning_rate=4.656e-05
+[2026-10-07 15:51:52 UTC] step 50/495 | 30.9 s/step | loss=0.3482, rewards/accuracies=0.8125, rewards/margins=1.77, grad_norm=1.704, learning_rate=4.646e-05
+[2026-10-07 15:52:25 UTC] step 51/495 | 31.0 s/step | loss=0.4545, rewards/accuracies=0.75, rewards/margins=1.287, grad_norm=1.525, learning_rate=4.635e-05
+[2026-10-07 15:53:04 UTC] step 52/495 | 31.1 s/step | loss=0.5114, rewards/accuracies=0.6875, rewards/margins=0.8424, grad_norm=1.671, learning_rate=4.625e-05
+[2026-10-07 15:53:37 UTC] step 53/495 | 31.2 s/step | loss=0.5304, rewards/accuracies=0.8125, rewards/margins=1.085, grad_norm=1.948, learning_rate=4.615e-05
+[2026-10-07 15:54:05 UTC] step 54/495 | 31.1 s/step | loss=0.6367, rewards/accuracies=0.6875, rewards/margins=1.281, grad_norm=2.585, learning_rate=4.604e-05
+[2026-10-07 15:54:30 UTC] step 55/495 | 31.0 s/step | loss=0.4821, rewards/accuracies=0.6875, rewards/margins=1.458, grad_norm=2.043, learning_rate=4.594e-05
+[2026-10-07 15:54:59 UTC] step 56/495 | 30.9 s/step | loss=0.3671, rewards/accuracies=0.875, rewards/margins=1.242, grad_norm=1.803, learning_rate=4.583e-05
+[2026-10-07 15:55:25 UTC] step 57/495 | 30.9 s/step | loss=0.5312, rewards/accuracies=0.6875, rewards/margins=1.303, grad_norm=2.026, learning_rate=4.573e-05
+[2026-10-07 15:55:57 UTC] step 58/495 | 30.9 s/step | loss=0.4654, rewards/accuracies=0.8125, rewards/margins=1.045, grad_norm=2.193, learning_rate=4.562e-05
+[2026-10-07 15:56:23 UTC] step 59/495 | 30.8 s/step | loss=0.6695, rewards/accuracies=0.6875, rewards/margins=0.5233, grad_norm=1.797, learning_rate=4.552e-05
+[2026-10-07 15:56:53 UTC] step 60/495 | 30.8 s/step | loss=0.3653, rewards/accuracies=0.8125, rewards/margins=1.285, grad_norm=1.418, learning_rate=4.542e-05
+[2026-10-07 15:57:27 UTC] step 61/495 | 30.8 s/step | loss=0.304, rewards/accuracies=1, rewards/margins=1.304, grad_norm=1.419, learning_rate=4.531e-05
+[2026-10-07 15:58:00 UTC] step 62/495 | 30.9 s/step | loss=0.4866, rewards/accuracies=0.8125, rewards/margins=1.196, grad_norm=1.688, learning_rate=4.521e-05
+[2026-10-07 15:58:27 UTC] step 63/495 | 30.8 s/step | loss=0.4833, rewards/accuracies=0.75, rewards/margins=1.093, grad_norm=1.788, learning_rate=4.51e-05
+[2026-10-07 15:58:59 UTC] step 64/495 | 30.8 s/step | loss=0.4691, rewards/accuracies=0.75, rewards/margins=0.8086, grad_norm=1.874, learning_rate=4.5e-05
+[2026-10-07 15:59:21 UTC] step 65/495 | 30.7 s/step | loss=0.4401, rewards/accuracies=0.8125, rewards/margins=1.191, grad_norm=1.198, learning_rate=4.49e-05
+[2026-10-07 15:59:59 UTC] step 66/495 | 30.8 s/step | loss=0.472, rewards/accuracies=0.6875, rewards/margins=1.013, grad_norm=1.671, learning_rate=4.479e-05
+[2026-10-07 16:00:30 UTC] step 67/495 | 30.8 s/step | loss=0.3093, rewards/accuracies=0.9375, rewards/margins=1.736, grad_norm=1.195, learning_rate=4.469e-05
+[2026-10-07 16:01:02 UTC] step 68/495 | 30.8 s/step | loss=0.5612, rewards/accuracies=0.75, rewards/margins=0.9018, grad_norm=2.287, learning_rate=4.458e-05
+[2026-10-07 16:01:31 UTC] step 69/495 | 30.8 s/step | loss=0.3703, rewards/accuracies=0.8125, rewards/margins=1.295, grad_norm=1.036, learning_rate=4.448e-05
+[2026-10-07 16:02:04 UTC] step 70/495 | 30.8 s/step | loss=0.5159, rewards/accuracies=0.6875, rewards/margins=0.8713, grad_norm=4.276, learning_rate=4.438e-05
+[2026-10-07 16:02:35 UTC] step 71/495 | 30.8 s/step | loss=0.4508, rewards/accuracies=0.75, rewards/margins=1.208, grad_norm=2.386, learning_rate=4.427e-05
+[2026-10-07 16:03:10 UTC] step 72/495 | 30.9 s/step | loss=0.3428, rewards/accuracies=0.875, rewards/margins=1.426, grad_norm=1.873, learning_rate=4.417e-05
+[2026-10-07 16:03:37 UTC] step 73/495 | 30.8 s/step | loss=0.4609, rewards/accuracies=0.6875, rewards/margins=1.172, grad_norm=1.567, learning_rate=4.406e-05
+[2026-10-07 16:03:59 UTC] step 74/495 | 30.7 s/step | loss=0.5267, rewards/accuracies=0.6875, rewards/margins=1.268, grad_norm=2.192, learning_rate=4.396e-05
+[2026-10-07 16:04:27 UTC] step 75/495 | 30.7 s/step | loss=0.4841, rewards/accuracies=0.6875, rewards/margins=1.158, grad_norm=2.199, learning_rate=4.385e-05
+[2026-10-07 16:04:59 UTC] step 76/495 | 30.7 s/step | loss=0.5352, rewards/accuracies=0.8125, rewards/margins=1.141, grad_norm=1.788, learning_rate=4.375e-05
+[2026-10-07 16:05:30 UTC] step 77/495 | 30.7 s/step | loss=0.4845, rewards/accuracies=0.75, rewards/margins=0.8982, grad_norm=2.745, learning_rate=4.365e-05
+[2026-10-07 16:06:02 UTC] step 78/495 | 30.7 s/step | loss=0.393, rewards/accuracies=0.75, rewards/margins=1.57, grad_norm=2.32, learning_rate=4.354e-05
+[2026-10-07 16:06:41 UTC] step 79/495 | 30.8 s/step | loss=0.3454, rewards/accuracies=0.875, rewards/margins=1.278, grad_norm=2.022, learning_rate=4.344e-05
+[2026-10-07 16:07:05 UTC] step 80/495 | 30.7 s/step | loss=0.2887, rewards/accuracies=0.8125, rewards/margins=1.714, grad_norm=2.312, learning_rate=4.333e-05
+[2026-10-07 16:07:40 UTC] step 81/495 | 30.8 s/step | loss=0.5532, rewards/accuracies=0.75, rewards/margins=0.7629, grad_norm=2.48, learning_rate=4.323e-05
+[2026-10-07 16:08:11 UTC] step 82/495 | 30.8 s/step | loss=0.4476, rewards/accuracies=0.8125, rewards/margins=1.053, grad_norm=2.218, learning_rate=4.313e-05
+[2026-10-07 16:08:44 UTC] step 83/495 | 30.8 s/step | loss=0.309, rewards/accuracies=0.9375, rewards/margins=1.256, grad_norm=1.372, learning_rate=4.302e-05
+[2026-10-07 16:09:15 UTC] step 84/495 | 30.8 s/step | loss=0.4522, rewards/accuracies=0.75, rewards/margins=1.132, grad_norm=1.676, learning_rate=4.292e-05
+[2026-10-07 16:09:52 UTC] step 85/495 | 30.9 s/step | loss=0.3551, rewards/accuracies=0.75, rewards/margins=1.374, grad_norm=1.697, learning_rate=4.281e-05
+[2026-10-07 16:10:23 UTC] step 86/495 | 30.9 s/step | loss=0.3221, rewards/accuracies=0.8125, rewards/margins=1.644, grad_norm=1.67, learning_rate=4.271e-05
+[2026-10-07 16:10:53 UTC] step 87/495 | 30.9 s/step | loss=0.4299, rewards/accuracies=0.75, rewards/margins=1.616, grad_norm=2.361, learning_rate=4.26e-05
+[2026-10-07 16:11:26 UTC] step 88/495 | 30.9 s/step | loss=0.4869, rewards/accuracies=0.625, rewards/margins=1.267, grad_norm=2.626, learning_rate=4.25e-05
+[2026-10-07 16:12:06 UTC] step 89/495 | 31.0 s/step | loss=0.2977, rewards/accuracies=0.875, rewards/margins=1.637, grad_norm=1.205, learning_rate=4.24e-05
+[2026-10-07 16:12:37 UTC] step 90/495 | 31.0 s/step | loss=0.4531, rewards/accuracies=0.75, rewards/margins=1.106, grad_norm=1.861, learning_rate=4.229e-05
+[2026-10-07 16:13:03 UTC] step 91/495 | 31.0 s/step | loss=0.3869, rewards/accuracies=0.8125, rewards/margins=1.265, grad_norm=1.326, learning_rate=4.219e-05
+[2026-10-07 16:13:47 UTC] step 92/495 | 31.1 s/step | loss=0.2709, rewards/accuracies=0.9375, rewards/margins=1.776, grad_norm=1.21, learning_rate=4.208e-05
+[2026-10-07 16:14:16 UTC] step 93/495 | 31.1 s/step | loss=0.2673, rewards/accuracies=0.9375, rewards/margins=1.649, grad_norm=1.524, learning_rate=4.198e-05
+[2026-10-07 16:14:51 UTC] step 94/495 | 31.1 s/step | loss=0.3751, rewards/accuracies=0.875, rewards/margins=1.419, grad_norm=2.962, learning_rate=4.188e-05
+[2026-10-07 16:15:17 UTC] step 95/495 | 31.1 s/step | loss=0.3819, rewards/accuracies=0.8125, rewards/margins=1.639, grad_norm=1.789, learning_rate=4.177e-05
+[2026-10-07 16:15:46 UTC] step 96/495 | 31.0 s/step | loss=0.3391, rewards/accuracies=0.875, rewards/margins=1.489, grad_norm=2.738, learning_rate=4.167e-05
+[2026-10-07 16:16:13 UTC] step 97/495 | 31.0 s/step | loss=0.4373, rewards/accuracies=0.8125, rewards/margins=1.379, grad_norm=1.943, learning_rate=4.156e-05
+[2026-10-07 16:16:43 UTC] step 98/495 | 31.0 s/step | loss=0.4603, rewards/accuracies=0.8125, rewards/margins=1.233, grad_norm=2.908, learning_rate=4.146e-05
+[2026-10-07 16:17:14 UTC] step 99/495 | 31.0 s/step | loss=0.413, rewards/accuracies=0.875, rewards/margins=1.599, grad_norm=1.776, learning_rate=4.135e-05
+[2026-10-07 16:17:41 UTC] step 100/495 | 30.9 s/step | loss=0.4482, rewards/accuracies=0.875, rewards/margins=0.9806, grad_norm=2.204, learning_rate=4.125e-05
+[2026-10-07 16:17:43 UTC] checkpoint saved: checkpoint-100
+[2026-10-07 16:18:07 UTC] step 101/495 | 30.9 s/step | loss=0.6638, rewards/accuracies=0.6875, rewards/margins=0.9988, grad_norm=9.285, learning_rate=4.115e-05
+[2026-10-07 16:18:40 UTC] step 102/495 | 30.9 s/step | loss=0.3145, rewards/accuracies=0.875, rewards/margins=2.118, grad_norm=2.452, learning_rate=4.104e-05
+[2026-10-07 16:19:00 UTC] step 103/495 | 30.8 s/step | loss=0.4346, rewards/accuracies=0.75, rewards/margins=1.066, grad_norm=2.872, learning_rate=4.094e-05
+[2026-10-07 16:19:34 UTC] step 104/495 | 30.8 s/step | loss=0.4876, rewards/accuracies=0.8125, rewards/margins=1.583, grad_norm=4.145, learning_rate=4.083e-05
+[2026-10-07 16:20:16 UTC] step 105/495 | 31.0 s/step | loss=0.2723, rewards/accuracies=0.9375, rewards/margins=1.627, grad_norm=2.305, learning_rate=4.073e-05
+[2026-10-07 16:20:40 UTC] step 106/495 | 30.9 s/step | loss=0.2914, rewards/accuracies=0.9375, rewards/margins=1.915, grad_norm=2.687, learning_rate=4.063e-05
+[2026-10-07 16:21:10 UTC] step 107/495 | 30.9 s/step | loss=0.5574, rewards/accuracies=0.625, rewards/margins=0.7689, grad_norm=7.547, learning_rate=4.052e-05
+[2026-10-07 16:21:38 UTC] step 108/495 | 30.9 s/step | loss=0.4839, rewards/accuracies=0.8125, rewards/margins=1.211, grad_norm=3.504, learning_rate=4.042e-05
+[2026-10-07 16:22:11 UTC] step 109/495 | 30.9 s/step | loss=0.5509, rewards/accuracies=0.75, rewards/margins=1.482, grad_norm=4.775, learning_rate=4.031e-05
+[2026-10-07 16:22:37 UTC] step 110/495 | 30.8 s/step | loss=0.2405, rewards/accuracies=0.9375, rewards/margins=2.589, grad_norm=3.715, learning_rate=4.021e-05
+[2026-10-07 16:23:09 UTC] step 111/495 | 30.8 s/step | loss=0.309, rewards/accuracies=0.9375, rewards/margins=1.955, grad_norm=2.194, learning_rate=4.01e-05
+[2026-10-07 16:23:42 UTC] step 112/495 | 30.9 s/step | loss=0.345, rewards/accuracies=0.6875, rewards/margins=1.603, grad_norm=2.664, learning_rate=4e-05
+[2026-10-07 16:24:14 UTC] step 113/495 | 30.9 s/step | loss=0.3221, rewards/accuracies=0.875, rewards/margins=1.723, grad_norm=2.861, learning_rate=3.99e-05
+[2026-10-07 16:24:45 UTC] step 114/495 | 30.9 s/step | loss=0.2957, rewards/accuracies=0.8125, rewards/margins=2.216, grad_norm=2.537, learning_rate=3.979e-05
+[2026-10-07 16:25:12 UTC] step 115/495 | 30.8 s/step | loss=0.3405, rewards/accuracies=0.75, rewards/margins=1.827, grad_norm=2.317, learning_rate=3.969e-05
+[2026-10-07 16:25:41 UTC] step 116/495 | 30.8 s/step | loss=0.4208, rewards/accuracies=0.8125, rewards/margins=1.341, grad_norm=3.094, learning_rate=3.958e-05
+[2026-10-07 16:26:17 UTC] step 117/495 | 30.9 s/step | loss=0.6718, rewards/accuracies=0.75, rewards/margins=0.8931, grad_norm=4.804, learning_rate=3.948e-05
+[2026-10-07 16:26:54 UTC] step 118/495 | 30.9 s/step | loss=0.4028, rewards/accuracies=0.9375, rewards/margins=1.722, grad_norm=2.402, learning_rate=3.938e-05
+[2026-10-07 16:27:20 UTC] step 119/495 | 30.9 s/step | loss=0.5008, rewards/accuracies=0.6875, rewards/margins=1.048, grad_norm=3.549, learning_rate=3.927e-05
+[2026-10-07 16:27:55 UTC] step 120/495 | 30.9 s/step | loss=0.3105, rewards/accuracies=0.875, rewards/margins=3.232, grad_norm=3.838, learning_rate=3.917e-05
+[2026-10-07 16:28:27 UTC] step 121/495 | 30.9 s/step | loss=0.6391, rewards/accuracies=0.6875, rewards/margins=1.774, grad_norm=10.13, learning_rate=3.906e-05
+[2026-10-07 16:28:53 UTC] step 122/495 | 30.9 s/step | loss=0.297, rewards/accuracies=0.875, rewards/margins=2.022, grad_norm=2.533, learning_rate=3.896e-05
+[2026-10-07 16:29:23 UTC] step 123/495 | 30.9 s/step | loss=0.4604, rewards/accuracies=0.8125, rewards/margins=1.289, grad_norm=3.395, learning_rate=3.885e-05
+[2026-10-07 16:29:53 UTC] step 124/495 | 30.9 s/step | loss=0.2446, rewards/accuracies=0.9375, rewards/margins=2.484, grad_norm=2.617, learning_rate=3.875e-05
+[2026-10-07 16:30:31 UTC] step 125/495 | 30.9 s/step | loss=0.4764, rewards/accuracies=0.8125, rewards/margins=1.853, grad_norm=3.755, learning_rate=3.865e-05
+[2026-10-07 16:31:01 UTC] step 126/495 | 30.9 s/step | loss=0.3676, rewards/accuracies=0.8125, rewards/margins=1.42, grad_norm=2.561, learning_rate=3.854e-05
+[2026-10-07 16:31:38 UTC] step 127/495 | 31.0 s/step | loss=0.2948, rewards/accuracies=0.8125, rewards/margins=2.242, grad_norm=3.169, learning_rate=3.844e-05
+[2026-10-07 16:32:06 UTC] step 128/495 | 30.9 s/step | loss=0.225, rewards/accuracies=0.9375, rewards/margins=2.243, grad_norm=4.167, learning_rate=3.833e-05
+[2026-10-07 16:32:36 UTC] step 129/495 | 30.9 s/step | loss=0.4002, rewards/accuracies=0.875, rewards/margins=1.544, grad_norm=3.17, learning_rate=3.823e-05
+[2026-10-07 16:33:03 UTC] step 130/495 | 30.9 s/step | loss=0.239, rewards/accuracies=0.875, rewards/margins=2.14, grad_norm=2.285, learning_rate=3.812e-05
+[2026-10-07 16:33:40 UTC] step 131/495 | 30.9 s/step | loss=0.3362, rewards/accuracies=0.75, rewards/margins=1.584, grad_norm=3.127, learning_rate=3.802e-05
+[2026-10-07 16:34:11 UTC] step 132/495 | 30.9 s/step | loss=0.426, rewards/accuracies=0.8125, rewards/margins=1.332, grad_norm=3.832, learning_rate=3.792e-05
+[2026-10-07 16:34:41 UTC] step 133/495 | 30.9 s/step | loss=0.6114, rewards/accuracies=0.625, rewards/margins=1.711, grad_norm=4.362, learning_rate=3.781e-05
+[2026-10-07 16:35:07 UTC] step 134/495 | 30.9 s/step | loss=0.222, rewards/accuracies=0.9375, rewards/margins=1.967, grad_norm=2.102, learning_rate=3.771e-05
+[2026-10-07 16:35:35 UTC] step 135/495 | 30.9 s/step | loss=0.2799, rewards/accuracies=0.9375, rewards/margins=2.322, grad_norm=4.831, learning_rate=3.76e-05
+[2026-10-07 16:36:01 UTC] step 136/495 | 30.8 s/step | loss=0.3057, rewards/accuracies=0.9375, rewards/margins=1.428, grad_norm=2.411, learning_rate=3.75e-05
+[2026-10-07 16:36:37 UTC] step 137/495 | 30.9 s/step | loss=0.356, rewards/accuracies=0.875, rewards/margins=2.437, grad_norm=2.473, learning_rate=3.74e-05
+[2026-10-07 16:37:07 UTC] step 138/495 | 30.9 s/step | loss=0.5882, rewards/accuracies=0.75, rewards/margins=2.236, grad_norm=4.656, learning_rate=3.729e-05
+[2026-10-07 16:37:47 UTC] step 139/495 | 30.9 s/step | loss=0.2894, rewards/accuracies=0.8125, rewards/margins=2.16, grad_norm=3.892, learning_rate=3.719e-05
+[2026-10-07 16:38:21 UTC] step 140/495 | 31.0 s/step | loss=0.1605, rewards/accuracies=0.9375, rewards/margins=2.891, grad_norm=1.849, learning_rate=3.708e-05
+[2026-10-07 16:38:45 UTC] step 141/495 | 30.9 s/step | loss=0.6644, rewards/accuracies=0.6875, rewards/margins=0.9196, grad_norm=4.524, learning_rate=3.698e-05
+[2026-10-07 16:39:12 UTC] step 142/495 | 30.9 s/step | loss=0.3351, rewards/accuracies=0.875, rewards/margins=2.581, grad_norm=5.283, learning_rate=3.688e-05
+[2026-10-07 16:39:38 UTC] step 143/495 | 30.9 s/step | loss=0.2683, rewards/accuracies=0.875, rewards/margins=2.384, grad_norm=3.533, learning_rate=3.677e-05
+[2026-10-07 16:40:10 UTC] step 144/495 | 30.9 s/step | loss=0.1855, rewards/accuracies=0.9375, rewards/margins=2.412, grad_norm=2.37, learning_rate=3.667e-05
+[2026-10-07 16:40:35 UTC] step 145/495 | 30.8 s/step | loss=0.3339, rewards/accuracies=0.875, rewards/margins=2.24, grad_norm=3.466, learning_rate=3.656e-05
+[2026-10-07 16:41:04 UTC] step 146/495 | 30.8 s/step | loss=0.4284, rewards/accuracies=0.875, rewards/margins=1.708, grad_norm=6.27, learning_rate=3.646e-05
+[2026-10-07 16:41:34 UTC] step 147/495 | 30.8 s/step | loss=0.182, rewards/accuracies=0.9375, rewards/margins=2.387, grad_norm=2.736, learning_rate=3.635e-05
+[2026-10-07 16:42:02 UTC] step 148/495 | 30.8 s/step | loss=0.5735, rewards/accuracies=0.6875, rewards/margins=1.135, grad_norm=4.354, learning_rate=3.625e-05
+[2026-10-07 16:42:30 UTC] step 149/495 | 30.8 s/step | loss=0.2833, rewards/accuracies=0.9375, rewards/margins=1.803, grad_norm=3.285, learning_rate=3.615e-05
+[2026-10-07 16:42:55 UTC] step 150/495 | 30.7 s/step | loss=0.3762, rewards/accuracies=0.75, rewards/margins=1.648, grad_norm=4.058, learning_rate=3.604e-05
+[2026-10-07 16:43:22 UTC] step 151/495 | 30.7 s/step | loss=0.3993, rewards/accuracies=0.6875, rewards/margins=1.819, grad_norm=4.122, learning_rate=3.594e-05
+[2026-10-07 16:43:54 UTC] step 152/495 | 30.7 s/step | loss=0.2456, rewards/accuracies=1, rewards/margins=1.713, grad_norm=1.916, learning_rate=3.583e-05
+[2026-10-07 16:44:21 UTC] step 153/495 | 30.7 s/step | loss=0.2193, rewards/accuracies=0.9375, rewards/margins=2.897, grad_norm=3.131, learning_rate=3.573e-05
+[2026-10-07 16:44:44 UTC] step 154/495 | 30.6 s/step | loss=0.2806, rewards/accuracies=0.8125, rewards/margins=2.177, grad_norm=6.365, learning_rate=3.563e-05
+[2026-10-07 16:45:15 UTC] step 155/495 | 30.6 s/step | loss=0.2085, rewards/accuracies=1, rewards/margins=2.105, grad_norm=2.614, learning_rate=3.552e-05
+[2026-10-07 16:45:48 UTC] step 156/495 | 30.7 s/step | loss=0.5165, rewards/accuracies=0.75, rewards/margins=1.697, grad_norm=4.701, learning_rate=3.542e-05
+[2026-10-07 16:46:26 UTC] step 157/495 | 30.7 s/step | loss=0.4389, rewards/accuracies=0.6875, rewards/margins=2.381, grad_norm=4.561, learning_rate=3.531e-05
+[2026-10-07 16:47:00 UTC] step 158/495 | 30.7 s/step | loss=0.3573, rewards/accuracies=0.8125, rewards/margins=2.308, grad_norm=3.252, learning_rate=3.521e-05
+[2026-10-07 16:47:32 UTC] step 159/495 | 30.7 s/step | loss=0.1443, rewards/accuracies=1, rewards/margins=2.559, grad_norm=2.267, learning_rate=3.51e-05
+[2026-10-07 16:48:03 UTC] step 160/495 | 30.7 s/step | loss=0.3698, rewards/accuracies=0.8125, rewards/margins=2.384, grad_norm=4.763, learning_rate=3.5e-05
+[2026-10-07 16:48:37 UTC] step 161/495 | 30.8 s/step | loss=0.191, rewards/accuracies=0.9375, rewards/margins=3.016, grad_norm=4.651, learning_rate=3.49e-05
+[2026-10-07 16:49:03 UTC] step 162/495 | 30.7 s/step | loss=0.4031, rewards/accuracies=0.75, rewards/margins=1.475, grad_norm=6.577, learning_rate=3.479e-05
+[2026-10-07 16:49:34 UTC] step 163/495 | 30.7 s/step | loss=0.3761, rewards/accuracies=0.8125, rewards/margins=2.115, grad_norm=3.404, learning_rate=3.469e-05
+[2026-10-07 16:50:02 UTC] step 164/495 | 30.7 s/step | loss=0.407, rewards/accuracies=0.75, rewards/margins=1.93, grad_norm=6.273, learning_rate=3.458e-05
+[2026-10-07 16:50:27 UTC] step 165/495 | 30.7 s/step | loss=0.2718, rewards/accuracies=0.8125, rewards/margins=2.513, grad_norm=3.898, learning_rate=3.448e-05
+[2026-10-07 16:50:57 UTC] step 166/495 | 30.7 s/step | loss=0.2023, rewards/accuracies=0.875, rewards/margins=3.251, grad_norm=2.267, learning_rate=3.438e-05
+[2026-10-07 16:51:23 UTC] step 167/495 | 30.6 s/step | loss=0.2837, rewards/accuracies=0.875, rewards/margins=2.115, grad_norm=2.763, learning_rate=3.427e-05
+[2026-10-07 16:51:57 UTC] step 168/495 | 30.7 s/step | loss=0.3272, rewards/accuracies=0.875, rewards/margins=2.182, grad_norm=6.056, learning_rate=3.417e-05
+[2026-10-07 16:52:34 UTC] step 169/495 | 30.7 s/step | loss=0.1308, rewards/accuracies=0.9375, rewards/margins=3.272, grad_norm=1.282, learning_rate=3.406e-05
+[2026-10-07 16:53:04 UTC] step 170/495 | 30.7 s/step | loss=0.3788, rewards/accuracies=0.8125, rewards/margins=2.039, grad_norm=12.08, learning_rate=3.396e-05
+[2026-10-07 16:53:36 UTC] step 171/495 | 30.7 s/step | loss=0.4167, rewards/accuracies=0.8125, rewards/margins=1.962, grad_norm=6.206, learning_rate=3.385e-05
+[2026-10-07 16:54:03 UTC] step 172/495 | 30.7 s/step | loss=0.2827, rewards/accuracies=0.8125, rewards/margins=2.819, grad_norm=5.454, learning_rate=3.375e-05
+[2026-10-07 16:54:30 UTC] step 173/495 | 30.7 s/step | loss=0.5484, rewards/accuracies=0.8125, rewards/margins=2.051, grad_norm=8.386, learning_rate=3.365e-05
+[2026-10-07 16:55:03 UTC] step 174/495 | 30.7 s/step | loss=0.5482, rewards/accuracies=0.75, rewards/margins=1.904, grad_norm=6.407, learning_rate=3.354e-05
+[2026-10-07 16:55:36 UTC] step 175/495 | 30.7 s/step | loss=0.3601, rewards/accuracies=0.8125, rewards/margins=1.817, grad_norm=3.566, learning_rate=3.344e-05
+[2026-10-07 16:56:04 UTC] step 176/495 | 30.7 s/step | loss=0.1924, rewards/accuracies=0.9375, rewards/margins=2.589, grad_norm=2.584, learning_rate=3.333e-05
+[2026-10-07 16:56:34 UTC] step 177/495 | 30.7 s/step | loss=0.2956, rewards/accuracies=0.875, rewards/margins=3.124, grad_norm=4.934, learning_rate=3.323e-05
+[2026-10-07 16:57:03 UTC] step 178/495 | 30.7 s/step | loss=0.2004, rewards/accuracies=0.9375, rewards/margins=3.147, grad_norm=2.048, learning_rate=3.312e-05
+[2026-10-07 16:57:32 UTC] step 179/495 | 30.7 s/step | loss=0.4917, rewards/accuracies=0.6875, rewards/margins=2.007, grad_norm=8.419, learning_rate=3.302e-05
+[2026-10-07 16:58:04 UTC] step 180/495 | 30.7 s/step | loss=0.3611, rewards/accuracies=0.875, rewards/margins=1.924, grad_norm=14.83, learning_rate=3.292e-05
+[2026-10-07 16:58:31 UTC] step 181/495 | 30.6 s/step | loss=0.3695, rewards/accuracies=0.8125, rewards/margins=2.384, grad_norm=6.341, learning_rate=3.281e-05
+[2026-10-07 16:58:56 UTC] step 182/495 | 30.6 s/step | loss=0.2075, rewards/accuracies=0.875, rewards/margins=2.965, grad_norm=7.666, learning_rate=3.271e-05
+[2026-10-07 16:59:33 UTC] step 183/495 | 30.6 s/step | loss=0.3763, rewards/accuracies=0.875, rewards/margins=1.952, grad_norm=5.499, learning_rate=3.26e-05
+[2026-10-07 17:00:08 UTC] step 184/495 | 30.7 s/step | loss=0.6817, rewards/accuracies=0.625, rewards/margins=1.021, grad_norm=11.25, learning_rate=3.25e-05
+[2026-10-07 17:00:38 UTC] step 185/495 | 30.7 s/step | loss=0.5422, rewards/accuracies=0.75, rewards/margins=1.991, grad_norm=5.361, learning_rate=3.24e-05
+[2026-10-07 17:01:08 UTC] step 186/495 | 30.7 s/step | loss=0.309, rewards/accuracies=0.8125, rewards/margins=2.745, grad_norm=3.544, learning_rate=3.229e-05
+[2026-10-07 17:01:31 UTC] step 187/495 | 30.6 s/step | loss=0.1376, rewards/accuracies=0.9375, rewards/margins=3.547, grad_norm=2.436, learning_rate=3.219e-05
+[2026-10-07 17:02:08 UTC] step 188/495 | 30.6 s/step | loss=0.6059, rewards/accuracies=0.8125, rewards/margins=2.009, grad_norm=5.636, learning_rate=3.208e-05
+[2026-10-07 17:02:35 UTC] step 189/495 | 30.6 s/step | loss=0.4759, rewards/accuracies=0.6875, rewards/margins=1.353, grad_norm=6.552, learning_rate=3.198e-05
+[2026-10-07 17:03:04 UTC] step 190/495 | 30.6 s/step | loss=0.3307, rewards/accuracies=0.875, rewards/margins=2.402, grad_norm=6.856, learning_rate=3.188e-05
+[2026-10-07 17:03:32 UTC] step 191/495 | 30.6 s/step | loss=0.4967, rewards/accuracies=0.6875, rewards/margins=1.751, grad_norm=6.067, learning_rate=3.177e-05
+[2026-10-07 17:04:03 UTC] step 192/495 | 30.6 s/step | loss=0.2202, rewards/accuracies=0.9375, rewards/margins=2.883, grad_norm=4.158, learning_rate=3.167e-05
+[2026-10-07 17:04:38 UTC] step 193/495 | 30.6 s/step | loss=0.4518, rewards/accuracies=0.8125, rewards/margins=1.162, grad_norm=3.035, learning_rate=3.156e-05
+[2026-10-07 17:05:15 UTC] step 194/495 | 30.7 s/step | loss=0.5047, rewards/accuracies=0.8125, rewards/margins=2.521, grad_norm=7.864, learning_rate=3.146e-05
+[2026-10-07 17:05:44 UTC] step 195/495 | 30.7 s/step | loss=0.2753, rewards/accuracies=0.9375, rewards/margins=2.083, grad_norm=2.798, learning_rate=3.135e-05
+[2026-10-07 17:06:13 UTC] step 196/495 | 30.6 s/step | loss=0.3353, rewards/accuracies=0.875, rewards/margins=2.219, grad_norm=7.601, learning_rate=3.125e-05
+[2026-10-07 17:06:44 UTC] step 197/495 | 30.6 s/step | loss=0.285, rewards/accuracies=0.875, rewards/margins=1.951, grad_norm=3.043, learning_rate=3.115e-05
+[2026-10-07 17:07:15 UTC] step 198/495 | 30.6 s/step | loss=0.24, rewards/accuracies=0.9375, rewards/margins=2.729, grad_norm=2.672, learning_rate=3.104e-05
+[2026-10-07 17:07:45 UTC] step 199/495 | 30.6 s/step | loss=0.4784, rewards/accuracies=0.8125, rewards/margins=2.365, grad_norm=6.273, learning_rate=3.094e-05
+[2026-10-07 17:08:15 UTC] step 200/495 | 30.6 s/step | loss=0.3075, rewards/accuracies=0.8125, rewards/margins=1.829, grad_norm=4.194, learning_rate=3.083e-05
+[2026-10-07 17:08:17 UTC] checkpoint saved: checkpoint-200
+[2026-10-07 17:08:49 UTC] step 201/495 | 30.7 s/step | loss=0.1367, rewards/accuracies=0.9375, rewards/margins=3.301, grad_norm=2.742, learning_rate=3.073e-05
+[2026-10-07 17:09:23 UTC] step 202/495 | 30.7 s/step | loss=0.387, rewards/accuracies=0.8125, rewards/margins=1.96, grad_norm=5.454, learning_rate=3.063e-05
+[2026-10-07 17:09:56 UTC] step 203/495 | 30.7 s/step | loss=0.2054, rewards/accuracies=0.9375, rewards/margins=3.274, grad_norm=5.043, learning_rate=3.052e-05
+[2026-10-07 17:10:29 UTC] step 204/495 | 30.7 s/step | loss=0.5477, rewards/accuracies=0.75, rewards/margins=1.612, grad_norm=4.47, learning_rate=3.042e-05
+[2026-10-07 17:10:56 UTC] step 205/495 | 30.7 s/step | loss=0.3912, rewards/accuracies=0.8125, rewards/margins=2.535, grad_norm=7.415, learning_rate=3.031e-05
+[2026-10-07 17:11:19 UTC] step 206/495 | 30.6 s/step | loss=0.3611, rewards/accuracies=0.75, rewards/margins=2.593, grad_norm=3.596, learning_rate=3.021e-05
+[2026-10-07 17:11:48 UTC] step 207/495 | 30.6 s/step | loss=0.2735, rewards/accuracies=0.875, rewards/margins=1.688, grad_norm=3.142, learning_rate=3.01e-05
+[2026-10-07 17:12:13 UTC] step 208/495 | 30.6 s/step | loss=0.3581, rewards/accuracies=0.8125, rewards/margins=2.548, grad_norm=9.948, learning_rate=3e-05
+[2026-10-07 17:12:40 UTC] step 209/495 | 30.6 s/step | loss=0.3357, rewards/accuracies=0.875, rewards/margins=1.915, grad_norm=6.955, learning_rate=2.99e-05
+[2026-10-07 17:13:05 UTC] step 210/495 | 30.6 s/step | loss=0.1255, rewards/accuracies=0.9375, rewards/margins=3.646, grad_norm=2.835, learning_rate=2.979e-05
+[2026-10-07 17:13:30 UTC] step 211/495 | 30.5 s/step | loss=0.2014, rewards/accuracies=1, rewards/margins=2.762, grad_norm=3.384, learning_rate=2.969e-05
+[2026-10-07 17:13:57 UTC] step 212/495 | 30.5 s/step | loss=0.3201, rewards/accuracies=0.9375, rewards/margins=1.856, grad_norm=4.192, learning_rate=2.958e-05
+[2026-10-07 17:14:32 UTC] step 213/495 | 30.5 s/step | loss=0.1675, rewards/accuracies=1, rewards/margins=2.524, grad_norm=2.648, learning_rate=2.948e-05
+[2026-10-07 17:15:01 UTC] step 214/495 | 30.5 s/step | loss=0.3057, rewards/accuracies=0.9375, rewards/margins=2.73, grad_norm=3.178, learning_rate=2.938e-05
+[2026-10-07 17:15:28 UTC] step 215/495 | 30.5 s/step | loss=0.2856, rewards/accuracies=0.9375, rewards/margins=2.962, grad_norm=2.653, learning_rate=2.927e-05
+[2026-10-07 17:16:03 UTC] step 216/495 | 30.5 s/step | loss=0.205, rewards/accuracies=0.9375, rewards/margins=2.796, grad_norm=2.875, learning_rate=2.917e-05
+[2026-10-07 17:16:33 UTC] step 217/495 | 30.5 s/step | loss=0.4031, rewards/accuracies=0.8125, rewards/margins=2.533, grad_norm=5.739, learning_rate=2.906e-05
+[2026-10-07 17:17:04 UTC] step 218/495 | 30.5 s/step | loss=0.3473, rewards/accuracies=0.75, rewards/margins=2.556, grad_norm=6.08, learning_rate=2.896e-05
+[2026-10-07 17:17:36 UTC] step 219/495 | 30.5 s/step | loss=0.1338, rewards/accuracies=1, rewards/margins=2.7, grad_norm=2.57, learning_rate=2.885e-05
+[2026-10-07 17:18:06 UTC] step 220/495 | 30.5 s/step | loss=0.4589, rewards/accuracies=0.8125, rewards/margins=2.799, grad_norm=6.92, learning_rate=2.875e-05
+[2026-10-07 17:18:32 UTC] step 221/495 | 30.5 s/step | loss=0.33, rewards/accuracies=0.8125, rewards/margins=2.003, grad_norm=7.115, learning_rate=2.865e-05
+[2026-10-07 17:19:02 UTC] step 222/495 | 30.5 s/step | loss=0.7819, rewards/accuracies=0.5, rewards/margins=1.466, grad_norm=9.806, learning_rate=2.854e-05
+[2026-10-07 17:19:32 UTC] step 223/495 | 30.5 s/step | loss=0.3669, rewards/accuracies=0.6875, rewards/margins=2.039, grad_norm=5.364, learning_rate=2.844e-05
+[2026-10-07 17:20:04 UTC] step 224/495 | 30.5 s/step | loss=0.1889, rewards/accuracies=0.9375, rewards/margins=2.63, grad_norm=2.323, learning_rate=2.833e-05
+[2026-10-07 17:20:35 UTC] step 225/495 | 30.5 s/step | loss=0.4998, rewards/accuracies=0.875, rewards/margins=1.647, grad_norm=14.48, learning_rate=2.823e-05
+[2026-10-07 17:21:04 UTC] step 226/495 | 30.5 s/step | loss=0.5821, rewards/accuracies=0.8125, rewards/margins=1.296, grad_norm=9.186, learning_rate=2.813e-05
+[2026-10-07 17:21:34 UTC] step 227/495 | 30.5 s/step | loss=0.2548, rewards/accuracies=0.875, rewards/margins=3.078, grad_norm=8.523, learning_rate=2.802e-05
+[2026-10-07 17:22:10 UTC] step 228/495 | 30.5 s/step | loss=0.2701, rewards/accuracies=0.8125, rewards/margins=2.233, grad_norm=3.488, learning_rate=2.792e-05
+[2026-10-07 17:22:40 UTC] step 229/495 | 30.5 s/step | loss=0.4945, rewards/accuracies=0.6875, rewards/margins=2.415, grad_norm=8.18, learning_rate=2.781e-05
+[2026-10-07 17:23:12 UTC] step 230/495 | 30.5 s/step | loss=0.5249, rewards/accuracies=0.8125, rewards/margins=1.904, grad_norm=13.76, learning_rate=2.771e-05
+[2026-10-07 17:23:45 UTC] step 231/495 | 30.6 s/step | loss=0.526, rewards/accuracies=0.8125, rewards/margins=1.761, grad_norm=13.37, learning_rate=2.76e-05
+[2026-10-07 17:24:08 UTC] step 232/495 | 30.5 s/step | loss=0.3324, rewards/accuracies=0.8125, rewards/margins=2.32, grad_norm=6.685, learning_rate=2.75e-05
+[2026-10-07 17:24:45 UTC] step 233/495 | 30.6 s/step | loss=0.3271, rewards/accuracies=0.8125, rewards/margins=2.419, grad_norm=7.527, learning_rate=2.74e-05
+[2026-10-07 17:25:13 UTC] step 234/495 | 30.5 s/step | loss=0.2495, rewards/accuracies=0.875, rewards/margins=4.022, grad_norm=5.024, learning_rate=2.729e-05
+[2026-10-07 17:25:43 UTC] step 235/495 | 30.5 s/step | loss=0.3604, rewards/accuracies=0.875, rewards/margins=1.988, grad_norm=5.126, learning_rate=2.719e-05
+[2026-10-07 17:26:14 UTC] step 236/495 | 30.5 s/step | loss=0.3248, rewards/accuracies=0.8125, rewards/margins=2.22, grad_norm=2.845, learning_rate=2.708e-05
+[2026-10-07 17:26:46 UTC] step 237/495 | 30.6 s/step | loss=0.2427, rewards/accuracies=0.875, rewards/margins=2.428, grad_norm=3.361, learning_rate=2.698e-05
+[2026-10-07 17:27:12 UTC] step 238/495 | 30.5 s/step | loss=0.6203, rewards/accuracies=0.75, rewards/margins=1.534, grad_norm=10.55, learning_rate=2.687e-05
+[2026-10-07 17:27:37 UTC] step 239/495 | 30.5 s/step | loss=0.415, rewards/accuracies=0.8125, rewards/margins=2.731, grad_norm=4.887, learning_rate=2.677e-05
+[2026-10-07 17:28:03 UTC] step 240/495 | 30.5 s/step | loss=0.408, rewards/accuracies=0.8125, rewards/margins=1.945, grad_norm=5.77, learning_rate=2.667e-05
+[2026-10-07 17:28:32 UTC] step 241/495 | 30.5 s/step | loss=0.2178, rewards/accuracies=0.9375, rewards/margins=3.383, grad_norm=4.712, learning_rate=2.656e-05
+[2026-10-07 17:29:01 UTC] step 242/495 | 30.5 s/step | loss=0.3714, rewards/accuracies=0.875, rewards/margins=1.632, grad_norm=5.874, learning_rate=2.646e-05
+[2026-10-07 17:29:35 UTC] step 243/495 | 30.5 s/step | loss=0.1618, rewards/accuracies=0.875, rewards/margins=2.949, grad_norm=5.165, learning_rate=2.635e-05
+[2026-10-07 17:29:57 UTC] step 244/495 | 30.5 s/step | loss=0.3058, rewards/accuracies=0.875, rewards/margins=2.525, grad_norm=4.006, learning_rate=2.625e-05
+[2026-10-07 17:30:24 UTC] step 245/495 | 30.4 s/step | loss=0.2381, rewards/accuracies=0.9375, rewards/margins=2.911, grad_norm=5.08, learning_rate=2.615e-05
+[2026-10-07 17:30:57 UTC] step 246/495 | 30.5 s/step | loss=0.2192, rewards/accuracies=0.875, rewards/margins=3.065, grad_norm=4.777, learning_rate=2.604e-05
+[2026-10-07 17:31:33 UTC] step 247/495 | 30.5 s/step | loss=0.3394, rewards/accuracies=0.75, rewards/margins=2.595, grad_norm=7.788, learning_rate=2.594e-05
+[2026-10-07 17:32:10 UTC] step 248/495 | 30.5 s/step | loss=0.1506, rewards/accuracies=1, rewards/margins=3.222, grad_norm=7.019, learning_rate=2.583e-05
+[2026-10-07 17:32:48 UTC] step 249/495 | 30.5 s/step | loss=0.1774, rewards/accuracies=0.9375, rewards/margins=3.067, grad_norm=4.596, learning_rate=2.573e-05
+[2026-10-07 17:33:21 UTC] step 250/495 | 30.5 s/step | loss=0.2058, rewards/accuracies=0.9375, rewards/margins=2.944, grad_norm=4.119, learning_rate=2.562e-05
+[2026-10-07 17:33:47 UTC] step 251/495 | 30.5 s/step | loss=0.1699, rewards/accuracies=0.9375, rewards/margins=2.538, grad_norm=3.252, learning_rate=2.552e-05
+[2026-10-07 17:34:13 UTC] step 252/495 | 30.5 s/step | loss=0.2309, rewards/accuracies=0.9375, rewards/margins=2.336, grad_norm=2.782, learning_rate=2.542e-05
+[2026-10-07 17:34:39 UTC] step 253/495 | 30.5 s/step | loss=0.2474, rewards/accuracies=0.875, rewards/margins=2.458, grad_norm=2.441, learning_rate=2.531e-05
+[2026-10-07 17:35:09 UTC] step 254/495 | 30.5 s/step | loss=0.4152, rewards/accuracies=0.8125, rewards/margins=2.862, grad_norm=5.424, learning_rate=2.521e-05
+[2026-10-07 17:35:44 UTC] step 255/495 | 30.5 s/step | loss=0.6312, rewards/accuracies=0.75, rewards/margins=2.215, grad_norm=8.23, learning_rate=2.51e-05
+[2026-10-07 17:36:13 UTC] step 256/495 | 30.5 s/step | loss=0.3064, rewards/accuracies=0.875, rewards/margins=2.07, grad_norm=6.654, learning_rate=2.5e-05
+[2026-10-07 17:36:50 UTC] step 257/495 | 30.5 s/step | loss=0.1746, rewards/accuracies=0.875, rewards/margins=3.102, grad_norm=2.26, learning_rate=2.49e-05
+[2026-10-07 17:37:17 UTC] step 258/495 | 30.5 s/step | loss=0.1484, rewards/accuracies=0.9375, rewards/margins=3.562, grad_norm=1.683, learning_rate=2.479e-05
+[2026-10-07 17:37:46 UTC] step 259/495 | 30.5 s/step | loss=0.2342, rewards/accuracies=0.875, rewards/margins=2.87, grad_norm=4.288, learning_rate=2.469e-05
+[2026-10-07 17:38:19 UTC] step 260/495 | 30.5 s/step | loss=0.3588, rewards/accuracies=0.8125, rewards/margins=2.833, grad_norm=4.144, learning_rate=2.458e-05
+[2026-10-07 17:38:49 UTC] step 261/495 | 30.5 s/step | loss=0.3299, rewards/accuracies=0.8125, rewards/margins=2.621, grad_norm=4.583, learning_rate=2.448e-05
+[2026-10-07 17:39:22 UTC] step 262/495 | 30.5 s/step | loss=0.3779, rewards/accuracies=0.875, rewards/margins=2.372, grad_norm=5.98, learning_rate=2.437e-05
+[2026-10-07 17:39:49 UTC] step 263/495 | 30.5 s/step | loss=0.4567, rewards/accuracies=0.8125, rewards/margins=2.548, grad_norm=7.904, learning_rate=2.427e-05
+[2026-10-07 17:40:20 UTC] step 264/495 | 30.5 s/step | loss=0.3655, rewards/accuracies=0.75, rewards/margins=2.82, grad_norm=8.874, learning_rate=2.417e-05
+[2026-10-07 17:40:56 UTC] step 265/495 | 30.5 s/step | loss=0.2617, rewards/accuracies=0.8125, rewards/margins=2.652, grad_norm=3.433, learning_rate=2.406e-05
+[2026-10-07 17:41:30 UTC] step 266/495 | 30.5 s/step | loss=0.241, rewards/accuracies=0.875, rewards/margins=2.779, grad_norm=3.017, learning_rate=2.396e-05
+[2026-10-07 17:42:03 UTC] step 267/495 | 30.6 s/step | loss=0.2968, rewards/accuracies=0.875, rewards/margins=2.572, grad_norm=4.501, learning_rate=2.385e-05
+[2026-10-07 17:42:38 UTC] step 268/495 | 30.6 s/step | loss=0.3359, rewards/accuracies=0.875, rewards/margins=1.89, grad_norm=5.171, learning_rate=2.375e-05
+[2026-10-07 17:43:07 UTC] step 269/495 | 30.6 s/step | loss=0.2131, rewards/accuracies=0.8125, rewards/margins=3.617, grad_norm=3.554, learning_rate=2.365e-05
+[2026-10-07 17:43:30 UTC] step 270/495 | 30.5 s/step | loss=0.5384, rewards/accuracies=0.6875, rewards/margins=2.013, grad_norm=10.55, learning_rate=2.354e-05
+[2026-10-07 17:43:59 UTC] step 271/495 | 30.5 s/step | loss=0.2705, rewards/accuracies=0.875, rewards/margins=2.368, grad_norm=4.879, learning_rate=2.344e-05
+[2026-10-07 17:44:36 UTC] step 272/495 | 30.6 s/step | loss=0.2855, rewards/accuracies=0.8125, rewards/margins=3.061, grad_norm=6.268, learning_rate=2.333e-05
+[2026-10-07 17:45:03 UTC] step 273/495 | 30.5 s/step | loss=0.1969, rewards/accuracies=0.9375, rewards/margins=3.042, grad_norm=8.046, learning_rate=2.323e-05
+[2026-10-07 17:45:29 UTC] step 274/495 | 30.5 s/step | loss=0.2445, rewards/accuracies=0.8125, rewards/margins=2.64, grad_norm=4.462, learning_rate=2.313e-05
+[2026-10-07 17:46:01 UTC] step 275/495 | 30.5 s/step | loss=0.3386, rewards/accuracies=0.8125, rewards/margins=2.134, grad_norm=11.4, learning_rate=2.302e-05
+[2026-10-07 17:46:31 UTC] step 276/495 | 30.5 s/step | loss=0.3466, rewards/accuracies=0.6875, rewards/margins=2.222, grad_norm=8.595, learning_rate=2.292e-05
+[2026-10-07 17:46:55 UTC] step 277/495 | 30.5 s/step | loss=0.3562, rewards/accuracies=0.875, rewards/margins=2.734, grad_norm=6.344, learning_rate=2.281e-05
+[2026-10-07 17:47:24 UTC] step 278/495 | 30.5 s/step | loss=0.3387, rewards/accuracies=0.8125, rewards/margins=2.114, grad_norm=6.216, learning_rate=2.271e-05
+[2026-10-07 17:47:48 UTC] step 279/495 | 30.5 s/step | loss=0.2566, rewards/accuracies=0.9375, rewards/margins=2.134, grad_norm=4.312, learning_rate=2.26e-05
+[2026-10-07 17:48:20 UTC] step 280/495 | 30.5 s/step | loss=0.141, rewards/accuracies=0.9375, rewards/margins=3.156, grad_norm=2.444, learning_rate=2.25e-05
+[2026-10-07 17:48:56 UTC] step 281/495 | 30.5 s/step | loss=0.1189, rewards/accuracies=1, rewards/margins=3.145, grad_norm=2.317, learning_rate=2.24e-05
+[2026-10-07 17:49:25 UTC] step 282/495 | 30.5 s/step | loss=0.217, rewards/accuracies=0.875, rewards/margins=3.646, grad_norm=4.072, learning_rate=2.229e-05
+[2026-10-07 17:49:53 UTC] step 283/495 | 30.5 s/step | loss=0.323, rewards/accuracies=0.9375, rewards/margins=2.855, grad_norm=9.214, learning_rate=2.219e-05
+[2026-10-07 17:50:27 UTC] step 284/495 | 30.5 s/step | loss=0.1617, rewards/accuracies=0.9375, rewards/margins=3.375, grad_norm=2.067, learning_rate=2.208e-05
+[2026-10-07 17:50:48 UTC] step 285/495 | 30.5 s/step | loss=0.3419, rewards/accuracies=0.875, rewards/margins=1.864, grad_norm=6.138, learning_rate=2.198e-05
+[2026-10-07 17:51:19 UTC] step 286/495 | 30.5 s/step | loss=0.3278, rewards/accuracies=0.8125, rewards/margins=3.273, grad_norm=3.078, learning_rate=2.187e-05
+[2026-10-07 17:51:50 UTC] step 287/495 | 30.5 s/step | loss=0.547, rewards/accuracies=0.6875, rewards/margins=1.349, grad_norm=5.42, learning_rate=2.177e-05
+[2026-10-07 17:52:19 UTC] step 288/495 | 30.5 s/step | loss=0.2227, rewards/accuracies=0.875, rewards/margins=2.793, grad_norm=5.158, learning_rate=2.167e-05
+[2026-10-07 17:52:59 UTC] step 289/495 | 30.5 s/step | loss=0.3469, rewards/accuracies=0.875, rewards/margins=3.436, grad_norm=9.241, learning_rate=2.156e-05
+[2026-10-07 17:53:26 UTC] step 290/495 | 30.5 s/step | loss=0.3449, rewards/accuracies=0.75, rewards/margins=2.449, grad_norm=7.8, learning_rate=2.146e-05
+[2026-10-07 17:53:55 UTC] step 291/495 | 30.5 s/step | loss=0.2905, rewards/accuracies=0.875, rewards/margins=2.379, grad_norm=nan, learning_rate=2.135e-05
+[2026-10-07 17:54:15 UTC] step 292/495 | 30.4 s/step | loss=0.4324, rewards/accuracies=0.8125, rewards/margins=2.091, grad_norm=3.343, learning_rate=2.125e-05
+[2026-10-07 17:54:40 UTC] step 293/495 | 30.4 s/step | loss=0.1572, rewards/accuracies=1, rewards/margins=2.958, grad_norm=3.56, learning_rate=2.115e-05
+[2026-10-07 17:55:07 UTC] step 294/495 | 30.4 s/step | loss=0.1842, rewards/accuracies=0.9375, rewards/margins=2.58, grad_norm=4.525, learning_rate=2.104e-05
+[2026-10-07 17:55:36 UTC] step 295/495 | 30.4 s/step | loss=0.2666, rewards/accuracies=0.875, rewards/margins=2.661, grad_norm=6.746, learning_rate=2.094e-05
+[2026-10-07 17:56:02 UTC] step 296/495 | 30.4 s/step | loss=0.4886, rewards/accuracies=0.875, rewards/margins=2.345, grad_norm=3.987, learning_rate=2.083e-05
+[2026-10-07 17:56:35 UTC] step 297/495 | 30.4 s/step | loss=0.2091, rewards/accuracies=0.9375, rewards/margins=2.847, grad_norm=4.819, learning_rate=2.073e-05
+[2026-10-07 17:57:07 UTC] step 298/495 | 30.4 s/step | loss=0.2615, rewards/accuracies=0.875, rewards/margins=2.944, grad_norm=3.125, learning_rate=2.062e-05
+[2026-10-07 17:57:34 UTC] step 299/495 | 30.4 s/step | loss=0.3662, rewards/accuracies=0.8125, rewards/margins=2.927, grad_norm=14.19, learning_rate=2.052e-05
+[2026-10-07 17:58:08 UTC] step 300/495 | 30.4 s/step | loss=0.2668, rewards/accuracies=0.875, rewards/margins=2.621, grad_norm=2.278, learning_rate=2.042e-05
+[2026-10-07 17:58:10 UTC] checkpoint saved: checkpoint-300
+[2026-10-07 17:58:45 UTC] step 301/495 | 30.4 s/step | loss=0.3436, rewards/accuracies=0.9375, rewards/margins=1.703, grad_norm=4.468, learning_rate=2.031e-05
+[2026-10-07 17:59:11 UTC] step 302/495 | 30.4 s/step | loss=0.1897, rewards/accuracies=0.9375, rewards/margins=2.927, grad_norm=2.532, learning_rate=2.021e-05
+[2026-10-07 17:59:36 UTC] step 303/495 | 30.4 s/step | loss=0.2326, rewards/accuracies=0.875, rewards/margins=3.162, grad_norm=2.741, learning_rate=2.01e-05
+[2026-10-07 18:00:04 UTC] step 304/495 | 30.4 s/step | loss=0.1652, rewards/accuracies=1, rewards/margins=3.111, grad_norm=4.679, learning_rate=2e-05
+[2026-10-07 18:00:35 UTC] step 305/495 | 30.4 s/step | loss=0.1214, rewards/accuracies=1, rewards/margins=3.958, grad_norm=3.533, learning_rate=1.99e-05
+[2026-10-07 18:00:59 UTC] step 306/495 | 30.4 s/step | loss=0.1632, rewards/accuracies=0.9375, rewards/margins=3.414, grad_norm=3.171, learning_rate=1.979e-05
+[2026-10-07 18:01:28 UTC] step 307/495 | 30.4 s/step | loss=0.275, rewards/accuracies=0.875, rewards/margins=3.381, grad_norm=5.618, learning_rate=1.969e-05
+[2026-10-07 18:01:54 UTC] step 308/495 | 30.4 s/step | loss=0.1364, rewards/accuracies=0.9375, rewards/margins=3.008, grad_norm=1.72, learning_rate=1.958e-05
+[2026-10-07 18:02:24 UTC] step 309/495 | 30.4 s/step | loss=0.2416, rewards/accuracies=0.875, rewards/margins=2.68, grad_norm=4.694, learning_rate=1.948e-05
+[2026-10-07 18:02:53 UTC] step 310/495 | 30.3 s/step | loss=0.3119, rewards/accuracies=0.875, rewards/margins=2.108, grad_norm=7.844, learning_rate=1.937e-05
+[2026-10-07 18:03:23 UTC] step 311/495 | 30.3 s/step | loss=0.229, rewards/accuracies=0.875, rewards/margins=3.543, grad_norm=4.493, learning_rate=1.927e-05
+[2026-10-07 18:03:55 UTC] step 312/495 | 30.3 s/step | loss=0.1205, rewards/accuracies=0.9375, rewards/margins=3.854, grad_norm=2.556, learning_rate=1.917e-05
+[2026-10-07 18:04:31 UTC] step 313/495 | 30.4 s/step | loss=0.1511, rewards/accuracies=0.9375, rewards/margins=4.506, grad_norm=6.948, learning_rate=1.906e-05
+[2026-10-07 18:05:04 UTC] step 314/495 | 30.4 s/step | loss=0.3785, rewards/accuracies=0.8125, rewards/margins=1.988, grad_norm=8.185, learning_rate=1.896e-05
+[2026-10-07 18:05:37 UTC] step 315/495 | 30.4 s/step | loss=0.3969, rewards/accuracies=0.875, rewards/margins=2.759, grad_norm=6.092, learning_rate=1.885e-05
+[2026-10-07 18:06:04 UTC] step 316/495 | 30.4 s/step | loss=0.1637, rewards/accuracies=1, rewards/margins=3.303, grad_norm=3.175, learning_rate=1.875e-05
+[2026-10-07 18:06:31 UTC] step 317/495 | 30.4 s/step | loss=0.2697, rewards/accuracies=1, rewards/margins=1.989, grad_norm=5.796, learning_rate=1.865e-05
+[2026-10-07 18:07:06 UTC] step 318/495 | 30.4 s/step | loss=0.5927, rewards/accuracies=0.75, rewards/margins=1.894, grad_norm=10.4, learning_rate=1.854e-05
+[2026-10-07 18:07:32 UTC] step 319/495 | 30.4 s/step | loss=0.3514, rewards/accuracies=0.8125, rewards/margins=3.849, grad_norm=7.913, learning_rate=1.844e-05
+[2026-10-07 18:07:59 UTC] step 320/495 | 30.4 s/step | loss=0.3175, rewards/accuracies=0.875, rewards/margins=2.886, grad_norm=6.896, learning_rate=1.833e-05
+[2026-10-07 18:08:32 UTC] step 321/495 | 30.4 s/step | loss=0.202, rewards/accuracies=0.9375, rewards/margins=4.808, grad_norm=6.71, learning_rate=1.823e-05
+[2026-10-07 18:08:59 UTC] step 322/495 | 30.4 s/step | loss=0.1565, rewards/accuracies=1, rewards/margins=3.35, grad_norm=4.38, learning_rate=1.813e-05
+[2026-10-07 18:09:25 UTC] step 323/495 | 30.3 s/step | loss=0.1512, rewards/accuracies=0.9375, rewards/margins=3.575, grad_norm=1.589, learning_rate=1.802e-05
+[2026-10-07 18:09:55 UTC] step 324/495 | 30.3 s/step | loss=0.3237, rewards/accuracies=0.875, rewards/margins=2.308, grad_norm=5.44, learning_rate=1.792e-05
+[2026-10-07 18:10:26 UTC] step 325/495 | 30.3 s/step | loss=0.1936, rewards/accuracies=0.9375, rewards/margins=3.456, grad_norm=6.293, learning_rate=1.781e-05
+[2026-10-07 18:11:06 UTC] step 326/495 | 30.4 s/step | loss=0.0805, rewards/accuracies=1, rewards/margins=3.306, grad_norm=2.311, learning_rate=1.771e-05
+[2026-10-07 18:11:43 UTC] step 327/495 | 30.4 s/step | loss=0.3127, rewards/accuracies=0.875, rewards/margins=3.297, grad_norm=6.282, learning_rate=1.76e-05
+[2026-10-07 18:12:20 UTC] step 328/495 | 30.4 s/step | loss=0.622, rewards/accuracies=0.8125, rewards/margins=1.772, grad_norm=5.4, learning_rate=1.75e-05
+[2026-10-07 18:12:53 UTC] step 329/495 | 30.4 s/step | loss=0.3557, rewards/accuracies=0.875, rewards/margins=3.665, grad_norm=4.483, learning_rate=1.74e-05
+[2026-10-07 18:13:22 UTC] step 330/495 | 30.4 s/step | loss=0.3731, rewards/accuracies=0.875, rewards/margins=2.664, grad_norm=10.36, learning_rate=1.729e-05
+[2026-10-07 18:13:58 UTC] step 331/495 | 30.4 s/step | loss=0.0514, rewards/accuracies=1, rewards/margins=4.763, grad_norm=7.387, learning_rate=1.719e-05
+[2026-10-07 18:14:34 UTC] step 332/495 | 30.4 s/step | loss=0.5575, rewards/accuracies=0.8125, rewards/margins=2.316, grad_norm=9.664, learning_rate=1.708e-05
+[2026-10-07 18:15:03 UTC] step 333/495 | 30.4 s/step | loss=0.1219, rewards/accuracies=0.9375, rewards/margins=3.821, grad_norm=3.209, learning_rate=1.698e-05
+[2026-10-07 18:15:37 UTC] step 334/495 | 30.5 s/step | loss=0.3893, rewards/accuracies=0.75, rewards/margins=2.583, grad_norm=7.534, learning_rate=1.688e-05
+[2026-10-07 18:16:13 UTC] step 335/495 | 30.5 s/step | loss=0.2235, rewards/accuracies=0.9375, rewards/margins=4.048, grad_norm=7.148, learning_rate=1.677e-05
+[2026-10-07 18:16:39 UTC] step 336/495 | 30.5 s/step | loss=0.3231, rewards/accuracies=0.8125, rewards/margins=2.59, grad_norm=7.778, learning_rate=1.667e-05
+[2026-10-07 18:17:07 UTC] step 337/495 | 30.4 s/step | loss=0.0389, rewards/accuracies=1, rewards/margins=4.369, grad_norm=3.593, learning_rate=1.656e-05
+[2026-10-07 18:17:31 UTC] step 338/495 | 30.4 s/step | loss=0.2429, rewards/accuracies=0.875, rewards/margins=3.148, grad_norm=5.586, learning_rate=1.646e-05
+[2026-10-07 18:18:06 UTC] step 339/495 | 30.4 s/step | loss=0.2167, rewards/accuracies=0.9375, rewards/margins=3.337, grad_norm=2.052, learning_rate=1.635e-05
+[2026-10-07 18:18:37 UTC] step 340/495 | 30.4 s/step | loss=0.2588, rewards/accuracies=0.9375, rewards/margins=2.78, grad_norm=2.939, learning_rate=1.625e-05
+[2026-10-07 18:19:04 UTC] step 341/495 | 30.4 s/step | loss=0.3338, rewards/accuracies=0.875, rewards/margins=3.261, grad_norm=4.708, learning_rate=1.615e-05
+[2026-10-07 18:19:33 UTC] step 342/495 | 30.4 s/step | loss=0.1241, rewards/accuracies=1, rewards/margins=4.199, grad_norm=1.97, learning_rate=1.604e-05
+[2026-10-07 18:20:02 UTC] step 343/495 | 30.4 s/step | loss=0.1797, rewards/accuracies=0.9375, rewards/margins=3.765, grad_norm=2.687, learning_rate=1.594e-05
+[2026-10-07 18:20:34 UTC] step 344/495 | 30.4 s/step | loss=0.228, rewards/accuracies=0.9375, rewards/margins=4.17, grad_norm=3.105, learning_rate=1.583e-05
+[2026-10-07 18:21:11 UTC] step 345/495 | 30.5 s/step | loss=0.4119, rewards/accuracies=0.9375, rewards/margins=3.513, grad_norm=5.663, learning_rate=1.573e-05
+[2026-10-07 18:21:40 UTC] step 346/495 | 30.4 s/step | loss=0.1437, rewards/accuracies=0.9375, rewards/margins=3.812, grad_norm=1.956, learning_rate=1.563e-05
+[2026-10-07 18:22:07 UTC] step 347/495 | 30.4 s/step | loss=0.3809, rewards/accuracies=0.8125, rewards/margins=2.741, grad_norm=5.83, learning_rate=1.552e-05
+[2026-10-07 18:22:41 UTC] step 348/495 | 30.4 s/step | loss=0.4137, rewards/accuracies=0.8125, rewards/margins=2.912, grad_norm=4.306, learning_rate=1.542e-05
+[2026-10-07 18:23:16 UTC] step 349/495 | 30.5 s/step | loss=0.1861, rewards/accuracies=0.9375, rewards/margins=2.512, grad_norm=2.011, learning_rate=1.531e-05
+[2026-10-07 18:23:49 UTC] step 350/495 | 30.5 s/step | loss=0.3247, rewards/accuracies=0.875, rewards/margins=3.853, grad_norm=4.624, learning_rate=1.521e-05
+[2026-10-07 18:24:29 UTC] step 351/495 | 30.5 s/step | loss=0.4472, rewards/accuracies=0.75, rewards/margins=3.23, grad_norm=13.01, learning_rate=1.51e-05
+[2026-10-07 18:24:58 UTC] step 352/495 | 30.5 s/step | loss=0.0725, rewards/accuracies=1, rewards/margins=4.405, grad_norm=2.593, learning_rate=1.5e-05
+[2026-10-07 18:25:30 UTC] step 353/495 | 30.5 s/step | loss=0.2439, rewards/accuracies=0.8125, rewards/margins=4.107, grad_norm=5.563, learning_rate=1.49e-05
+[2026-10-07 18:26:02 UTC] step 354/495 | 30.5 s/step | loss=0.2486, rewards/accuracies=0.875, rewards/margins=3.126, grad_norm=1.497, learning_rate=1.479e-05
+[2026-10-07 18:26:31 UTC] step 355/495 | 30.5 s/step | loss=0.3683, rewards/accuracies=0.8125, rewards/margins=3.322, grad_norm=5.092, learning_rate=1.469e-05
+[2026-10-07 18:26:59 UTC] step 356/495 | 30.5 s/step | loss=0.3402, rewards/accuracies=0.8125, rewards/margins=3.152, grad_norm=3.253, learning_rate=1.458e-05
+[2026-10-07 18:27:30 UTC] step 357/495 | 30.5 s/step | loss=0.3066, rewards/accuracies=0.8125, rewards/margins=2.597, grad_norm=4.214, learning_rate=1.448e-05
+[2026-10-07 18:28:02 UTC] step 358/495 | 30.5 s/step | loss=0.1532, rewards/accuracies=0.9375, rewards/margins=3.715, grad_norm=3.229, learning_rate=1.437e-05
+[2026-10-07 18:28:34 UTC] step 359/495 | 30.5 s/step | loss=0.1762, rewards/accuracies=0.9375, rewards/margins=2.85, grad_norm=1.79, learning_rate=1.427e-05
+[2026-10-07 18:29:05 UTC] step 360/495 | 30.5 s/step | loss=0.2074, rewards/accuracies=0.9375, rewards/margins=3.906, grad_norm=5.072, learning_rate=1.417e-05
+[2026-10-07 18:29:36 UTC] step 361/495 | 30.5 s/step | loss=0.3007, rewards/accuracies=0.875, rewards/margins=3.823, grad_norm=3.399, learning_rate=1.406e-05
+[2026-10-07 18:30:14 UTC] step 362/495 | 30.5 s/step | loss=0.1443, rewards/accuracies=0.9375, rewards/margins=4.739, grad_norm=3.362, learning_rate=1.396e-05
+[2026-10-07 18:30:45 UTC] step 363/495 | 30.5 s/step | loss=0.3972, rewards/accuracies=0.75, rewards/margins=3.305, grad_norm=5.42, learning_rate=1.385e-05
+[2026-10-07 18:31:16 UTC] step 364/495 | 30.5 s/step | loss=0.1117, rewards/accuracies=0.9375, rewards/margins=4.296, grad_norm=4.158, learning_rate=1.375e-05
+[2026-10-07 18:31:53 UTC] step 365/495 | 30.5 s/step | loss=0.1898, rewards/accuracies=0.9375, rewards/margins=3.699, grad_norm=3.721, learning_rate=1.365e-05
+[2026-10-07 18:32:20 UTC] step 366/495 | 30.5 s/step | loss=0.693, rewards/accuracies=0.875, rewards/margins=2.4, grad_norm=12.98, learning_rate=1.354e-05
+[2026-10-07 18:32:48 UTC] step 367/495 | 30.5 s/step | loss=0.2508, rewards/accuracies=0.9375, rewards/margins=4.039, grad_norm=19.87, learning_rate=1.344e-05
+[2026-10-07 18:33:19 UTC] step 368/495 | 30.5 s/step | loss=0.1869, rewards/accuracies=0.9375, rewards/margins=3.405, grad_norm=7.759, learning_rate=1.333e-05
+[2026-10-07 18:33:47 UTC] step 369/495 | 30.5 s/step | loss=0.2847, rewards/accuracies=0.8125, rewards/margins=3.392, grad_norm=6.468, learning_rate=1.323e-05
+[2026-10-07 18:34:22 UTC] step 370/495 | 30.5 s/step | loss=0.1307, rewards/accuracies=0.9375, rewards/margins=4.794, grad_norm=6.099, learning_rate=1.313e-05
+[2026-10-07 18:35:02 UTC] step 371/495 | 30.6 s/step | loss=0.3699, rewards/accuracies=0.8125, rewards/margins=3.952, grad_norm=6.748, learning_rate=1.302e-05
+[2026-10-07 18:35:24 UTC] step 372/495 | 30.5 s/step | loss=0.1606, rewards/accuracies=0.9375, rewards/margins=4.565, grad_norm=4.4, learning_rate=1.292e-05
+[2026-10-07 18:36:01 UTC] step 373/495 | 30.5 s/step | loss=0.1572, rewards/accuracies=0.9375, rewards/margins=4.793, grad_norm=4.35, learning_rate=1.281e-05
+[2026-10-07 18:36:27 UTC] step 374/495 | 30.5 s/step | loss=0.1454, rewards/accuracies=1, rewards/margins=2.739, grad_norm=3.027, learning_rate=1.271e-05
+[2026-10-07 18:37:00 UTC] step 375/495 | 30.5 s/step | loss=0.3943, rewards/accuracies=0.6875, rewards/margins=2.494, grad_norm=5.137, learning_rate=1.26e-05
+[2026-10-07 18:37:25 UTC] step 376/495 | 30.5 s/step | loss=0.1882, rewards/accuracies=0.875, rewards/margins=3.247, grad_norm=3.418, learning_rate=1.25e-05
+[2026-10-07 18:37:53 UTC] step 377/495 | 30.5 s/step | loss=0.2563, rewards/accuracies=0.9375, rewards/margins=3.6, grad_norm=12.07, learning_rate=1.24e-05
+[2026-10-07 18:38:24 UTC] step 378/495 | 30.5 s/step | loss=0.1724, rewards/accuracies=0.875, rewards/margins=3.84, grad_norm=3.756, learning_rate=1.229e-05
+[2026-10-07 18:38:56 UTC] step 379/495 | 30.5 s/step | loss=0.1884, rewards/accuracies=0.9375, rewards/margins=3.388, grad_norm=4.794, learning_rate=1.219e-05
+[2026-10-07 18:39:25 UTC] step 380/495 | 30.5 s/step | loss=0.3657, rewards/accuracies=0.8125, rewards/margins=3.003, grad_norm=4.645, learning_rate=1.208e-05
+[2026-10-07 18:40:03 UTC] step 381/495 | 30.5 s/step | loss=0.0963, rewards/accuracies=1, rewards/margins=3.968, grad_norm=3.867, learning_rate=1.198e-05
+[2026-10-07 18:40:24 UTC] step 382/495 | 30.5 s/step | loss=0.0795, rewards/accuracies=1, rewards/margins=3.894, grad_norm=1.785, learning_rate=1.188e-05
+[2026-10-07 18:40:55 UTC] step 383/495 | 30.5 s/step | loss=0.3399, rewards/accuracies=0.875, rewards/margins=3.024, grad_norm=7.672, learning_rate=1.177e-05
+[2026-10-07 18:41:25 UTC] step 384/495 | 30.5 s/step | loss=0.1189, rewards/accuracies=1, rewards/margins=3.464, grad_norm=3.632, learning_rate=1.167e-05
+[2026-10-07 18:41:58 UTC] step 385/495 | 30.5 s/step | loss=0.0902, rewards/accuracies=0.9375, rewards/margins=5.055, grad_norm=3.634, learning_rate=1.156e-05
+[2026-10-07 18:42:26 UTC] step 386/495 | 30.5 s/step | loss=0.207, rewards/accuracies=0.9375, rewards/margins=2.38, grad_norm=7.563, learning_rate=1.146e-05
+[2026-10-07 18:42:57 UTC] step 387/495 | 30.5 s/step | loss=0.1955, rewards/accuracies=0.9375, rewards/margins=3.847, grad_norm=5.1, learning_rate=1.135e-05
+[2026-10-07 18:43:35 UTC] step 388/495 | 30.5 s/step | loss=0.2316, rewards/accuracies=0.8125, rewards/margins=3.313, grad_norm=3.096, learning_rate=1.125e-05
+[2026-10-07 18:44:04 UTC] step 389/495 | 30.5 s/step | loss=0.1025, rewards/accuracies=1, rewards/margins=3.979, grad_norm=2.828, learning_rate=1.115e-05
+[2026-10-07 18:44:32 UTC] step 390/495 | 30.5 s/step | loss=0.3232, rewards/accuracies=0.75, rewards/margins=3.375, grad_norm=3.345, learning_rate=1.104e-05
+[2026-10-07 18:45:03 UTC] step 391/495 | 30.5 s/step | loss=0.295, rewards/accuracies=0.875, rewards/margins=3.488, grad_norm=6.281, learning_rate=1.094e-05
+[2026-10-07 18:45:28 UTC] step 392/495 | 30.5 s/step | loss=0.2802, rewards/accuracies=0.9375, rewards/margins=3.909, grad_norm=4.256, learning_rate=1.083e-05
+[2026-10-07 18:45:54 UTC] step 393/495 | 30.5 s/step | loss=0.1727, rewards/accuracies=0.9375, rewards/margins=3.342, grad_norm=4.305, learning_rate=1.073e-05
+[2026-10-07 18:46:27 UTC] step 394/495 | 30.5 s/step | loss=0.0924, rewards/accuracies=0.9375, rewards/margins=4.713, grad_norm=1.149, learning_rate=1.063e-05
+[2026-10-07 18:46:51 UTC] step 395/495 | 30.5 s/step | loss=0.076, rewards/accuracies=1, rewards/margins=4.563, grad_norm=1.969, learning_rate=1.052e-05
+[2026-10-07 18:47:31 UTC] step 396/495 | 30.5 s/step | loss=0.3613, rewards/accuracies=0.8125, rewards/margins=3.17, grad_norm=6.101, learning_rate=1.042e-05
+[2026-10-07 18:48:03 UTC] step 397/495 | 30.5 s/step | loss=0.1769, rewards/accuracies=0.9375, rewards/margins=3.96, grad_norm=4.974, learning_rate=1.031e-05
+[2026-10-07 18:48:31 UTC] step 398/495 | 30.5 s/step | loss=0.2281, rewards/accuracies=0.9375, rewards/margins=3.581, grad_norm=3.738, learning_rate=1.021e-05
+[2026-10-07 18:49:00 UTC] step 399/495 | 30.5 s/step | loss=0.241, rewards/accuracies=0.9375, rewards/margins=4.074, grad_norm=5.575, learning_rate=1.01e-05
+[2026-10-07 18:49:25 UTC] step 400/495 | 30.5 s/step | loss=0.3473, rewards/accuracies=0.875, rewards/margins=3.449, grad_norm=5.081, learning_rate=1e-05
+[2026-10-07 18:49:27 UTC] checkpoint saved: checkpoint-400
+[2026-10-07 18:50:07 UTC] step 401/495 | 30.5 s/step | loss=0.245, rewards/accuracies=0.875, rewards/margins=4.348, grad_norm=3.487, learning_rate=9.896e-06
+[2026-10-07 18:50:35 UTC] step 402/495 | 30.5 s/step | loss=0.0965, rewards/accuracies=1, rewards/margins=3.424, grad_norm=1.922, learning_rate=9.792e-06
+[2026-10-07 18:51:13 UTC] step 403/495 | 30.5 s/step | loss=0.3052, rewards/accuracies=0.8125, rewards/margins=3.276, grad_norm=6.047, learning_rate=9.687e-06
+[2026-10-07 18:51:49 UTC] step 404/495 | 30.6 s/step | loss=0.2108, rewards/accuracies=0.9375, rewards/margins=4.151, grad_norm=7.308, learning_rate=9.583e-06
+[2026-10-07 18:52:23 UTC] step 405/495 | 30.6 s/step | loss=0.0657, rewards/accuracies=1, rewards/margins=4.766, grad_norm=2.857, learning_rate=9.479e-06
+[2026-10-07 18:52:56 UTC] step 406/495 | 30.6 s/step | loss=0.2109, rewards/accuracies=0.9375, rewards/margins=3.248, grad_norm=5.691, learning_rate=9.375e-06
+[2026-10-07 18:53:35 UTC] step 407/495 | 30.6 s/step | loss=0.2038, rewards/accuracies=1, rewards/margins=3.194, grad_norm=4.706, learning_rate=9.271e-06
+[2026-10-07 18:54:19 UTC] step 408/495 | 30.6 s/step | loss=0.0814, rewards/accuracies=1, rewards/margins=4.889, grad_norm=2.245, learning_rate=9.167e-06
+[2026-10-07 18:54:47 UTC] step 409/495 | 30.6 s/step | loss=0.1964, rewards/accuracies=1, rewards/margins=3.612, grad_norm=2.737, learning_rate=9.063e-06
+[2026-10-07 18:55:18 UTC] step 410/495 | 30.6 s/step | loss=0.3304, rewards/accuracies=0.9375, rewards/margins=3.698, grad_norm=15.77, learning_rate=8.958e-06
+[2026-10-07 18:55:45 UTC] step 411/495 | 30.6 s/step | loss=0.1328, rewards/accuracies=0.9375, rewards/margins=4.272, grad_norm=2.269, learning_rate=8.854e-06
+[2026-10-07 18:56:20 UTC] step 412/495 | 30.6 s/step | loss=0.2144, rewards/accuracies=0.875, rewards/margins=4.705, grad_norm=5.865, learning_rate=8.75e-06
+[2026-10-07 18:56:51 UTC] step 413/495 | 30.6 s/step | loss=0.2281, rewards/accuracies=0.875, rewards/margins=3.112, grad_norm=5.115, learning_rate=8.646e-06
+[2026-10-07 18:57:28 UTC] step 414/495 | 30.6 s/step | loss=0.1899, rewards/accuracies=0.9375, rewards/margins=3.647, grad_norm=4.198, learning_rate=8.542e-06
+[2026-10-07 18:57:54 UTC] step 415/495 | 30.6 s/step | loss=0.1117, rewards/accuracies=1, rewards/margins=4.244, grad_norm=4.802, learning_rate=8.438e-06
+[2026-10-07 18:58:28 UTC] step 416/495 | 30.6 s/step | loss=0.1046, rewards/accuracies=1, rewards/margins=4.602, grad_norm=2.897, learning_rate=8.333e-06
+[2026-10-07 18:59:06 UTC] step 417/495 | 30.6 s/step | loss=0.112, rewards/accuracies=0.9375, rewards/margins=3.914, grad_norm=4.736, learning_rate=8.229e-06
+[2026-10-07 18:59:39 UTC] step 418/495 | 30.7 s/step | loss=0.2351, rewards/accuracies=0.9375, rewards/margins=2.634, grad_norm=4.949, learning_rate=8.125e-06
+[2026-10-07 19:00:06 UTC] step 419/495 | 30.6 s/step | loss=0.1128, rewards/accuracies=1, rewards/margins=3.887, grad_norm=5.246, learning_rate=8.021e-06
+[2026-10-07 19:00:40 UTC] step 420/495 | 30.7 s/step | loss=0.2527, rewards/accuracies=0.875, rewards/margins=3.284, grad_norm=5.752, learning_rate=7.917e-06
+[2026-10-07 19:01:07 UTC] step 421/495 | 30.6 s/step | loss=0.5495, rewards/accuracies=0.8125, rewards/margins=2.934, grad_norm=12.45, learning_rate=7.813e-06
+[2026-10-07 19:01:39 UTC] step 422/495 | 30.6 s/step | loss=0.1866, rewards/accuracies=0.9375, rewards/margins=3.17, grad_norm=4.997, learning_rate=7.708e-06
+[2026-10-07 19:02:05 UTC] step 423/495 | 30.6 s/step | loss=0.2822, rewards/accuracies=0.8125, rewards/margins=4.248, grad_norm=5.216, learning_rate=7.604e-06
+[2026-10-07 19:02:35 UTC] step 424/495 | 30.6 s/step | loss=0.2735, rewards/accuracies=0.9375, rewards/margins=3.702, grad_norm=12.48, learning_rate=7.5e-06
+[2026-10-07 19:03:06 UTC] step 425/495 | 30.6 s/step | loss=0.3477, rewards/accuracies=0.875, rewards/margins=3.912, grad_norm=8.966, learning_rate=7.396e-06
+[2026-10-07 19:03:48 UTC] step 426/495 | 30.7 s/step | loss=0.9172, rewards/accuracies=0.6875, rewards/margins=3.331, grad_norm=16.16, learning_rate=7.292e-06
+[2026-10-07 19:04:20 UTC] step 427/495 | 30.7 s/step | loss=0.095, rewards/accuracies=0.9375, rewards/margins=3.719, grad_norm=2.091, learning_rate=7.187e-06
+[2026-10-07 19:04:51 UTC] step 428/495 | 30.7 s/step | loss=0.4031, rewards/accuracies=0.9375, rewards/margins=3.655, grad_norm=8.111, learning_rate=7.083e-06
+[2026-10-07 19:05:31 UTC] step 429/495 | 30.7 s/step | loss=0.1428, rewards/accuracies=0.9375, rewards/margins=4.739, grad_norm=5.956, learning_rate=6.979e-06
+[2026-10-07 19:06:02 UTC] step 430/495 | 30.7 s/step | loss=0.1438, rewards/accuracies=1, rewards/margins=3.983, grad_norm=5.055, learning_rate=6.875e-06
+[2026-10-07 19:06:33 UTC] step 431/495 | 30.7 s/step | loss=0.5765, rewards/accuracies=0.75, rewards/margins=4.185, grad_norm=10.61, learning_rate=6.771e-06
+[2026-10-07 19:07:05 UTC] step 432/495 | 30.7 s/step | loss=0.4013, rewards/accuracies=0.6875, rewards/margins=2.745, grad_norm=10.99, learning_rate=6.667e-06
+[2026-10-07 19:07:39 UTC] step 433/495 | 30.7 s/step | loss=0.2404, rewards/accuracies=0.875, rewards/margins=4.35, grad_norm=8.757, learning_rate=6.563e-06
+[2026-10-07 19:08:16 UTC] step 434/495 | 30.7 s/step | loss=0.3055, rewards/accuracies=0.875, rewards/margins=4.766, grad_norm=8.602, learning_rate=6.458e-06
+[2026-10-07 19:08:45 UTC] step 435/495 | 30.7 s/step | loss=0.2745, rewards/accuracies=0.875, rewards/margins=2.75, grad_norm=5.114, learning_rate=6.354e-06
+[2026-10-07 19:09:20 UTC] step 436/495 | 30.7 s/step | loss=0.3155, rewards/accuracies=0.75, rewards/margins=2.704, grad_norm=13.28, learning_rate=6.25e-06
+[2026-10-07 19:09:46 UTC] step 437/495 | 30.7 s/step | loss=0.3018, rewards/accuracies=0.8125, rewards/margins=3.721, grad_norm=12.88, learning_rate=6.146e-06
+[2026-10-07 19:10:24 UTC] step 438/495 | 30.7 s/step | loss=0.2767, rewards/accuracies=0.875, rewards/margins=3.937, grad_norm=8.55, learning_rate=6.042e-06
+[2026-10-07 19:10:57 UTC] step 439/495 | 30.7 s/step | loss=0.1966, rewards/accuracies=1, rewards/margins=2.771, grad_norm=3.654, learning_rate=5.938e-06
+[2026-10-07 19:11:33 UTC] step 440/495 | 30.7 s/step | loss=0.1986, rewards/accuracies=0.9375, rewards/margins=4.018, grad_norm=3.848, learning_rate=5.833e-06
+[2026-10-07 19:12:08 UTC] step 441/495 | 30.8 s/step | loss=0.2843, rewards/accuracies=0.875, rewards/margins=2.794, grad_norm=11.32, learning_rate=5.729e-06
+[2026-10-07 19:12:33 UTC] step 442/495 | 30.7 s/step | loss=0.3247, rewards/accuracies=0.875, rewards/margins=2.551, grad_norm=8.603, learning_rate=5.625e-06
+[2026-10-07 19:12:54 UTC] step 443/495 | 30.7 s/step | loss=0.1806, rewards/accuracies=0.875, rewards/margins=4.424, grad_norm=9.972, learning_rate=5.521e-06
+[2026-10-07 19:13:28 UTC] step 444/495 | 30.7 s/step | loss=0.2694, rewards/accuracies=0.75, rewards/margins=3.608, grad_norm=11.06, learning_rate=5.417e-06
+[2026-10-07 19:14:00 UTC] step 445/495 | 30.7 s/step | loss=0.6545, rewards/accuracies=0.875, rewards/margins=2.417, grad_norm=14.98, learning_rate=5.313e-06
+[2026-10-07 19:14:26 UTC] step 446/495 | 30.7 s/step | loss=0.4102, rewards/accuracies=0.8125, rewards/margins=3.742, grad_norm=11.42, learning_rate=5.208e-06
+[2026-10-07 19:14:59 UTC] step 447/495 | 30.7 s/step | loss=0.2194, rewards/accuracies=0.875, rewards/margins=3.928, grad_norm=12.03, learning_rate=5.104e-06
+[2026-10-07 19:15:29 UTC] step 448/495 | 30.7 s/step | loss=0.4307, rewards/accuracies=0.8125, rewards/margins=3.357, grad_norm=11.42, learning_rate=5e-06
+[2026-10-07 19:16:03 UTC] step 449/495 | 30.7 s/step | loss=0.2043, rewards/accuracies=0.9375, rewards/margins=3.551, grad_norm=6.521, learning_rate=4.896e-06
+[2026-10-07 19:16:41 UTC] step 450/495 | 30.7 s/step | loss=0.1325, rewards/accuracies=0.9375, rewards/margins=3.984, grad_norm=6.232, learning_rate=4.792e-06
+[2026-10-07 19:17:17 UTC] step 451/495 | 30.8 s/step | loss=0.1602, rewards/accuracies=0.9375, rewards/margins=4.284, grad_norm=7.493, learning_rate=4.688e-06
+[2026-10-07 19:17:44 UTC] step 452/495 | 30.7 s/step | loss=0.0673, rewards/accuracies=1, rewards/margins=4.67, grad_norm=1.973, learning_rate=4.583e-06
+[2026-10-07 19:18:16 UTC] step 453/495 | 30.8 s/step | loss=0.3754, rewards/accuracies=0.875, rewards/margins=3.847, grad_norm=9.804, learning_rate=4.479e-06
+[2026-10-07 19:18:56 UTC] step 454/495 | 30.8 s/step | loss=0.3778, rewards/accuracies=0.875, rewards/margins=3.619, grad_norm=7.783, learning_rate=4.375e-06
+[2026-10-07 19:19:28 UTC] step 455/495 | 30.8 s/step | loss=0.3416, rewards/accuracies=0.875, rewards/margins=3.64, grad_norm=5.431, learning_rate=4.271e-06
+[2026-10-07 19:20:01 UTC] step 456/495 | 30.8 s/step | loss=0.5294, rewards/accuracies=0.75, rewards/margins=2.854, grad_norm=11.2, learning_rate=4.167e-06
+[2026-10-07 19:20:31 UTC] step 457/495 | 30.8 s/step | loss=0.2468, rewards/accuracies=0.875, rewards/margins=3.769, grad_norm=8.86, learning_rate=4.063e-06
+[2026-10-07 19:21:09 UTC] step 458/495 | 30.8 s/step | loss=0.1811, rewards/accuracies=0.9375, rewards/margins=3.233, grad_norm=4.955, learning_rate=3.958e-06
+[2026-10-07 19:21:40 UTC] step 459/495 | 30.8 s/step | loss=0.1077, rewards/accuracies=1, rewards/margins=3.848, grad_norm=5.501, learning_rate=3.854e-06
+[2026-10-07 19:22:07 UTC] step 460/495 | 30.8 s/step | loss=0.0895, rewards/accuracies=1, rewards/margins=5.744, grad_norm=2.707, learning_rate=3.75e-06
+[2026-10-07 19:22:32 UTC] step 461/495 | 30.8 s/step | loss=0.5251, rewards/accuracies=0.75, rewards/margins=1.867, grad_norm=10.36, learning_rate=3.646e-06
+[2026-10-07 19:23:09 UTC] step 462/495 | 30.8 s/step | loss=0.1142, rewards/accuracies=1, rewards/margins=3.201, grad_norm=3.421, learning_rate=3.542e-06
+[2026-10-07 19:23:39 UTC] step 463/495 | 30.8 s/step | loss=0.3848, rewards/accuracies=0.875, rewards/margins=2.675, grad_norm=9.877, learning_rate=3.438e-06
+[2026-10-07 19:24:11 UTC] step 464/495 | 30.8 s/step | loss=0.2005, rewards/accuracies=0.875, rewards/margins=3.465, grad_norm=3.912, learning_rate=3.333e-06
+[2026-10-07 19:24:38 UTC] step 465/495 | 30.8 s/step | loss=0.6135, rewards/accuracies=0.8125, rewards/margins=2.285, grad_norm=10.18, learning_rate=3.229e-06
+[2026-10-07 19:25:07 UTC] step 466/495 | 30.8 s/step | loss=0.3386, rewards/accuracies=0.8125, rewards/margins=3.598, grad_norm=7.773, learning_rate=3.125e-06
+[2026-10-07 19:25:33 UTC] step 467/495 | 30.8 s/step | loss=0.29, rewards/accuracies=0.875, rewards/margins=2.552, grad_norm=6.734, learning_rate=3.021e-06
+[2026-10-07 19:26:08 UTC] step 468/495 | 30.8 s/step | loss=0.363, rewards/accuracies=0.875, rewards/margins=4.366, grad_norm=8.727, learning_rate=2.917e-06
+[2026-10-07 19:26:35 UTC] step 469/495 | 30.8 s/step | loss=0.2406, rewards/accuracies=0.9375, rewards/margins=3.69, grad_norm=6.259, learning_rate=2.813e-06
+[2026-10-07 19:27:01 UTC] step 470/495 | 30.8 s/step | loss=0.0598, rewards/accuracies=1, rewards/margins=4.985, grad_norm=1.57, learning_rate=2.708e-06
+[2026-10-07 19:27:34 UTC] step 471/495 | 30.8 s/step | loss=0.1378, rewards/accuracies=0.9375, rewards/margins=4.326, grad_norm=4.386, learning_rate=2.604e-06
+[2026-10-07 19:28:05 UTC] step 472/495 | 30.8 s/step | loss=0.4381, rewards/accuracies=0.875, rewards/margins=2.822, grad_norm=8.031, learning_rate=2.5e-06
+[2026-10-07 19:28:30 UTC] step 473/495 | 30.7 s/step | loss=0.2967, rewards/accuracies=0.8125, rewards/margins=4.528, grad_norm=8.776, learning_rate=2.396e-06
+[2026-10-07 19:28:59 UTC] step 474/495 | 30.7 s/step | loss=0.4064, rewards/accuracies=0.75, rewards/margins=4.007, grad_norm=12.11, learning_rate=2.292e-06
+[2026-10-07 19:29:33 UTC] step 475/495 | 30.8 s/step | loss=0.0452, rewards/accuracies=1, rewards/margins=4.816, grad_norm=1.866, learning_rate=2.187e-06
+[2026-10-07 19:30:08 UTC] step 476/495 | 30.8 s/step | loss=0.1924, rewards/accuracies=0.9375, rewards/margins=3.529, grad_norm=6.978, learning_rate=2.083e-06
+[2026-10-07 19:30:38 UTC] step 477/495 | 30.8 s/step | loss=0.2261, rewards/accuracies=0.9375, rewards/margins=2.942, grad_norm=5.763, learning_rate=1.979e-06
+[2026-10-07 19:31:17 UTC] step 478/495 | 30.8 s/step | loss=0.4669, rewards/accuracies=0.75, rewards/margins=2.83, grad_norm=7.058, learning_rate=1.875e-06
+[2026-10-07 19:31:52 UTC] step 479/495 | 30.8 s/step | loss=0.2487, rewards/accuracies=0.875, rewards/margins=4.592, grad_norm=6.085, learning_rate=1.771e-06
+[2026-10-07 19:32:20 UTC] step 480/495 | 30.8 s/step | loss=0.464, rewards/accuracies=0.75, rewards/margins=3.013, grad_norm=11.69, learning_rate=1.667e-06
+[2026-10-07 19:32:56 UTC] step 481/495 | 30.8 s/step | loss=0.2084, rewards/accuracies=0.875, rewards/margins=4.275, grad_norm=15.66, learning_rate=1.563e-06
+[2026-10-07 19:33:34 UTC] step 482/495 | 30.8 s/step | loss=0.148, rewards/accuracies=0.9375, rewards/margins=4.61, grad_norm=3.746, learning_rate=1.458e-06
+[2026-10-07 19:34:04 UTC] step 483/495 | 30.8 s/step | loss=0.3409, rewards/accuracies=0.875, rewards/margins=2.804, grad_norm=8.632, learning_rate=1.354e-06
+[2026-10-07 19:34:34 UTC] step 484/495 | 30.8 s/step | loss=0.4767, rewards/accuracies=0.8125, rewards/margins=2.461, grad_norm=11.23, learning_rate=1.25e-06
+[2026-10-07 19:35:10 UTC] step 485/495 | 30.8 s/step | loss=0.0949, rewards/accuracies=0.9375, rewards/margins=4.313, grad_norm=1.679, learning_rate=1.146e-06
+[2026-10-07 19:35:38 UTC] step 486/495 | 30.8 s/step | loss=0.3467, rewards/accuracies=0.8125, rewards/margins=3.045, grad_norm=12.01, learning_rate=1.042e-06
+[2026-10-07 19:36:15 UTC] step 487/495 | 30.8 s/step | loss=0.2329, rewards/accuracies=0.9375, rewards/margins=3.696, grad_norm=5.813, learning_rate=9.375e-07
+[2026-10-07 19:36:50 UTC] step 488/495 | 30.8 s/step | loss=0.3221, rewards/accuracies=0.75, rewards/margins=3.259, grad_norm=11.55, learning_rate=8.333e-07
+[2026-10-07 19:37:18 UTC] step 489/495 | 30.8 s/step | loss=0.2473, rewards/accuracies=0.9375, rewards/margins=3.577, grad_norm=4.544, learning_rate=7.292e-07
+[2026-10-07 19:37:48 UTC] step 490/495 | 30.8 s/step | loss=0.3209, rewards/accuracies=0.8125, rewards/margins=3.644, grad_norm=5.49, learning_rate=6.25e-07
+[2026-10-07 19:38:19 UTC] step 491/495 | 30.8 s/step | loss=0.4333, rewards/accuracies=0.875, rewards/margins=3.253, grad_norm=3.654, learning_rate=5.208e-07
+[2026-10-07 19:38:51 UTC] step 492/495 | 30.8 s/step | loss=0.2398, rewards/accuracies=0.9375, rewards/margins=4.672, grad_norm=7.492, learning_rate=4.167e-07
+[2026-10-07 19:39:24 UTC] step 493/495 | 30.8 s/step | loss=0.169, rewards/accuracies=0.9375, rewards/margins=2.572, grad_norm=3.294, learning_rate=3.125e-07
+[2026-10-07 19:39:57 UTC] step 494/495 | 30.8 s/step | loss=0.1242, rewards/accuracies=1, rewards/margins=4.439, grad_norm=4.232, learning_rate=2.083e-07
+[2026-10-07 19:40:29 UTC] step 495/495 | 30.8 s/step | loss=0.2406, rewards/accuracies=0.8462, rewards/margins=2.73, grad_norm=4.51, learning_rate=1.042e-07
+[2026-10-07 19:40:30 UTC] checkpoint saved: checkpoint-495
+[2026-10-07 19:40:31 UTC] step 495/495 | 30.8 s/step | 
+[2026-10-07 19:40:31 UTC] training ended at step 495
+[2026-10-07 19:40:32 UTC] FINISHED after 4h 15m 12s

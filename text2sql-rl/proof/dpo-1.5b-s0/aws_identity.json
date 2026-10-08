@@ -1,0 +1,5 @@
+{
+    "UserId": "AROAWOLKVIEPYFCBABBVU:SageMaker",
+    "Account": "443142193439",
+    "Arn": "arn:aws:sts::443142193439:assumed-role/43008-RL-Spr26-sagemaker-execution-role/SageMaker"
+}

@@ -1,0 +1,6 @@
+run: dpo-1.5b-s0
+dpo-1.5b-s0_20261007-152519_summary.json: FINISHED, 2026-10-07 15:25:19 UTC -> 2026-10-07 19:40:32 UTC (4h 15m 12s)
+steps logged: 495 | last step: 495 of 495 | avg s/step: 30.83 | peak GPU GB: 11.87
+checkpoints: checkpoint-100, checkpoint-200, checkpoint-300, checkpoint-400, checkpoint-495
+studio space: Project-RL | domain: d-jgoytzkgqlbl | app: default
+aws: arn:aws:sts::443142193439:assumed-role/43008-RL-Spr26-sagemaker-execution-role/SageMaker
