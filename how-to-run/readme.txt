@@ -62,6 +62,15 @@ WHERE WE ARE (updated as we go)
   [x] Decided 8 Oct: 1.5B model, max_steps 600 for both GRPO and RLOO. If their smoke test
       passes (rules in their plan, section 10.3) they start the full run without waiting.
       Their real run must print "training on 3457 questions (only_mixed=True)".
+  [x] DPO full run FINISHED 7 Oct 19:40 UTC: 495/495 steps in 4h 15m (~30.8 s/step),
+      checkpoints 100-400, 495, final. W&B run mkbi5h4u.
+  [x] GRPO (teammate) FINISHED 8 Oct 03:09 UTC: 600/600 steps in 5h 47m (34.7 s/step, peak
+      8.48 GB), commit ad2d4b0, correct settings and versions. Training reward 0.57 -> 0.79,
+      valid SQL 0.80 -> 0.94, two short KL spikes (steps 99, 357; one fp16 overflow step
+      skipped). Proof on branch grpo-run; adapters archive checked (all checkpoints, trained
+      weights, no NaN, final == checkpoint-600).
+  [ ] NOW: collect DPO proof, unpack GRPO into outputs/, quick load tests, commit both proofs.
+      Then: RLOO (check branch rloo-run + Aditya's adapters), then section 10 (val curve).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
