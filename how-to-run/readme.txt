@@ -69,8 +69,16 @@ WHERE WE ARE (updated as we go)
       valid SQL 0.80 -> 0.94, two short KL spikes (steps 99, 357; one fp16 overflow step
       skipped). Proof on branch grpo-run; adapters archive checked (all checkpoints, trained
       weights, no NaN, final == checkpoint-600).
-  [ ] NOW: collect DPO proof, unpack GRPO into outputs/, quick load tests, commit both proofs.
-      Then: RLOO (check branch rloo-run + Aditya's adapters), then section 10 (val curve).
+  [x] DPO proof collected (Project-RL space, peak 11.87 GB).
+  [x] RLOO (Aditya) FINISHED 8 Oct 10:46 UTC: 600/600 steps in 6h 32m (39.3 s/step, peak
+      8.48 GB), commit 1e7310a (same code as GRPO's ad2d4b0: only docs differ), correct
+      settings and versions. Execution reward 0.62 -> 0.81 (GRPO: 0.65 -> 0.81), valid SQL
+      0.79 -> 0.93. 3 steps with NaN grad_norm (fp16 overflow, step skipped, loss fine).
+      For the report: RLOO's logged "reward" includes the KL penalty, so compare
+      rewards/execution_reward/mean between GRPO and RLOO, not "reward"; and RLOO's
+      frac_reward_zero_std is ~0 because KL-adjusted rewards never tie (not comparable).
+  [ ] NOW: unpack GRPO into outputs/, quick load tests, commit DPO + GRPO proofs; get Aditya's
+      adapters (Drive link), check and unpack them; then section 10 (val curve).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
