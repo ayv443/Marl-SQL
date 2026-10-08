@@ -15,6 +15,7 @@ data/processed/*
 !data/processed/dpo_pairs.jsonl
 !data/processed/passk_train.json
 # proof of training gets committed
+!proof/**/checkpoints/
 !proof/**/*.log
 !proof/**/*.jsonl
 !proof/**/*.txt
