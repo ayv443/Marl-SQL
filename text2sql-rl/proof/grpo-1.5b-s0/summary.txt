@@ -1,0 +1,6 @@
+run: grpo-1.5b-s0
+grpo-1.5b-s0_20261007-212152_summary.json: FINISHED, 2026-10-07 21:21:52 UTC -> 2026-10-08 03:09:18 UTC (5h 47m 25s)
+steps logged: 600 | last step: 600 of 600 | avg s/step: 34.72 | peak GPU GB: 8.48
+checkpoints: checkpoint-100, checkpoint-200, checkpoint-300, checkpoint-400, checkpoint-500, checkpoint-600
+studio space: Part-C | domain: d-jgoytzkgqlbl | app: default
+aws: arn:aws:sts::443142193439:assumed-role/43008-RL-Spr26-sagemaker-execution-role/SageMaker

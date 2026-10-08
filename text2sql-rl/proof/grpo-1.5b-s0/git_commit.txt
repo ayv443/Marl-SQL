@@ -1,0 +1,1 @@
+ad2d4b0654b00646f94fa82e49515c82ce4ef461  Thu Oct 8 02:24:15 2026 +1100  Fix max_steps at 600 for GRPO and RLOO, add smoke test pass rules
