@@ -52,14 +52,20 @@ Contents
 -------------------------------------------------------------
 RLOO is one of the two online RL methods we compare (the other is GRPO). Both use the
 same trainer script (train_rl.py), the same 4 attempts per question, the same reward, the
-same KL coefficient, learning rate and number of steps. The ONLY difference is how the
-"advantage" (how much better an attempt was than expected) is computed:
+same KL coefficient (beta 0.04), learning rate and number of steps. They use TRL 0.24's
+own GRPOTrainer and RLOOTrainer, which differ in these ways:
 
-  GRPO: advantage = (reward - mean of the 4 rewards) / std of the 4 rewards
-  RLOO: advantage = reward - mean of the OTHER 3 rewards   (no division by the std)
+  Advantage   GRPO: (reward - mean of the 4 rewards) / std of the 4 rewards
+              RLOO: reward - mean of the OTHER 3 rewards   (no division by the std)
+  KL penalty  GRPO: a separate per-token term in the loss
+              RLOO: subtracted from the reward, summed over the whole answer
+  Loss level  GRPO: per token (averaged over all tokens in the batch)
+              RLOO: per answer (sequence)
 
-So GRPO and RLOO must be trained with identical settings, otherwise the comparison says
-nothing. GRPO is trained by our teammate on her account at the same time as your run, with
+These are the standard TRL implementations of the two methods, so we keep them as they
+are; the report explains that beta 0.04 is therefore not the same strength in both.
+Everything we control (settings, data, steps) must be identical, otherwise the comparison
+says nothing. GRPO is trained by our teammate on her account at the same time as your run, with
 the same max_steps. DPO is trained by Eby.
 
 Background you should know:
@@ -307,9 +313,10 @@ EOF
 Needs the T4. Switch the space to ml.g4dn.xlarge or ml.g4dn.2xlarge and check:
       nvidia-smi                  (Tesla T4, and memory almost empty)
 
-You may not have tags.json yet, so use --only_mixed 0 (all training questions) just for
-this test:
-      python train_rl.py --method rloo --max_steps 50 --lr 5e-5 --only_mixed 0
+tags.json is already on the branch (git pull), so the smoke test uses the same "mixed"
+questions as the real run:
+      python train_rl.py --method rloo --max_steps 50 --lr 5e-5
+(If you somehow don't have tags.json yet, add --only_mixed 0; either is fine for timing.)
 
 Open a second terminal and watch memory:
       watch -n 2 nvidia-smi

@@ -61,7 +61,11 @@ WHERE WE ARE (updated as we go)
       full DPO run (section 8.2). Teammates: setup + GRPO / RLOO smoke tests.
   [x] Decided 8 Oct: 1.5B model, max_steps 600 for both GRPO and RLOO. If their smoke test
       passes (rules in their plan, section 10.3) they start the full run without waiting.
-      Their real run must print "training on 3457 questions (only_mixed=True)". (Second attempt failed because
+      Their real run must print "training on 3457 questions (only_mixed=True)".
+  [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
+      (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
+      Kept as is (standard TRL implementations); explain in the report (README "Settings
+      worth stating"). Training uses HF generate for both (no --use_vllm), so they match. (Second attempt failed because
       the crashed first run's vLLM process was still holding the GPU: see section 15,
       "Free memory on device ... is less than desired".)
   [ ] Then: section 7 DPO smoke test (they do GRPO / RLOO smoke tests), agree model size and
@@ -416,8 +420,8 @@ run "watch -n 2 nvidia-smi" to see GPU memory.
       python train_dpo.py --max_steps 50 --lr 5e-5
 
   GRPO teammate (her plan section 9) and Aditya (his plan section 9), on their accounts:
-      python train_rl.py --method grpo --max_steps 50 --lr 5e-5 --only_mixed 0
-      python train_rl.py --method rloo --max_steps 50 --lr 5e-5 --only_mixed 0
+      python train_rl.py --method grpo --max_steps 50 --lr 5e-5
+      python train_rl.py --method rloo --max_steps 50 --lr 5e-5
   They send you their s/step and peak GPU memory, so the three of you can decide model
   size and max_steps together (GRPO and RLOO must use the same max_steps).
 

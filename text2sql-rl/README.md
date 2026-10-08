@@ -82,7 +82,7 @@ python analysis.py efficiency --split bird_dev
 - Same prompt, LoRA (r=16, alpha=32, all attention + MLP projections), lr, fp16 and completion length (256) for all methods.
 - GRPO and RLOO: 4 completions/question, temperature 0.8, KL beta = 0.04 (set explicitly; TRL's GRPO default is 0),
   4 prompts (16 completions) per step, same `--max_steps` -> same number of generated completions.
-- TRL 0.24 GRPO uses `loss_type="dapo"` and `scale_rewards="group"` by default; RLOO uses no std normalisation.
+- TRL 0.24 GRPO uses `loss_type="dapo"` (per-token loss averaged over the batch) and `scale_rewards="group"`, and adds the KL as a per-token loss term (beta x (exp(ref-logp) - (ref-logp) - 1)). TRL 0.24 RLOO uses no std normalisation, a per-sequence loss, and subtracts beta x (sum over the answer of logp - ref_logp) from the reward. So the same beta = 0.04 is not the same KL strength in both; these are the standard TRL implementations and the report should say so.
 - DPO beta = 0.1 is the DPO temperature, not a KL penalty coefficient.
 - A second reward function, `valid_sql_reward`, has weight 0. It does not affect training; it is only there so
   W&B logs the valid-SQL rate. Other things to watch in W&B: `reward`, `kl`, `completions/mean_length`,

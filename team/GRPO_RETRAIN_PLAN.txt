@@ -321,9 +321,10 @@ EOF
 Needs the T4. Switch the space to ml.g4dn.xlarge or ml.g4dn.2xlarge and check:
       nvidia-smi                  (Tesla T4, and memory almost empty)
 
-You may not have tags.json yet, so use --only_mixed 0 (all training questions) just for
-this test:
-      python train_rl.py --method grpo --max_steps 50 --lr 5e-5 --only_mixed 0
+tags.json is already on the branch (git pull), so the smoke test uses the same "mixed"
+questions as the real run:
+      python train_rl.py --method grpo --max_steps 50 --lr 5e-5
+(If you somehow don't have tags.json yet, add --only_mixed 0; either is fine for timing.)
 
 Open a second terminal and watch memory:
       watch -n 2 nvidia-smi
