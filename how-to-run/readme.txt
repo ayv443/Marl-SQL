@@ -82,7 +82,18 @@ WHERE WE ARE (updated as we go)
       RLOO 0.45 EX (too few questions to judge, only proves they load). Proofs committed.
   [x] First val_curve attempt: CUDA out of memory in vLLM's FlexAttention on the long val
       prompts. Fixed: gpu_memory_utilization 0.85 -> 0.6 in generation.py.
-  [ ] NOW: git pull, run val_curve.py (section 10), then final evaluation (section 11).
+  [x] Validation curve (409 val questions, base 0.619): DPO 0.579 / 0.491 / 0.443 / 0.428 /
+      0.411 (steps 100-495, falls below base: likelihood displacement, chosen logp -30.8 ->
+      -47.1); GRPO 0.709 / 0.716 / 0.736 / 0.743 / 0.738 / 0.741; RLOO 0.707 / 0.726 / 0.719 /
+      0.736 / 0.736 / 0.743. Best: DPO step 100, GRPO step 400, RLOO step 600.
+  [x] Final evaluation (our EX, greedy):
+                   Spider dev  Spider-Syn  Spider-DK  BIRD dev   (valid SQL on Spider dev)
+        base         0.617       0.498       0.548      0.268     0.837
+        dpo  (100)   0.596       0.467       0.542      0.244     0.894
+        grpo (400)   0.715       0.588       0.622      0.332     0.929
+        rloo (600)   0.721       0.585       0.617      0.337     0.939
+  [ ] NOW: official Spider EX + TS (11.2), BIRD EX / Soft-F1 / R-VES (11.3), then
+      analysis.py compare (section 12) for confidence intervals and McNemar tests.
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
@@ -598,6 +609,9 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
        predict_dev.json    for the BIRD official scripts
 
 11.2 Official Spider EX and Test-Suite accuracy (also gives EX by easy/medium/hard/extra):
+     The test-suite script needs two extra packages (once):
+       pip install sqlparse nltk
+       python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
       bash run_official_eval.sh base
       bash run_official_eval.sh dpo
       bash run_official_eval.sh grpo
@@ -607,17 +621,14 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
      Spider-DK only gets EX, no TS: it has 3 extra databases (new_concert_singer,
      new_orchestra, new_pets_1) that the test-suite databases don't include. Say so in the report.
 
-11.3 BIRD official EX, Soft-F1 and R-VES:
-     Open eval_repos/mini_dev/evaluation/run_evaluation.sh and set the paths at the top to:
-       predicted sql json : results/<tag>/bird_dev/predict_dev.json
-       ground truth sql   : data/bird_dev/dev.sql
-       db root            : data/bird_dev/dev_databases/
-       difficulty json    : data/bird_dev/dev.json
-       dialect            : SQLite
-     then run it once per model:
-       cd eval_repos/mini_dev/evaluation && sh run_evaluation.sh && cd -
-     R-VES measures speed, so run it when NO training or other eval is running on
-     that machine, and do all four models in the same session.
+11.3 BIRD official EX, Soft-F1 and R-VES (needs results/<tag>/bird_dev/ from 11.1):
+      pip install func-timeout psycopg2-binary pymysql      (once; BIRD's scripts import these)
+      nohup bash run_bird_eval.sh base dpo grpo rloo > logs_bird.txt 2>&1 &
+     It runs BIRD's own evaluation_ex.py, evaluation_f1.py and evaluation_ves.py for each model
+     and writes results/<tag>/bird_dev/official_bird.txt (scores per simple / moderate /
+     challenging / total, in %). EX and Soft-F1 take minutes; R-VES runs every correct query
+     100 times, so it can take hours. R-VES measures speed: run it when nothing else is
+     running on the machine, all four models in the same session (the script does that).
 
 11.4 Fill in the two results tables from the plan using these numbers.
      Save the final table as results/results_table.md (the Gradio demo shows it).
