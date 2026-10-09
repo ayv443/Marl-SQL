@@ -618,6 +618,9 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
       bash run_official_eval.sh rloo
      Results are printed and saved in results/<tag>/<split>/official_ex.txt and official_ts.txt.
      Use the "execution" row, "all" column.
+     To run only some splits: bash run_official_eval.sh grpo spider_dk
+     Questions whose gold query is broken in the dataset are left out for every model; the
+     count is in results/<tag>/<split>/official_kept.txt. Report it in the paper.
      Spider-DK only gets EX, no TS: it has 3 extra databases (new_concert_singer,
      new_orchestra, new_pets_1) that the test-suite databases don't include. Say so in the report.
 
@@ -748,6 +751,13 @@ Script printed "FINISHED after ..." but the process is still running
        run. The results were already saved (FINISHED is printed after saving). Stop it:
          pkill -f sample.py; pkill -f evaluate.py; pkill -f EngineCore
        and check nvidia-smi is empty. git pull to get the fix.
+
+"AssertionError: gold query ... has error on database file ..." from the Spider script
+    -> the dataset itself has a broken gold query (Spider-DK has at least one, a missing comma
+       in "SELECT T1.fname , T1.LName T1.age ..."). Since 9 Oct run_official_eval.sh leaves
+       questions with a broken gold query out for every model and saves the count in
+       results/<tag>/<split>/official_kept.txt (also "our EX" on the same kept questions).
+       Re-run just that split: bash run_official_eval.sh <tag> spider_dk
 
 "torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.31 GiB" inside
  flex_attention / create_block_mask (during evaluate.py or val_curve.py)

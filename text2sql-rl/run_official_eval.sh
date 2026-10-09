@@ -1,44 +1,63 @@
 #!/usr/bin/env bash
-# bash run_official_eval.sh grpo   (after evaluate.py)
+# Official Spider EX + test-suite accuracy (after evaluate.py)
+#   bash run_official_eval.sh grpo                    (all Spider splits)
+#   bash run_official_eval.sh grpo spider_dk          (only the splits you name)
+# Questions whose GOLD query fails on the database are left out for every model (Spider-DK has
+# a few broken gold queries); the count is printed and saved in results/<tag>/<split>/official_kept.txt
 set -e
 TAG=${1:-base}
+shift || true
+SPLITS=${@:-spider_dev spider_syn spider_dk spider_realistic}
 TS=eval_repos/test-suite-sql-eval
 R=results/$TAG
 # test_database has every Spider database (train + dev + test), use it if it's there
 DB=data/spider_data/database
 [ -d data/spider_data/test_database ] && DB=data/spider_data/test_database
 
-# gold file in the format the spider script wants
-python - <<'EOF'
-import json, os
-for split in ["spider_dev", "spider_syn", "spider_dk", "spider_realistic"]:
-    p = f"data/processed/{split}.jsonl"
-    if os.path.exists(p):
-        rows = [json.loads(l) for l in open(p)]
-        with open(f"data/processed/{split}_gold.sql", "w") as f:
-            f.write("\n".join(" ".join(r["gold_sql"].split()) + "\t" + r["db_id"] for r in rows) + "\n")
+for SPLIT in $SPLITS; do
+  [ -f $R/$SPLIT/pred.txt ] || continue
+
+  # gold + pred files the spider script wants, without the questions whose gold SQL is broken
+  python - "$SPLIT" "$TAG" "$DB" <<'EOF'
+import json, sqlite3, sys
+split, tag, db = sys.argv[1:4]
+rows = [json.loads(l) for l in open(f"data/processed/{split}.jsonl")]
+preds = open(f"results/{tag}/{split}/pred.txt").read().splitlines()
+per_q = [json.loads(l) for l in open(f"results/{tag}/{split}/per_question.jsonl")]
+assert len(rows) == len(preds) == len(per_q), (len(rows), len(preds), len(per_q))
+bad = []
+for i, r in enumerate(rows):
+    try:
+        c = sqlite3.connect(f"file:{db}/{r['db_id']}/{r['db_id']}.sqlite?mode=ro", uri=True)
+        c.execute(r["gold_sql"]).fetchall()
+        c.close()
+    except Exception:
+        bad.append(i)
+keep = [i for i in range(len(rows)) if i not in set(bad)]
+with open(f"data/processed/{split}_gold.sql", "w") as f:
+    f.write("\n".join(" ".join(rows[i]["gold_sql"].split()) + "\t" + rows[i]["db_id"] for i in keep) + "\n")
+with open(f"results/{tag}/{split}/pred_kept.txt", "w") as f:
+    f.write("\n".join(preds[i] for i in keep) + "\n")
+our_ex = sum(per_q[i]["correct"] for i in keep) / len(keep)
+msg = (f"{split}: {len(keep)} of {len(rows)} questions kept ({len(bad)} with a broken gold query left out); "
+       f"our EX on the kept questions: {our_ex:.3f}")
+print(msg)
+open(f"results/{tag}/{split}/official_kept.txt", "w").write(msg + "\nleft out (index in the split): " + json.dumps(bad) + "\n")
 EOF
 
-for SPLIT in spider_dev spider_syn spider_dk spider_realistic; do
-  [ -f $R/$SPLIT/pred.txt ] || continue
   TABLE=data/spider_data/tables.json
   # Spider-DK has its own tables.json that includes its 3 extra databases
   [ $SPLIT = spider_dk ] && TABLE=eval_repos/Spider-DK/tables.json
   echo "=== $TAG / $SPLIT : EX (original databases) ==="
-  python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred.txt \
+  python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred_kept.txt \
       --db $DB --table $TABLE --etype exec | tee $R/$SPLIT/official_ex.txt
   if [ $SPLIT = spider_dk ]; then
     echo "=== $TAG / spider_dk : no TS (test-suite databases don't include Spider-DK's extra databases) ==="
     continue
   fi
   echo "=== $TAG / $SPLIT : TS (test-suite databases) ==="
-  python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred.txt \
+  python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred_kept.txt \
       --db data/testsuite_databases --table $TABLE --etype exec | tee $R/$SPLIT/official_ts.txt
 done
 
-# BIRD: edit the paths in eval_repos/mini_dev/evaluation/run_evaluation.sh to:
-#   predicted sql json : results/$TAG/bird_dev/predict_dev.json
-#   ground truth sql   : data/bird_dev/dev.sql
-#   db root            : data/bird_dev/dev_databases/
-#   difficulty json    : data/bird_dev/dev.json
-#   dialect            : SQLite
+# BIRD: bash run_bird_eval.sh base dpo grpo rloo
