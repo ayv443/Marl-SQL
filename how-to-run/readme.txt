@@ -92,8 +92,13 @@ WHERE WE ARE (updated as we go)
         dpo  (100)   0.596       0.467       0.542      0.244     0.894
         grpo (400)   0.715       0.588       0.622      0.332     0.929
         rloo (600)   0.721       0.585       0.617      0.337     0.939
-  [ ] NOW: official Spider EX + TS (11.2), BIRD EX / Soft-F1 / R-VES (11.3), then
-      analysis.py compare (section 12) for confidence intervals and McNemar tests.
+  [x] Statistics (analysis.py compare, our EX): GRPO and RLOO beat base on every benchmark
+      (McNemar p < 0.0001); GRPO vs RLOO never significant (p 0.48 / 0.84 / 0.75 / 0.62);
+      DPO below base, significant on Spider-Syn (p 0.043) and BIRD (p 0.040) only.
+  [x] Official Spider: base done (Spider dev EX 0.652 / TS 0.561, Syn 0.531 / 0.431, DK EX
+      0.590 on 532 of 535 questions: 3 broken gold queries). DPO hung: one very slow predicted
+      query and the official timeout doesn't work. Fixed with a real 60 s pre-check.
+  [ ] NOW: official Spider for dpo / grpo / rloo (11.2), then BIRD (11.3).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
@@ -621,6 +626,11 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
      To run only some splits: bash run_official_eval.sh grpo spider_dk
      Questions whose gold query is broken in the dataset are left out for every model; the
      count is in results/<tag>/<split>/official_kept.txt. Report it in the paper.
+     The official script's 60 s timeout does not work (it can't interrupt a running sqlite
+     query), so one very slow predicted query can block it for hours. run_official_eval.sh
+     therefore runs every prediction once with a real 60 s limit first and scores the slow ones
+     as wrong, which is what the official timeout is meant to do. Also counted in
+     official_kept.txt.
      Spider-DK only gets EX, no TS: it has 3 extra databases (new_concert_singer,
      new_orchestra, new_pets_1) that the test-suite databases don't include. Say so in the report.
 

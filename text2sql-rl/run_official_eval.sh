@@ -3,7 +3,8 @@
 #   bash run_official_eval.sh grpo                    (all Spider splits)
 #   bash run_official_eval.sh grpo spider_dk          (only the splits you name)
 # Questions whose GOLD query fails on the database are left out for every model (Spider-DK has
-# a few broken gold queries); the count is printed and saved in results/<tag>/<split>/official_kept.txt
+# a few broken gold queries), and predictions slower than 60 s are scored as wrong (the official
+# timeout doesn't work); both counts are printed and saved in results/<tag>/<split>/official_kept.txt
 set -e
 TAG=${1:-base}
 shift || true
@@ -34,15 +35,24 @@ for i, r in enumerate(rows):
     except Exception:
         bad.append(i)
 keep = [i for i in range(len(rows)) if i not in set(bad)]
+# the official script's 60 s timeout can't interrupt a running sqlite query, so one very slow
+# prediction blocks it for hours. Run each prediction once with a real 60 s limit; ones that
+# time out get a query that is wrong straight away (the official script would score them wrong).
+from reward import _pool, execute
+def slow(i):
+    return execute(f"{db}/{rows[i]['db_id']}/{rows[i]['db_id']}.sqlite", preds[i], timeout=60)[1] == "timeout"
+timed_out = [i for i, t in zip(keep, _pool.map(slow, keep)) if t]
+preds = [("SELECT 'timeout'" if i in set(timed_out) else p) for i, p in enumerate(preds)]
 with open(f"data/processed/{split}_gold.sql", "w") as f:
     f.write("\n".join(" ".join(rows[i]["gold_sql"].split()) + "\t" + rows[i]["db_id"] for i in keep) + "\n")
 with open(f"results/{tag}/{split}/pred_kept.txt", "w") as f:
     f.write("\n".join(preds[i] for i in keep) + "\n")
 our_ex = sum(per_q[i]["correct"] for i in keep) / len(keep)
-msg = (f"{split}: {len(keep)} of {len(rows)} questions kept ({len(bad)} with a broken gold query left out); "
-       f"our EX on the kept questions: {our_ex:.3f}")
+msg = (f"{split}: {len(keep)} of {len(rows)} questions kept ({len(bad)} with a broken gold query left out), "
+       f"{len(timed_out)} predictions over 60 s scored as wrong; our EX on the kept questions: {our_ex:.3f}")
 print(msg)
-open(f"results/{tag}/{split}/official_kept.txt", "w").write(msg + "\nleft out (index in the split): " + json.dumps(bad) + "\n")
+open(f"results/{tag}/{split}/official_kept.txt", "w").write(msg + "\nleft out (index in the split): " + json.dumps(bad)
+                                                         + "\nslow predictions (index in the split): " + json.dumps(timed_out) + "\n")
 EOF
 
   TABLE=data/spider_data/tables.json
