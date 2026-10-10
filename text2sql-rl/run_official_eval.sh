@@ -30,6 +30,7 @@ bad = []
 for i, r in enumerate(rows):
     try:
         c = sqlite3.connect(f"file:{db}/{r['db_id']}/{r['db_id']}.sqlite?mode=ro", uri=True)
+        c.text_factory = lambda b: b.decode(errors="ignore")   # same as the official script and reward.py
         c.execute(r["gold_sql"]).fetchall()
         c.close()
     except Exception:

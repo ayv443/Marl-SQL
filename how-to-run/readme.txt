@@ -98,7 +98,10 @@ WHERE WE ARE (updated as we go)
   [x] Official Spider: base done (Spider dev EX 0.652 / TS 0.561, Syn 0.531 / 0.431, DK EX
       0.590 on 532 of 535 questions: 3 broken gold queries). DPO hung: one very slow predicted
       query and the official timeout doesn't work. Fixed with a real 60 s pre-check.
-  [ ] NOW: official Spider for dpo / grpo / rloo (11.2), then BIRD (11.3).
+  [x] 10 Oct: the gold check wrongly flagged 2 Spider dev / Syn gold queries as broken (it
+      didn't ignore non-UTF-8 text like the official script does). Fixed; re-run the official
+      Spider scores for ALL four models so every model uses the same questions.
+  [ ] NOW: official Spider for base / dpo / grpo / rloo (11.2), then BIRD (11.3).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
