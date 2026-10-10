@@ -637,6 +637,9 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
      Each finished split gets results/<tag>/<split>/official_done.txt and is skipped the next
      time, so if the run stops (space restarted, terminal died) just start the same command
      again and it carries on. To redo a split, delete its official_done.txt first.
+     To watch it (progress bar, current step, memory use, updates every 30 s):
+       bash progress_official.sh logs_spider_official5.txt
+     Ctrl+C closes the view only (not Ctrl+Z); the run keeps going in the background.
      Questions whose gold query is broken in the dataset are left out for every model; the
      count is in results/<tag>/<split>/official_kept.txt. Report it in the paper.
      The official script's 60 s timeout does not work (it can't interrupt a running sqlite
