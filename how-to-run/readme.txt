@@ -108,7 +108,19 @@ WHERE WE ARE (updated as we go)
       likely a predicted query with a huge result filling the memory. Fixed (11.2): the
       pre-check now also runs on the test-suite databases and catches 100,000+ row results,
       plus a ~20 GB memory cap. Re-run all four models so they use the same rules.
-  [ ] NOW: official Spider for base / dpo / grpo / rloo (11.2), then BIRD (11.3).
+  [x] 10-11 Oct: official Spider done for all four (11.2), memory cap active, no freeze.
+      Spider-DK: 534 of 535 kept (1 broken gold query). Slow or huge predictions scored as
+      wrong: DPO 10 dev / 12 syn / 8 dk, all other models 0.
+                   Spider dev EX / TS   Spider-Syn EX / TS   Spider-DK EX
+        base         0.652 / 0.561        0.531 / 0.431        0.590
+        dpo  (100)   0.627 / 0.529        0.488 / 0.398        0.560
+        grpo (400)   0.746 / 0.653        0.614 / 0.502        0.654
+        rloo (600)   0.756 / 0.661        0.619 / 0.516        0.661
+      Official EX is ~3 points above our EX because it ignores column order. Same picture:
+      GRPO and RLOO about +10 points over base, RLOO a hair ahead, DPO below base.
+  [x] run_bird_eval.sh got the same protection before its first run: pre-check (30 s
+      limit, 100,000+ rows), ~3.5 GB memory cap per process, skips finished metrics.
+  [ ] NOW: BIRD official EX / Soft-F1 / R-VES (11.3).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
@@ -657,7 +669,13 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
 
 11.3 BIRD official EX, Soft-F1 and R-VES (needs results/<tag>/bird_dev/ from 11.1):
       pip install func-timeout psycopg2-binary pymysql      (once; BIRD's scripts import these)
-      nohup bash run_bird_eval.sh base dpo grpo rloo > logs_bird.txt 2>&1 &
+      setsid nohup bash run_bird_eval.sh base dpo grpo rloo > logs_bird.txt 2>&1 &
+      bash progress_official.sh logs_bird.txt bird           (live progress, Ctrl+C closes it)
+     Before scoring, each prediction is run once with a real 30 s limit; ones that time out or
+     return 100,000+ rows are scored as wrong (the official scripts would too, but they can't
+     interrupt sqlite and load the whole result into memory). Count in
+     results/<tag>/bird_dev/official_bird_kept.txt. Each finished metric is skipped if you run
+     the command again (after a restart), see the top of run_bird_eval.sh.
      It runs BIRD's own evaluation_ex.py, evaluation_f1.py and evaluation_ves.py for each model
      and writes results/<tag>/bird_dev/official_bird.txt (scores per simple / moderate /
      challenging / total, in %). EX and Soft-F1 take minutes; R-VES runs every correct query
