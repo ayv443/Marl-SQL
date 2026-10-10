@@ -101,6 +101,9 @@ WHERE WE ARE (updated as we go)
   [x] 10 Oct: the gold check wrongly flagged 2 Spider dev / Syn gold queries as broken (it
       didn't ignore non-UTF-8 text like the official script does). Fixed; re-run the official
       Spider scores for ALL four models so every model uses the same questions.
+  [x] 10 Oct: run_official_eval.sh can now carry on after a restart: each finished split
+      writes official_done.txt and is skipped next time. Splits finished by the run started
+      before this change have no such file: check logs_spider_official3.txt to see which.
   [ ] NOW: official Spider for base / dpo / grpo / rloo (11.2), then BIRD (11.3).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
@@ -627,6 +630,9 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
      Results are printed and saved in results/<tag>/<split>/official_ex.txt and official_ts.txt.
      Use the "execution" row, "all" column.
      To run only some splits: bash run_official_eval.sh grpo spider_dk
+     Each finished split gets results/<tag>/<split>/official_done.txt and is skipped the next
+     time, so if the run stops (space restarted, terminal died) just start the same command
+     again and it carries on. To redo a split, delete its official_done.txt first.
      Questions whose gold query is broken in the dataset are left out for every model; the
      count is in results/<tag>/<split>/official_kept.txt. Report it in the paper.
      The official script's 60 s timeout does not work (it can't interrupt a running sqlite

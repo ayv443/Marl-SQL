@@ -5,6 +5,8 @@
 # Questions whose GOLD query fails on the database are left out for every model (Spider-DK has
 # a few broken gold queries), and predictions slower than 60 s are scored as wrong (the official
 # timeout doesn't work); both counts are printed and saved in results/<tag>/<split>/official_kept.txt
+# A finished split gets results/<tag>/<split>/official_done.txt and is skipped next time, so after a
+# restart you can just run the same command again.
 set -e
 TAG=${1:-base}
 shift || true
@@ -17,6 +19,11 @@ DB=data/spider_data/database
 
 for SPLIT in $SPLITS; do
   [ -f $R/$SPLIT/pred.txt ] || continue
+  # finished in an earlier run (e.g. before the space was restarted): skip it
+  if [ -f $R/$SPLIT/official_done.txt ]; then
+    echo "=== $TAG / $SPLIT : already done, skipped (delete $R/$SPLIT/official_done.txt to redo) ==="
+    continue
+  fi
 
   # gold + pred files the spider script wants, without the questions whose gold SQL is broken
   python - "$SPLIT" "$TAG" "$DB" <<'EOF'
@@ -64,11 +71,13 @@ EOF
       --db $DB --table $TABLE --etype exec | tee $R/$SPLIT/official_ex.txt
   if [ $SPLIT = spider_dk ]; then
     echo "=== $TAG / spider_dk : no TS (test-suite databases don't include Spider-DK's extra databases) ==="
+    date > $R/$SPLIT/official_done.txt
     continue
   fi
   echo "=== $TAG / $SPLIT : TS (test-suite databases) ==="
   python $TS/evaluation.py --gold data/processed/${SPLIT}_gold.sql --pred $R/$SPLIT/pred_kept.txt \
       --db data/testsuite_databases --table $TABLE --etype exec | tee $R/$SPLIT/official_ts.txt
+  date > $R/$SPLIT/official_done.txt
 done
 
 # BIRD: bash run_bird_eval.sh base dpo grpo rloo
