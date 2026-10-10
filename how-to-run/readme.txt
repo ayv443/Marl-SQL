@@ -104,6 +104,10 @@ WHERE WE ARE (updated as we go)
   [x] 10 Oct: run_official_eval.sh can now carry on after a restart: each finished split
       writes official_done.txt and is skipped next time. Splits finished by the run started
       before this change have no such file: check logs_spider_official3.txt to see which.
+  [x] 10 Oct: the run froze the space during dpo / spider_syn (terminal unresponsive), most
+      likely a predicted query with a huge result filling the memory. Fixed (11.2): the
+      pre-check now also runs on the test-suite databases and catches 100,000+ row results,
+      plus a ~20 GB memory cap. Re-run all four models so they use the same rules.
   [ ] NOW: official Spider for base / dpo / grpo / rloo (11.2), then BIRD (11.3).
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
@@ -640,6 +644,11 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
      therefore runs every prediction once with a real 60 s limit first and scores the slow ones
      as wrong, which is what the official timeout is meant to do. Also counted in
      official_kept.txt.
+     Since 10 Oct this check runs on every database the official script uses (the original
+     one AND the test-suite copies) and also catches predictions that return 100,000+ rows:
+     the official script loads the whole result into memory, and one such query froze the
+     Studio space (terminal stopped responding) during dpo / spider_syn. The script also
+     caps its memory at ~20 GB so it stops with an error instead of freezing the space.
      Spider-DK only gets EX, no TS: it has 3 extra databases (new_concert_singer,
      new_orchestra, new_pets_1) that the test-suite databases don't include. Say so in the report.
 
