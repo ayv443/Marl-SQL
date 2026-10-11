@@ -120,7 +120,17 @@ WHERE WE ARE (updated as we go)
       GRPO and RLOO about +10 points over base, RLOO a hair ahead, DPO below base.
   [x] run_bird_eval.sh got the same protection before its first run: pre-check (30 s
       limit, 100,000+ rows), ~3.5 GB memory cap per process, skips finished metrics.
-  [ ] NOW: BIRD official EX / Soft-F1 / R-VES (11.3).
+  [x] 11 Oct: BIRD official (11.3), full dev set, 1534 questions (the scripts print "mini dev
+      set" but we gave them the full dev set). In %, total (simple / moderate / challenging):
+                   EX                         Soft-F1    R-VES
+        base       29.14 (37.19/16.59/17.93)  30.63      27.17
+        dpo        27.84 (35.78/17.24/11.03)  29.91      25.77
+        grpo       36.11 (45.73/21.34/22.07)  37.51      34.16
+        rloo       36.96 (46.81/22.41/20.69)  38.63      34.74
+      Slow or huge predictions scored as wrong: base 2, dpo 20, grpo 5, rloo 4 (question 106
+      for every model). Same picture as Spider: GRPO and RLOO about +7 points over base, RLOO a
+      hair ahead (not significant in our McNemar test), DPO a bit below base.
+  [ ] NOW: all evaluation done. Next: fill Table 5 in the report.
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
