@@ -1,0 +1,12 @@
+{
+  "split": "bird_dev",
+  "model": "grpo",
+  "n": 1534,
+  "EX": 0.3324641460234681,
+  "valid_sql_rate": 0.6779661016949152,
+  "EX_by_difficulty": {
+    "simple": 0.41945945945945945,
+    "moderate": 0.19827586206896552,
+    "challenging": 0.20689655172413793
+  }
+}

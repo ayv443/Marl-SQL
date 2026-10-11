@@ -1,0 +1,8 @@
+{
+  "split": "spider_dk",
+  "model": "base",
+  "n": 535,
+  "EX": 0.5476635514018692,
+  "valid_sql_rate": 0.8392523364485981,
+  "EX_by_difficulty": {}
+}

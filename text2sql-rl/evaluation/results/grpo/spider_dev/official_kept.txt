@@ -1,0 +1,3 @@
+spider_dev: 1034 of 1034 questions kept (0 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.715
+left out (index in the split): []
+slow predictions (index in the split): []

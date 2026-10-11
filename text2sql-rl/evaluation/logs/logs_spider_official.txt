@@ -1,0 +1,117 @@
+nohup: ignoring input
+spider_dev: 1034 of 1034 questions kept (0 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.617
+=== base / spider_dev : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.827                0.704                0.471                0.440                0.652               
+=== base / spider_dev : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.815                0.583                0.374                0.319                0.561               
+spider_syn: 1034 of 1034 questions kept (0 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.498
+=== base / spider_syn : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.665                0.555                0.390                0.420                0.531               
+=== base / spider_syn : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.629                0.436                0.288                0.278                0.431               
+spider_dk: 534 of 535 questions kept (1 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.549
+=== base / spider_dk : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                110                  245                  74                   105                  534                 
+=====================   EXECUTION ACCURACY     =====================
+execution            0.809                0.600                0.378                0.486                0.590               
+=== base / spider_dk : no TS (test-suite databases don't include Spider-DK's extra databases) ===
+spider_dev: 1034 of 1034 questions kept (0 with a broken gold query left out), 10 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.596
+=== dpo / spider_dev : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.835                0.657                0.460                0.410                0.627               
+=== dpo / spider_dev : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.810                0.545                0.362                0.241                0.529               
+spider_syn: 1034 of 1034 questions kept (0 with a broken gold query left out), 12 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.467
+=== dpo / spider_syn : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.665                0.511                0.350                0.314                0.488               
+=== dpo / spider_syn : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.617                0.400                0.277                0.201                0.398               
+spider_dk: 534 of 535 questions kept (1 with a broken gold query left out), 8 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.543
+=== dpo / spider_dk : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                110                  245                  74                   105                  534                 
+=====================   EXECUTION ACCURACY     =====================
+execution            0.791                0.571                0.378                0.419                0.560               
+=== dpo / spider_dk : no TS (test-suite databases don't include Spider-DK's extra databases) ===
+spider_dev: 1034 of 1034 questions kept (0 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.715
+=== grpo / spider_dev : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.871                0.778                0.655                0.566                0.746               
+=== grpo / spider_dev : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.867                0.650                0.557                0.440                0.653               
+spider_syn: 1034 of 1034 questions kept (0 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.588
+=== grpo / spider_syn : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.738                0.630                0.554                0.456                0.614               
+=== grpo / spider_syn : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.698                0.502                0.429                0.290                0.502               
+spider_dk: 534 of 535 questions kept (1 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.624
+=== grpo / spider_dk : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                110                  245                  74                   105                  534                 
+=====================   EXECUTION ACCURACY     =====================
+execution            0.818                0.673                0.473                0.562                0.654               
+=== grpo / spider_dk : no TS (test-suite databases don't include Spider-DK's extra databases) ===
+spider_dev: 1034 of 1034 questions kept (0 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.721
+=== rloo / spider_dev : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.875                0.783                0.661                0.608                0.756               
+=== rloo / spider_dev : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.871                0.650                0.575                0.464                0.661               
+spider_syn: 1034 of 1034 questions kept (0 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.585
+=== rloo / spider_syn : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.746                0.630                0.554                0.473                0.619               
+=== rloo / spider_syn : TS (test-suite databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                248                  440                  177                  169                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.722                0.502                0.446                0.325                0.516               
+spider_dk: 534 of 535 questions kept (1 with a broken gold query left out), 0 predictions over 60 s or 100,000+ rows scored as wrong; our EX on the kept questions: 0.618
+=== rloo / spider_dk : EX (original databases) ===
+                     easy                 medium               hard                 extra                all                 
+count                110                  245                  74                   105                  534                 
+=====================   EXECUTION ACCURACY     =====================
+execution            0.818                0.657                0.500                0.619                0.661               
+=== rloo / spider_dk : no TS (test-suite databases don't include Spider-DK's extra databases) ===

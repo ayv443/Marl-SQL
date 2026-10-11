@@ -1,0 +1,12 @@
+{
+  "split": "bird_dev",
+  "model": "rloo",
+  "n": 1534,
+  "EX": 0.33702737940026073,
+  "valid_sql_rate": 0.6844850065189049,
+  "EX_by_difficulty": {
+    "simple": 0.43567567567567567,
+    "moderate": 0.1939655172413793,
+    "challenging": 0.16551724137931034
+  }
+}

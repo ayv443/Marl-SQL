@@ -1,0 +1,8 @@
+{
+  "split": "spider_dev",
+  "model": "rloo",
+  "n": 1034,
+  "EX": 0.7214700193423598,
+  "valid_sql_rate": 0.9390715667311412,
+  "EX_by_difficulty": {}
+}

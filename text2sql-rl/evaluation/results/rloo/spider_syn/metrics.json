@@ -1,0 +1,8 @@
+{
+  "split": "spider_syn",
+  "model": "rloo",
+  "n": 1034,
+  "EX": 0.5851063829787234,
+  "valid_sql_rate": 0.8965183752417795,
+  "EX_by_difficulty": {}
+}

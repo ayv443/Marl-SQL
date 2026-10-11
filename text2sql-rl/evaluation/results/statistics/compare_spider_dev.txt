@@ -1,0 +1,14 @@
+spider_dev: 1034 questions
+
+    base  EX = 0.617   95% CI [0.588, 0.647]
+     dpo  EX = 0.596   95% CI [0.567, 0.626]
+    grpo  EX = 0.715   95% CI [0.688, 0.743]
+    rloo  EX = 0.721   95% CI [0.695, 0.749]
+
+McNemar test:
+    base vs dpo      only_A=132  only_B=110  p=0.1769
+    base vs grpo     only_A=24   only_B=125  p=0.0000  *
+    base vs rloo     only_A=16   only_B=124  p=0.0000  *
+     dpo vs grpo     only_A=57   only_B=180  p=0.0000  *
+     dpo vs rloo     only_A=40   only_B=170  p=0.0000  *
+    grpo vs rloo     only_A=32   only_B=39   p=0.4767

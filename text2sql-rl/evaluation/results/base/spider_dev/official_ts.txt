@@ -1,0 +1,4 @@
+                     easy                 medium               hard                 extra                all                 
+count                248                  446                  174                  166                  1034                
+=====================   EXECUTION ACCURACY     =====================
+execution            0.815                0.583                0.374                0.319                0.561               

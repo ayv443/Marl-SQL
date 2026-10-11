@@ -129,6 +129,9 @@ WHERE WE ARE (updated as we go)
       Slow or huge predictions scored as wrong: base 2, dpo 20, grpo 5, rloo 4 (question 106
       for every model). Same picture as Spider: GRPO and RLOO about +7 points over base, RLOO a
       hair ahead (not significant in our McNemar test), DPO a bit below base.
+  [x] 11 Oct: all results are in the repo: RESULTS.md (every table, with links) and
+      text2sql-rl/evaluation/ (results/ from Studio, statistics from analysis.py compare,
+      feasibility files, evaluation logs). Training records are in text2sql-rl/proof/.
   [ ] NOW: all evaluation done. Next: fill Table 5 in the report.
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).

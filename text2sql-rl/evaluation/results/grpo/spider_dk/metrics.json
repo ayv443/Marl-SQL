@@ -1,0 +1,8 @@
+{
+  "split": "spider_dk",
+  "model": "grpo",
+  "n": 535,
+  "EX": 0.6224299065420561,
+  "valid_sql_rate": 0.9177570093457944,
+  "EX_by_difficulty": {}
+}

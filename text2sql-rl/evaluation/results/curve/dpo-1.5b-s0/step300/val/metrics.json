@@ -1,0 +1,8 @@
+{
+  "split": "val",
+  "model": "curve/dpo-1.5b-s0/step300",
+  "n": 409,
+  "EX": 0.44254278728606355,
+  "valid_sql_rate": 0.8777506112469438,
+  "EX_by_difficulty": {}
+}

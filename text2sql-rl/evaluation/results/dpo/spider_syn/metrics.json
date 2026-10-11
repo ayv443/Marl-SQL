@@ -1,0 +1,8 @@
+{
+  "split": "spider_syn",
+  "model": "dpo",
+  "n": 1034,
+  "EX": 0.4671179883945841,
+  "valid_sql_rate": 0.8365570599613152,
+  "EX_by_difficulty": {}
+}

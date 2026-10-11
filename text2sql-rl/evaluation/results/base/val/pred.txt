@@ -1,0 +1,409 @@
+SELECT T2.course_name FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id GROUP BY T2.course_name ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T2.course_name FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id GROUP BY T2.course_name ORDER BY COUNT(*) DESC LIMIT 1
+SELECT student_id FROM Student_Course_Registrations GROUP BY student_id HAVING count(*) = ( SELECT min(count(*)) FROM Student_Course_Registrations )
+SELECT student_id FROM Student_Course_Registrations GROUP BY student_id HAVING COUNT(course_id) = (SELECT MIN(COUNT(course_id)) FROM Student_Course_Registrations)
+SELECT first_name, last_name FROM Candidates
+SELECT first_name, last_name FROM Candidates
+SELECT student_id FROM STUDENT_COURSE_ATTENDANCE WHERE student_id NOT IN (SELECT student_id FROM STUDENT_COURSE_REGISTRATIONS)
+SELECT student_id FROM STUDENT_COURSE_ATTENDANCE WHERE student_id NOT IN (SELECT student_id FROM STUDENT_COURSE_REGISTRATIONS)
+SELECT DISTINCT T1.student_id FROM Student_Course_Attendance AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.course_id = T2.course_id
+SELECT DISTINCT T1.student_id FROM Student_Course_Attendance AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.course_id = T2.course_id
+SELECT T1.student_id, T2.course_name FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id
+SELECT student_details FROM Students WHERE student_id = (SELECT student_id FROM Student_Course_Registrations ORDER BY registration_date DESC LIMIT 1)
+SELECT T1.student_details FROM Students AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.student_id = T2.student_id ORDER BY T2.registration_date DESC LIMIT 1
+SELECT COUNT(T1.student_id) FROM Student_Course_Attendance AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.course_id = T2.course_id INNER JOIN Courses AS T3 ON T2.course_id = T3.course_id WHERE T3.course_name = 'English'
+SELECT COUNT(T1.student_id) FROM Student_Course_Attendance AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id WHERE T2.course_name = 'English'
+SELECT COUNT(course_id) FROM Student_Course_Attendance WHERE student_id = 171
+SELECT COUNT(DISTINCT T2.course_id) FROM People_Addresses AS T1 INNER JOIN Student_Course_Attendance AS T2 ON T1.person_address_id = T2.student_id WHERE T1.person_id = 171
+SELECT candidate_id FROM Candidates WHERE email_address = 'stanley.monahan@example.org'
+SELECT candidate_id FROM Candidates WHERE email_address = 'stanley.monahan@example.org'
+SELECT T1.candidate_id FROM Candidate_Assessments AS T1 INNER JOIN Student_Course_Attendance AS T2 ON T1.candidate_id = T2.candidate_id ORDER BY T2.date_of_attendance DESC LIMIT 1
+SELECT T2.candidate_id FROM Student_Course_Attendance AS T1 INNER JOIN Candidates AS T2 ON T1.candidate_id = T2.candidate_id ORDER BY T1.date_of_attendance DESC LIMIT 1
+SELECT T1.student_details FROM Student_Course_Registrations AS T1 JOIN Students AS T2 ON T1.student_id = T2.student_id GROUP BY T2.student_details ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.student_details FROM Student_Course_Registrations AS T1 JOIN Students AS T2 ON T1.student_id = T2.student_id GROUP BY T1.student_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.student_id, COUNT(T2.course_id) FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id GROUP BY T1.student_id
+SELECT COUNT(DISTINCT course_id) FROM Student_Course_Registrations
+SELECT T2.course_name , count(*) FROM Student_Course_Registrations AS T1 JOIN Courses AS T2 ON T1.course_id = T2.course_id GROUP BY T2.course_name
+SELECT COUNT(T2.student_id) AS student_count, T1.course_name FROM Courses AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.course_id = T2.course_id GROUP BY T1.course_id
+SELECT candidate_id FROM Candidate_Assessments WHERE assessment_outcome_code = 'Pass' ORDER BY candidate_id
+SELECT candidate_id FROM Candidate_Assessments WHERE assessment_outcome_code = 'Pass' ORDER BY candidate_id
+SELECT T1.cell_mobile_number FROM Candidates AS T1 INNER JOIN Candidate_Assessments AS T2 ON T1.candidate_id = T2.candidate_id WHERE T2.asessment_outcome_code = 'Fail' ORDER BY T1.candidate_id
+SELECT T1.cell_mobile_number FROM Candidates AS T1 INNER JOIN Candidate_Assessments AS T2 ON T1.candidate_id = T2.candidate_id WHERE T2.asessment_outcome_code = 'Fail' ORDER BY T1.candidate_id
+SELECT student_id FROM Student_Course_Registrations WHERE course_id = '301'
+SELECT student_id FROM Student_Course_Registrations WHERE course_id = '301'
+SELECT T1.student_id FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id ORDER BY T1.registration_date DESC LIMIT 1
+SELECT T1.student_id FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id WHERE T2.course_id = '301' ORDER BY T1.registration_date DESC LIMIT 1
+SELECT DISTINCT city FROM addresses
+SELECT DISTINCT city FROM Addresses
+SELECT DISTINCT city FROM addresses WHERE address_id IN (SELECT address_id FROM people_addresses WHERE student_id IN (SELECT student_id FROM students))
+SELECT DISTINCT city FROM Addresses
+SELECT course_name FROM Courses ORDER BY course_name ASC
+SELECT course_name FROM Courses ORDER BY course_name ASC
+SELECT first_name FROM People ORDER BY first_name ASC
+SELECT first_name FROM People ORDER BY first_name ASC
+SELECT DISTINCT T1.student_id FROM Student_Course_Registrations AS T1 INNER JOIN Student_Course_Attendance AS T2 ON T1.student_id = T2.student_id
+SELECT DISTINCT T1.student_id FROM Student_Course_Registrations AS T1 INNER JOIN Student_Course_Attendance AS T2 ON T1.course_id = T2.course_id
+SELECT DISTINCT T2.course_id FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id WHERE T1.student_id = 121 OR T2.course_id IN (SELECT course_id FROM Student_Course_Attendance WHERE student_id = 121)
+SELECT DISTINCT T2.course_id FROM Student_Course_Registrations AS T1 INNER JOIN Courses AS T2 ON T1.course_id = T2.course_id WHERE T1.student_id = 121 OR T2.course_id IN (SELECT course_id FROM Student_Course_Attendance WHERE student_id = 121)
+SELECT T1.student_details FROM Students AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.student_id = T2.student_id WHERE T2.course_id NOT IN (SELECT course_id FROM Student_Course_Attendance)
+SELECT T1.student_details FROM Students AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.student_id = T2.student_id WHERE T2.course_id NOT IN (SELECT course_id FROM Student_Course_Attendance)
+SELECT student_id FROM Student_Course_Registrations WHERE course_id = '301' ORDER BY registration_date
+SELECT student_id FROM Student_Course_Registrations WHERE course_id = '301' ORDER BY registration_date
+SELECT T1.student_id FROM Student_Course_Attendance AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.course_id = T2.course_id INNER JOIN Courses AS T3 ON T2.course_id = T3.course_id WHERE T3.course_name = 'statistics' ORDER BY T1.date_of_attendance
+SELECT T1.student_id FROM Student_Course_Attendance AS T1 INNER JOIN Student_Course_Registrations AS T2 ON T1.course_id = T2.course_id INNER JOIN Courses AS T3 ON T2.course_id = T3.course_id WHERE T3.course_name = 'statistics' ORDER BY T1.date_of_attendance
+SELECT email FROM user_profiles WHERE name = 'Mary'
+SELECT partitionid FROM user_profiles WHERE name = 'Iron Man'
+SELECT count(*) FROM user_profiles
+SELECT T1.uid, T1.followers FROM user_profiles AS T1 INNER JOIN follows AS T2 ON T1.uid = T2.f1
+SELECT COUNT(f1) AS followers, f2 FROM follows GROUP BY f2
+SELECT count(*) FROM tweets
+SELECT COUNT(DISTINCT T1.uid) FROM tweets AS T1 INNER JOIN user_profiles AS T2 ON T1.uid = T2.uid
+SELECT name, email FROM user_profiles WHERE name LIKE '%Swift%'
+SELECT name FROM user_profiles WHERE email LIKE '%superstar%' OR email LIKE '%edu%'
+SELECT T2.text FROM tweets AS T1 INNER JOIN user_profiles AS T2 ON T1.uid = T2.uid WHERE T1.text LIKE '%intern%'
+SELECT name, email FROM user_profiles WHERE followers > 1000
+SELECT T1.name FROM user_profiles AS T1 INNER JOIN follows AS T2 ON T1.uid = T2.f1 WHERE T1.name = 'Tyler Swift' AND T1.followers > (SELECT SUM(T2.f2) FROM follows AS T2 INNER JOIN user_profiles AS T3 ON T2.f2 = T3.uid WHERE T3.name = 'Tyler Swift')
+SELECT name, email FROM user_profiles WHERE followers > 1
+SELECT T1.name FROM user_profiles AS T1 JOIN tweets AS T2 ON T1.uid = T2.uid GROUP BY T1.uid HAVING COUNT(*) > 1
+SELECT DISTINCT T1.id FROM user_profiles AS T1 INNER JOIN follows AS T2 ON T1.uid = T2.f1 WHERE T2.f2 = (SELECT uid FROM user_profiles WHERE name = 'Mary' UNION SELECT uid FROM user_profiles WHERE name = 'Susan')
+SELECT T1.name FROM user_profiles AS T1 JOIN follows AS T2 ON T1.uid = T2.f1 GROUP BY T1.uid ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.name, T1.email FROM user_profiles AS T1 JOIN follows AS T2 ON T1.uid = T2.f1 GROUP BY T1.uid ORDER BY COUNT(T2.f2) ASC LIMIT 1
+SELECT T1.name, T1.followers FROM user_profiles AS T1 JOIN follows AS T2 ON T1.uid = T2.f1 GROUP BY T1.uid ORDER BY T1.followers DESC
+SELECT T1.name FROM user_profiles AS T1 JOIN follows AS T2 ON T1.uid = T2.f1 GROUP BY T1.uid ORDER BY count(*) DESC LIMIT 5
+SELECT text FROM tweets ORDER BY createdate
+SELECT T1.name, COUNT(T2.id) FROM user_profiles AS T1 JOIN tweets AS T2 ON T1.uid = T2.uid GROUP BY T1.name
+SELECT T1.name, T1.partitionid FROM user_profiles AS T1 JOIN tweets AS T2 ON T1.uid = T2.uid GROUP BY T1.uid HAVING COUNT(T2.id) < 2
+SELECT T1.name, COUNT(T2.id) FROM user_profiles AS T1 JOIN tweets AS T2 ON T1.uid = T2.uid GROUP BY T1.name HAVING COUNT(T2.id) > 1
+SELECT AVG(followers) FROM user_profiles WHERE uid NOT IN (SELECT f2 FROM follows)
+SELECT AVG(followers) FROM user_profiles WHERE uid IN (SELECT f1 FROM follows WHERE f2 IN (SELECT uid FROM tweets))
+SELECT max(followers) , sum(followers) FROM user_profiles
+SELECT T1.name AS country_name, T2.name AS league_name FROM Country AS T1 INNER JOIN League AS T2 ON T1.id = T2.country_id
+SELECT COUNT(*) FROM League WHERE country_id = (SELECT id FROM Country WHERE name = 'England')
+SELECT AVG(weight) FROM Player
+SELECT max(height) , min(height) FROM Player
+SELECT T1.player_name FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id WHERE T1.overall_rating > (SELECT AVG(overall_rating) FROM Player_Attributes)
+SELECT T1.player_name FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id ORDER BY T1.dribbling DESC LIMIT 1
+SELECT T1.player_name FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id WHERE T1.crossing > 90 AND T1.preferred_foot = 'right'
+SELECT T1.player_name FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id WHERE T1.preferred_foot = 'left' AND T1.overall_rating BETWEEN 85 AND 90
+SELECT AVG(T1.overall_rating) FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id WHERE T2.preferred_foot = 'right' UNION SELECT AVG(T1.overall_rating) FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id WHERE T2.preferred_foot = 'left'
+SELECT COUNT(*) FROM Player_Attributes WHERE overall_rating > 80 AND preferred_foot IN ('right', 'left')
+SELECT player_api_id FROM Player_Attributes WHERE height >= 180 AND overall_rating > 85
+SELECT player_api_id FROM Player_Attributes WHERE preferred_foot = 'left' AND height BETWEEN 180 AND 190
+SELECT T1.player_name FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id ORDER BY T1.overall_rating DESC LIMIT 3
+SELECT T1.player_name, T1.birthday FROM Player_Attributes AS T1 INNER JOIN Player AS T2 ON T1.player_api_id = T2.player_api_id ORDER BY T1.potential DESC LIMIT 5
+SELECT Customer_Details FROM Customers ORDER BY Customer_Details ASC
+SELECT Customer_Details FROM Customers ORDER BY Customer_Details ASC
+SELECT Policy_Type_Code FROM Policies WHERE Customer_ID = (SELECT Customer_ID FROM Customers WHERE Customer_Details = 'Dayana Robel')
+SELECT DISTINCT T2.Policy_Type_Code FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID WHERE T1.Customer_Details = 'Dayana Robel'
+SELECT Policy_Type_Code FROM Policies GROUP BY Policy_Type_Code ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Policy_Type_Code FROM Policies GROUP BY Policy_Type_Code ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Policy_Type_Code FROM Policies GROUP BY Policy_Type_Code HAVING COUNT(*) > 2
+SELECT Policy_Type_Code FROM Policies GROUP BY Policy_Type_Code HAVING COUNT(*) > 2
+SELECT SUM(Amount_Claimed) AS Total_Amount, AVG(Amount_Claimed) AS Average_Amount FROM Claim_Headers
+SELECT SUM(Amount_Claimed) AS Total_Amount, AVG(Amount_Claimed) AS Average_Amount FROM Claim_Headers
+SELECT SUM(Amount_Claimed) FROM Claims_Documents WHERE Created_Date = (SELECT MAX(Created_Date) FROM Claims_Documents)
+SELECT SUM(Amount_Claimed) FROM Claims_Documents WHERE Created_Date = (SELECT MAX(Created_Date) FROM Claims_Documents)
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID INNER JOIN Claim_Headers AS T3 ON T2.Policy_ID = T3.Policy_ID GROUP BY T1.Customer_ID ORDER BY SUM(T3.Amount_Claimed) DESC LIMIT 1
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID INNER JOIN Claim_Headers AS T3 ON T2.Policy_ID = T3.Policy_ID GROUP BY T1.Customer_ID ORDER BY SUM(T3.Amount_Claimed) DESC LIMIT 1
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID INNER JOIN Claim_Headers AS T3 ON T2.Policy_ID = T3.Policy_ID WHERE T3.Amount_Piad = (SELECT MIN(Amount_Piad) FROM Claim_Headers)
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID INNER JOIN Claim_Headers AS T3 ON T2.Policy_ID = T3.Policy_ID ORDER BY T3.Amount_Claimed ASC LIMIT 1
+SELECT T1.Customer_Details FROM Customers AS T1 WHERE T1.Customer_ID NOT IN (SELECT T2.Customer_ID FROM Policies AS T2)
+SELECT T1.Customer_Details FROM Customers AS T1 WHERE T1.Customer_ID NOT IN (SELECT T2.Customer_ID FROM Policies AS T2)
+SELECT count(*) FROM Claims_Processing_stages
+SELECT count(DISTINCT claim_stage_id) FROM claims_processing_stages
+SELECT T1.Claim_Status_Name FROM Claims_Processing_Stages AS T1 JOIN Claims_Processing AS T2 ON T1.Claim_Stage_ID = T2.Claim_Stage_ID GROUP BY T1.Claim_Status_Name ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T2.Claim_Status_Name FROM Claims_Processing AS T1 INNER JOIN Claims_Processing_Stages AS T2 ON T1.Claim_Stage_ID = T2.Claim_Stage_ID GROUP BY T2.Claim_Status_Name ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Customer_Details FROM Customers WHERE Customer_Details LIKE "%Diana%"
+SELECT Customer_Details FROM Customers WHERE Customer_Details LIKE '%Diana%'
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID WHERE T2.Policy_Type_Code = 'Deputy'
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID WHERE T2.Policy_Type_Code = 'Deputy'
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID WHERE T2.Policy_Type_Code = 'Deputy' OR T2.Policy_Type_Code = 'Uniformed'
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID WHERE T2.Policy_Type_Code IN ('Deputy', 'Uniform')
+SELECT Customer_Details, Staff_Details FROM Customers UNION SELECT Customer_Details, Staff_Details FROM Staff
+SELECT T1.Customer_Details, T2.Staff_Details FROM Customers AS T1 INNER JOIN Staff AS T2 ON T1.Customer_ID = T2.Staff_ID
+SELECT Policy_Type_Code, COUNT(*) FROM Policies GROUP BY Policy_Type_Code
+SELECT Policy_Type_Code , COUNT(*) FROM Policies GROUP BY Policy_Type_Code
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID GROUP BY T1.Customer_ID ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID GROUP BY T1.Customer_ID ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Claim_Status_Description FROM Claims_Processing_Stages WHERE Claim_Status_Name = 'Open'
+SELECT Claim_Status_Description FROM Claims_Processing_Stages WHERE Claim_Status_Name = 'Open'
+SELECT count(DISTINCT claim_outcome_code) FROM claims_processing
+SELECT count(DISTINCT claim_outcome_code) FROM claims_processing
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID ORDER BY T2.Start_Date DESC LIMIT 1
+SELECT T1.Customer_Details FROM Customers AS T1 INNER JOIN Policies AS T2 ON T1.Customer_ID = T2.Customer_ID ORDER BY T2.Start_Date DESC LIMIT 1
+SELECT count(*) FROM county
+SELECT count(*) FROM county
+SELECT County_name, Population FROM county
+SELECT County_name, Population FROM county
+SELECT avg(population) FROM county
+SELECT AVG(Population) FROM county
+SELECT max(population) , min(population) FROM county
+SELECT max(population) , min(population) FROM county
+SELECT DISTINCT District FROM election
+SELECT DISTINCT District FROM election
+SELECT Zip_code FROM county WHERE County_name = 'Howard'
+SELECT Zip_code FROM county WHERE County_name = 'Howard'
+SELECT Delegate FROM election WHERE District = 1
+SELECT Delegate FROM election WHERE District = 1
+SELECT Delegate, Committee FROM election
+SELECT T1.Delegate, T2.Committee FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID
+SELECT COUNT(DISTINCT Governor) FROM party
+SELECT count(DISTINCT Governor) FROM party
+SELECT T2.Lieutenant_Governor, T2.Comptroller FROM party AS T1 INNER JOIN election AS T2 ON T1.Party_ID = T2.Party WHERE T1.Party = 'Democratic'
+SELECT T2.Lieutenant_Governor, T2.Comptroller FROM party AS T1 INNER JOIN election AS T2 ON T1.Party_ID = T2.Party WHERE T1.Party = 'Democratic'
+SELECT DISTINCT T1.Year FROM party AS T1 INNER JOIN election AS T2 ON T1.Party_ID = T2.Party WHERE T1.Governor = 'Eliot Spitzer'
+SELECT DISTINCT T1.Year FROM party AS T1 INNER JOIN election AS T2 ON T1.Party_ID = T2.Party WHERE T1.Governor = 'Eliot Spitzer'
+SELECT * FROM election
+SELECT * FROM election
+SELECT T1.Delegate, T2.County_name FROM election AS T1 INNER JOIN county AS T2 ON T1.District = T2.County_Id
+SELECT T1.County_name, T2.Delegate FROM county AS T1 INNER JOIN election AS T2 ON T1.County_Id = T2.District
+SELECT T1.Delegate FROM election AS T1 INNER JOIN county AS T2 ON T1.District = T2.County_Id WHERE T2.Population < 100000
+SELECT T1.Delegate FROM election AS T1 INNER JOIN county AS T2 ON T1.District = T2.County_Id WHERE T2.Population < 100000
+SELECT COUNT(DISTINCT T1.Delegate) FROM election AS T1 INNER JOIN county AS T2 ON T1.District = T2.County_Id WHERE T2.Population > 50000
+SELECT COUNT(DISTINCT T1.Delegate) FROM election AS T1 INNER JOIN county AS T2 ON T1.District = T2.County_Id WHERE T2.Population > 50000
+SELECT T1.County_name FROM election AS T1 INNER JOIN county AS T2 ON T1.District = T2.County_Id WHERE T1.Committee = 'Appropriations'
+SELECT T1.County_name FROM election AS T1 INNER JOIN county AS T2 ON T1.District = T2.County_Id WHERE T1.Committee = 'Appropriations'
+SELECT T1.Delegate, T2.Party FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID
+SELECT T1.Delegate, T2.Party FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID
+SELECT T1.Governor FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T1.District = 1
+SELECT T2.Party, T3.Governor FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID INNER JOIN county AS T3 ON T1.District = T3.County_Id WHERE T1.District = 1
+SELECT DISTINCT T1.Comptroller FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T1.District IN (1, 2)
+SELECT T2.Party, T3.Comptroller FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID INNER JOIN county AS T3 ON T1.District = T3.County_Id WHERE T1.District IN (1, 2)
+SELECT DISTINCT T2.Committee FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T2.Party = 'Democratic'
+SELECT DISTINCT T2.Committee FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T2.Party = 'Democratic'
+SELECT T1.County_name, COUNT(T2.Delegate) FROM county AS T1 INNER JOIN election AS T2 ON T1.County_Id = T2.District GROUP BY T1.County_name
+SELECT T1.County_name, COUNT(T2.Delegate) FROM county AS T1 INNER JOIN election AS T2 ON T1.County_Id = T2.District GROUP BY T1.County_name
+SELECT T2.Party, COUNT(T1.Delegate) FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID GROUP BY T2.Party
+SELECT T2.Party, COUNT(T1.Delegate) FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID GROUP BY T2.Party
+SELECT County_name FROM county ORDER BY Population ASC
+SELECT County_name FROM county ORDER BY Population ASC
+SELECT County_name FROM county ORDER BY County_name DESC
+SELECT County_name FROM county ORDER BY County_name DESC
+SELECT County_name FROM county ORDER BY Population DESC LIMIT 1
+SELECT County_name FROM county ORDER BY Population DESC LIMIT 1
+SELECT County_name FROM county ORDER BY Population ASC LIMIT 3
+SELECT County_name FROM county ORDER BY Population ASC LIMIT 3
+SELECT T1.County_name FROM county AS T1 INNER JOIN election AS T2 ON T1.County_Id = T2.District GROUP BY T1.County_name HAVING COUNT(T2.Delegate) >= 2
+SELECT T1.County_name FROM county AS T1 INNER JOIN election AS T2 ON T1.County_Id = T2.District GROUP BY T1.County_name HAVING COUNT(T2.Delegate) >= 2
+SELECT Party FROM party GROUP BY Party HAVING COUNT(*) >= 2
+SELECT Party FROM party GROUP BY Party HAVING COUNT(*) >= 2
+SELECT T2.Party FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID GROUP BY T2.Party ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Party FROM election GROUP BY Party ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Governor FROM party GROUP BY Governor ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Governor FROM party GROUP BY Governor ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.Comptroller, COUNT(*) FROM election AS T1 JOIN party AS T2 ON T1.Party = T2.Party_ID GROUP BY T1.Comptroller ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.Comptroller, COUNT(*) FROM election AS T1 JOIN county AS T2 ON T1.District = T2.County_Id GROUP BY T1.Comptroller ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Party FROM party WHERE Party_ID NOT IN (SELECT Party FROM election)
+SELECT Party FROM party WHERE Party_ID NOT IN (SELECT Party FROM election)
+SELECT T2.Party FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T1.Committee = 'Appropriations'
+SELECT T1.Party FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T1.Committee = 'Appropriations' INTERSECT SELECT T1.Party FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T1.Committee = 'Economic Matters'
+SELECT DISTINCT T2.Committee FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T2.Party IN ('Democratic', 'Liberal')
+SELECT DISTINCT T2.Committee FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T2.Party = 'Democratic' INTERSECT SELECT DISTINCT T2.Committee FROM election AS T1 INNER JOIN party AS T2 ON T1.Party = T2.Party_ID WHERE T2.Party = 'Liberal'
+SELECT SUM(Num_of_Component) FROM furniture
+SELECT Name, Furniture_ID FROM furniture ORDER BY Market_Rate DESC LIMIT 1
+SELECT SUM(Market_Rate) FROM furniture WHERE Furniture_ID IN (SELECT Furniture_ID FROM furniture_manufacte GROUP BY Furniture_ID ORDER BY SUM(Price_in_Dollar) DESC LIMIT 2)
+SELECT Num_of_Component, Name FROM furniture WHERE Num_of_Component > 10
+SELECT Name, Num_of_Component FROM furniture ORDER BY Num_of_Component ASC LIMIT 1
+SELECT Name FROM furniture WHERE Price_in_Dollar < (SELECT MAX(Price_in_Dollar) FROM furniture)
+SELECT T1.Name, T1.Open_Year FROM manufacturer AS T1 JOIN furniture_manufacte AS T2 ON T1.Manufacturer_ID = T2.Manufacturer_ID GROUP BY T1.Manufacturer_ID ORDER BY COUNT(T2.Manufacturer_ID) DESC LIMIT 1
+SELECT AVG(Num_of_Factories) FROM manufacturer WHERE Num_of_Shops > 20
+SELECT Name, Manufacturer_ID FROM manufacturer ORDER BY Open_Year
+SELECT Name, Open_Year FROM manufacturer WHERE Num_of_Factories < 10 OR Num_of_Shops > 10
+SELECT AVG(Num_of_Factories) , MAX(Num_of_Shops) FROM manufacturer WHERE Open_Year < 1990
+SELECT T1.Manufacturer_ID, T1.Num_of_Shops FROM manufacturer AS T1 INNER JOIN furniture_manufacte AS T2 ON T1.Manufacturer_ID = T2.Manufacturer_ID INNER JOIN furniture AS T3 ON T2.Furniture_ID = T3.Furniture_ID ORDER BY T3.Market_Rate DESC LIMIT 1
+SELECT m.Name, COUNT(fm.Furniture_ID) FROM manufacturer m JOIN furniture_manufacte fm ON m.Manufacturer_ID = fm.Manufacturer_ID GROUP BY m.Manufacturer_ID
+SELECT T1.Name, T2.Price_in_Dollar FROM furniture AS T1 INNER JOIN furniture_manufacte AS T2 ON T1.Furniture_ID = T2.Furniture_ID
+SELECT T1.Name, T1.Market_Rate FROM furniture AS T1 WHERE T1.Furniture_ID NOT IN (SELECT Furniture_ID FROM furniture_manufacte)
+SELECT T1.Name FROM manufacturer AS T1 INNER JOIN furniture_manufacte AS T2 ON T1.Manufacturer_ID = T2.Manufacturer_ID INNER JOIN furniture AS T3 ON T2.Furniture_ID = T3.Furniture_ID WHERE T3.Num_of_Component < 6 INTERSECT SELECT T1.Name FROM manufacturer AS T1 INNER JOIN furniture_manufacte AS T2 ON T1.Manufacturer_ID = T2.Manufacturer_ID INNER JOIN furniture AS T3 ON T2.Furniture_ID = T3.Furniture_ID WHERE T3.Num_of_Component > 10
+SELECT T1.Date_Claim_Made, T1.Claim_ID FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID GROUP BY T1.Claim_ID HAVING COUNT(T2.Settlement_ID) > 2 OR SUM(T2.Amount_Settled) = (SELECT MAX(Amount_Settled) FROM Settlements) ORDER BY T1.Date_Claim_Made
+SELECT Date_Claim_Made, Claim_ID FROM Claims WHERE Claim_ID IN (SELECT Claim_ID FROM Claims GROUP BY Claim_ID HAVING COUNT(*) > 2) OR Amount_Claimed = (SELECT MAX(Amount_Claimed) FROM Claims)
+SELECT T1.Customer_Details, T1.Customer_ID FROM Customers AS T1 INNER JOIN Customer_Policies AS T2 ON T1.Customer_ID = T2.Customer_ID GROUP BY T1.Customer_ID HAVING COUNT(T2.Policy_ID) >= 2 AND COUNT(T2.Policy_ID) - COUNT(T3.Claim_ID) = 0
+SELECT T1.Customer_Details, T1.Customer_ID FROM Customers AS T1 INNER JOIN Customer_Policies AS T2 ON T1.Customer_ID = T2.Customer_ID GROUP BY T1.Customer_ID HAVING COUNT(T2.Policy_ID) >= 2 AND COUNT(T2.Policy_ID) != (SELECT COUNT(T2.Policy_ID) FROM Claims AS T3 INNER JOIN Customer_Policies AS T4 ON T3.Policy_ID = T4.Policy_ID WHERE T4.Customer_ID = T1.Customer_ID) ORDER BY T1.Customer_ID
+SELECT Payment_Method_Code, Date_Payment_Made, Amount_Payment FROM Payments ORDER BY Date_Payment_Made ASC
+SELECT Payment_Method_Code, Date_Payment_Made, Amount_Payment FROM Payments ORDER BY Date_Payment_Made ASC
+SELECT T2.Amount_Settled, T1.Amount_Claimed FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID ORDER BY T1.Amount_Claimed DESC LIMIT 1
+SELECT T2.Amount_Settled, T1.Amount_Claimed FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID ORDER BY T1.Amount_Claimed DESC LIMIT 1
+SELECT T2.Amount_Settled, T1.Amount_Claimed FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID ORDER BY T2.Amount_Settled ASC LIMIT 1
+SELECT T1.Amount_Claimed, T2.Amount_Settled FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID ORDER BY T2.Amount_Settled ASC LIMIT 1
+SELECT T1.Date_Claim_Made, T1.Date_Claim_Settled FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID WHERE T1.Amount_Claimed > (SELECT AVG(Amount_Claimed) FROM Claims)
+SELECT T1.Date_Claim_Made, T2.Date_Claim_Settled FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID WHERE T1.Amount_Claimed > (SELECT AVG(Amount_Claimed) FROM Claims)
+SELECT T1.Date_Claim_Made FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID WHERE T1.Amount_Claimed <= (SELECT AVG(Amount_Claimed) FROM Claims)
+SELECT T1.Date_Claim_Made FROM Claims AS T1 INNER JOIN Customer_Policies AS T2 ON T1.Policy_ID = T2.Policy_ID INNER JOIN Customers AS T3 ON T2.Customer_ID = T3.Customer_ID WHERE T1.Amount_Claimed <= (SELECT AVG(Amount_Claimed) FROM Claims) ORDER BY T1.Date_Claim_Made ASC
+SELECT T1.Claim_ID, COUNT(T2.Settlement_ID) FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID GROUP BY T1.Claim_ID
+SELECT COUNT(*) , T1.Claim_ID FROM Claims AS T1 JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID GROUP BY T1.Claim_ID
+SELECT T1.Claim_ID, T1.Date_Claim_Made, COUNT(T2.Settlement_ID) FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID GROUP BY T1.Claim_ID ORDER BY COUNT(T2.Settlement_ID) DESC LIMIT 1
+SELECT T1.Claim_ID, T1.Date_Claim_Made, COUNT(T2.Settlement_ID) FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID GROUP BY T1.Claim_ID ORDER BY COUNT(T2.Settlement_ID) DESC LIMIT 1
+SELECT COUNT(T1.Settlement_ID), T1.Claim_ID FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID ORDER BY T2.Date_Claim_Settled DESC LIMIT 1
+SELECT T1.Claim_ID, COUNT(T2.Settlement_ID) FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID ORDER BY T2.Date_Claim_Settled DESC LIMIT 1
+SELECT MIN(Date_Claim_Made) FROM Claims
+SELECT MIN(Date_Claim_Made) FROM Claims
+SELECT SUM(Amount_Settled) FROM Settlements
+SELECT SUM(Amount_Settled) FROM Settlements
+SELECT T1.Customer_Details, T1.Customer_ID FROM Customers AS T1 JOIN Customer_Policies AS T2 ON T1.Customer_ID = T2.Customer_ID GROUP BY T1.Customer_ID HAVING COUNT(T2.Customer_ID) > 1
+SELECT T1.Customer_Details, T1.Customer_ID FROM Customers AS T1 INNER JOIN Customer_Policies AS T2 ON T1.Customer_ID = T2.Customer_ID GROUP BY T1.Customer_ID HAVING COUNT(T2.Customer_ID) > 1
+SELECT Date_Claim_Made, Date_Claim_Settled FROM Settlements
+SELECT T1.Date_Claim_Made, T2.Date_Claim_Settled FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID
+SELECT Payment_Method_Code FROM Payments GROUP BY Payment_Method_Code ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Payment_Method_Code FROM Payments GROUP BY Payment_Method_Code ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Payment_Method_Code FROM Payments GROUP BY Payment_Method_Code ORDER BY COUNT(*) ASC LIMIT 1
+SELECT Payment_Method_Code FROM Payments GROUP BY Payment_Method_Code ORDER BY COUNT(*) ASC LIMIT 1
+SELECT SUM(Amount_Payment) FROM Payments
+SELECT SUM(Amount_Payment) FROM Payments
+SELECT DISTINCT Customer_Details FROM Customers
+SELECT DISTINCT Customer_Details FROM Customers
+SELECT Policy_Type_Code FROM Customer_Policies GROUP BY Policy_Type_Code ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Policy_Type_Code FROM Customer_Policies GROUP BY Policy_Type_Code ORDER BY COUNT(*) DESC LIMIT 1
+SELECT count(*) FROM settlements
+SELECT count(*) FROM settlements
+SELECT Payment_ID, Date_Payment_Made, Amount_Payment FROM Payments WHERE Payment_Method_Code = 'Visa' ORDER BY Date_Payment_Made
+SELECT Payment_ID, Date_Payment_Made, Amount_Payment FROM Payments WHERE Payment_Method_Code = 'Visa' ORDER BY Date_Payment_Made
+SELECT Customer_Details FROM Customers WHERE Customer_ID NOT IN (SELECT Customer_ID FROM Customer_Policies)
+SELECT Customers.Customer_Details FROM Customers WHERE Customer_ID NOT IN (SELECT Customer_ID FROM Customer_Policies)
+SELECT T1.Date_Claim_Made, T1.Date_Claim_Settled, T1.Amount_Settled FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID GROUP BY T1.Claim_ID HAVING COUNT(T2.Settlement_ID) = 1
+SELECT T1.Date_Claim_Made, T1.Date_Claim_Settled, T1.Amount_Settled FROM Claims AS T1 INNER JOIN Settlements AS T2 ON T1.Claim_ID = T2.Claim_ID GROUP BY T1.Claim_ID HAVING COUNT(T2.Settlement_ID) = 1
+SELECT SUM(Amount_Claimed) FROM Claims
+SELECT SUM(Amount_Claimed) FROM Claims
+SELECT count(*) FROM club
+SELECT count(*) FROM club
+SELECT ClubName FROM Club
+SELECT ClubName FROM Club
+SELECT count(*) FROM student
+SELECT count(*) FROM student
+SELECT Fname FROM Student
+SELECT Fname FROM Student
+SELECT T2.LName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T1.ClubName = 'Bootup Baltimore'
+SELECT T2.LName FROM Member_of_club AS T1 INNER JOIN Club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.ClubName = 'Bootup Baltimore'
+SELECT T2.LName FROM Member_of_club AS T1 INNER JOIN Club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.ClubName = 'Hopkins Student Enterprises'
+SELECT T2.LName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T1.ClubName = 'Hopkins Student Enterprises'
+SELECT COUNT(*) FROM Member_of_club WHERE ClubID = (SELECT ClubID FROM Club WHERE ClubName = 'Tennis Club')
+SELECT COUNT(*) FROM Member_of_club WHERE ClubID = (SELECT ClubID FROM Club WHERE ClubName = 'Tennis Club')
+SELECT COUNT(*) FROM Member_of_club WHERE ClubID = (SELECT ClubID FROM Club WHERE ClubName = 'Pen and Paper Gaming')
+SELECT COUNT(*) FROM Member_of_club WHERE ClubID = (SELECT ClubID FROM Club WHERE ClubName = 'Pen and Paper Gaming')
+SELECT COUNT(ClubID) FROM Member_of_club WHERE StuID = (SELECT StuID FROM Student WHERE Fname = 'Linda' AND LName = 'Smith')
+SELECT COUNT(ClubID) FROM Member_of_club WHERE StuID = (SELECT StuID FROM Student WHERE Fname = 'Linda' AND LName = 'Smith')
+SELECT COUNT(*) FROM Member_of_club WHERE StuID = (SELECT StuID FROM Student WHERE Fname = 'Tracy' AND LName = 'Kim')
+SELECT COUNT(ClubID) FROM Member_of_club WHERE StuID = (SELECT StuID FROM Student WHERE Fname = 'Tracy' AND LName = 'Kim')
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore' AND T1.Sex = 'F'
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore' AND T1.Sex = 'F'
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore' AND T1.Major = '600' LIMIT 10
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore' AND T3.Major = 600
+SELECT T2.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID INNER JOIN Student AS T3 ON T2.StuID = T3.StuID WHERE T3.Major = 600 GROUP BY T2.ClubID ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T2.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID INNER JOIN Student AS T3 ON T2.StuID = T3.StuID WHERE T3.Major = 600 GROUP BY T1.ClubName ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T2.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.Position = 'President' GROUP BY T1.ClubName ORDER BY COUNT(T2.StuID) DESC LIMIT 1
+SELECT T2.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.Position = 'President' GROUP BY T1.ClubID ORDER BY COUNT(T2.StuID) DESC LIMIT 1
+SELECT ClubDesc FROM Club WHERE ClubName = 'Tennis Club'
+SELECT ClubDesc FROM Club WHERE ClubName = 'Tennis Club'
+SELECT ClubDesc FROM Club WHERE ClubName = 'Pen and Paper Gaming'
+SELECT ClubDesc FROM Club WHERE ClubName = 'Pen and Paper Gaming'
+SELECT ClubLocation FROM Club WHERE ClubName = 'Tennis Club'
+SELECT T2.ClubLocation FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T1.ClubName = 'Tennis Club'
+SELECT ClubLocation FROM Club WHERE ClubName = 'Pen and Paper Gaming'
+SELECT ClubLocation FROM Club WHERE ClubName = 'Pen and Paper Gaming'
+SELECT ClubLocation FROM Club WHERE ClubName = 'Hopkins Student Enterprises'
+SELECT ClubLocation FROM Club WHERE ClubName = 'Hopkins Student Enterprises'
+SELECT ClubName FROM Club WHERE ClubLocation = 'AKW'
+SELECT ClubName FROM Club WHERE ClubLocation = 'AKW'
+SELECT count(*) FROM club WHERE clublocation = "HHH"
+SELECT count(*) FROM club WHERE clublocation = "HHH"
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore' AND T2.Position = 'President'
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore' AND T2.Position = 'President'
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Hopkins Student Enterprises' AND T2.Position = 'CTO'
+SELECT T1.Fname, T1.Lname FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Hopkins Student Enterprises' AND T2.Position = 'CTO'
+SELECT COUNT(DISTINCT Position) FROM Member_of_club WHERE ClubID = (SELECT ClubID FROM Club WHERE ClubName = 'Bootup Baltimore')
+SELECT count(DISTINCT position) FROM member_of_club WHERE clubid = (SELECT clubid FROM club WHERE clubname = 'Bootup Baltimore')
+SELECT COUNT(*) FROM Member_of_club AS T1 INNER JOIN Club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.ClubName = 'Bootup Baltimore' AND T1.StuID IN (SELECT StuID FROM Student WHERE Age > 18)
+SELECT COUNT(*) FROM Member_of_club WHERE ClubID = (SELECT ClubID FROM Club WHERE ClubName = 'Bootup Baltimore') AND Age > 18
+SELECT COUNT(*) FROM Member_of_club AS T1 INNER JOIN Club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.ClubName = 'Bootup Baltimore' AND T1.StuID IN (SELECT StuID FROM Student WHERE Age < 18)
+SELECT COUNT(*) FROM Member_of_club AS T1 INNER JOIN Club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.ClubName = 'Bootup Baltimore' AND T1.Age < 18
+SELECT T1.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.City_code = 'BAL' GROUP BY T1.ClubName HAVING COUNT(*) > 0
+SELECT DISTINCT T1.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.StuID IN (SELECT StuID FROM Student WHERE city_code = 'BAL')
+SELECT T1.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.City_code = 'HOU' GROUP BY T1.ClubName HAVING COUNT(*) > 0
+SELECT DISTINCT T1.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.City_code = 'HOU'
+SELECT COUNT(ClubID) FROM Member_of_club WHERE StuID = (SELECT StuID FROM Student WHERE Fname = 'Eric' AND LName = 'Tai')
+SELECT COUNT(ClubID) FROM Member_of_club WHERE StuID = (SELECT StuID FROM Student WHERE Fname = 'Eric' AND LName = 'Tai')
+SELECT DISTINCT T1.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID WHERE T2.Advisor = '1121'
+SELECT DISTINCT T1.ClubName FROM Club AS T1 INNER JOIN Member_of_club AS T2 ON T1.ClubID = T2.ClubID INNER JOIN Student AS T3 ON T2.StuID = T3.StuID WHERE T3.Advisor = '1121'
+SELECT AVG(T1.Age) FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore'
+SELECT AVG(T1.Age) FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Bootup Baltimore'
+SELECT AVG(T1.Age) FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Hopkins Student Enterprises'
+SELECT AVG(T1.Age) FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Hopkins Student Enterprises'
+SELECT AVG(T1.Age) FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Tennis Club'
+SELECT AVG(T1.Age) FROM Student AS T1 INNER JOIN Member_of_club AS T2 ON T1.StuID = T2.StuID INNER JOIN Club AS T3 ON T2.ClubID = T3.ClubID WHERE T3.ClubName = 'Tennis Club'
+SELECT count(*) FROM driver
+SELECT Name, Home_city, Age FROM driver
+SELECT Party, COUNT(*) FROM driver GROUP BY Party
+SELECT Name FROM driver ORDER BY Age DESC
+SELECT DISTINCT Home_city FROM driver
+SELECT Home_city FROM driver GROUP BY Home_city ORDER BY COUNT(*) DESC LIMIT 1
+SELECT Party FROM driver WHERE Home_city = 'Hartford' AND Age > 40
+SELECT Home_city FROM driver WHERE Age > 40 GROUP BY Home_city HAVING COUNT(*) >= 2
+SELECT Home_city FROM driver WHERE Age <= 40
+SELECT Name FROM driver WHERE Driver_ID NOT IN (SELECT Driver_ID FROM school_bus)
+SELECT TYPE FROM school GROUP BY TYPE HAVING count(*) = 2
+SELECT T2.school, T1.name FROM driver AS T1 JOIN school_bus AS T2 ON T1.driver_id = T2.driver_id
+SELECT max(Years_Working) , min(Years_Working) , avg(Years_Working) FROM school_bus
+SELECT T2.school, T2.type FROM school AS T1 JOIN school_bus AS T2 ON T1.school_id = T2.school_id WHERE T2.school_id IS NULL
+SELECT T2.Type, COUNT(T1.Driver_ID) FROM school AS T1 INNER JOIN school_bus AS T2 ON T1.School_ID = T2.School_ID GROUP BY T2.Type
+SELECT COUNT(*) FROM driver WHERE Home_city = 'Hartford' OR Age < 40
+SELECT Name FROM driver WHERE Home_city = 'Hartford' AND Age < 40
+SELECT T1.Name FROM driver AS T1 INNER JOIN school_bus AS T2 ON T1.Driver_ID = T2.Driver_ID ORDER BY T2.Years_Working DESC LIMIT 1
+SELECT order_id FROM Orders ORDER BY date_order_placed DESC LIMIT 1
+SELECT order_id FROM Orders ORDER BY date_order_placed DESC LIMIT 1
+SELECT order_id, customer_id FROM Orders ORDER BY date_order_placed ASC LIMIT 1
+SELECT order_id, customer_id FROM Orders ORDER BY date_order_placed ASC LIMIT 1
+SELECT order_id FROM shipments WHERE shipment_tracking_number = '3452'
+SELECT order_id FROM shipments WHERE shipment_tracking_number = '3452'
+SELECT order_item_id FROM Order_Items WHERE product_id = 11
+SELECT order_item_id FROM Order_Items WHERE product_id = 11
+SELECT DISTINCT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'Packing'
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'Packing'
+SELECT DISTINCT T1.customer_name, T1.customer_details FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'On Road' ORDER BY T1.customer_name
+SELECT DISTINCT T1.customer_details FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'On Road'
+SELECT T1.customer_name FROM Customers AS T1 JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT customer_id FROM Orders GROUP BY customer_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT customer_id FROM Orders GROUP BY customer_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT order_id, order_status FROM Orders WHERE customer_id = (SELECT customer_id FROM Customers WHERE customer_name = 'Jeramie')
+SELECT order_id, order_status FROM Orders WHERE customer_id = (SELECT customer_id FROM Customers WHERE customer_name = 'Jeramie')
+SELECT date_order_placed FROM Orders WHERE customer_id = (SELECT customer_id FROM Customers WHERE customer_name = 'Jeramie')
+SELECT date_order_placed FROM Orders WHERE customer_name = 'Jeramie'
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.date_order_placed BETWEEN '2009-01-01' AND '2010-01-01' GROUP BY T1.customer_name
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.date_order_placed BETWEEN '2009-01-01' AND '2010-01-01'
+SELECT DISTINCT T1.product_id FROM Orders AS T1 INNER JOIN Order_Items AS T2 ON T1.order_id = T2.order_id WHERE T1.date_order_placed BETWEEN '1975-01-01' AND '1976-01-01'
+SELECT DISTINCT T1.product_id FROM Products AS T1 INNER JOIN Order_Items AS T2 ON T1.product_id = T2.product_id INNER JOIN Orders AS T3 ON T2.order_id = T3.order_id WHERE T3.date_order_placed BETWEEN '1975-01-01' AND '1976-01-01'
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'On Road' INTERSECT SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'Shipped'
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'On Road' INTERSECT SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id WHERE T2.order_status = 'Shipped'
+SELECT customer_id FROM Orders WHERE order_status IN ('On Road', 'Shipped')
+SELECT DISTINCT T1.customer_id FROM Orders AS T1 INNER JOIN Order_Items AS T2 ON T1.order_id = T2.order_id INNER JOIN Shipment_Items AS T3 ON T2.order_item_id = T3.order_item_id WHERE T1.order_status = 'On Road' AND T3.order_item_status = 'Shipped'
+SELECT date_order_placed FROM Orders WHERE order_id IN (SELECT order_id FROM Shipment_Items WHERE shipment_id IN (SELECT shipment_id FROM Shipments WHERE shipment_tracking_number = '3452'))
+SELECT T2.date_order_placed FROM Shipment AS T1 INNER JOIN Orders AS T2 ON T1.order_id = T2.order_id WHERE T1.shipment_tracking_number = '3452'
+SELECT date_order_placed FROM Orders WHERE invoice_number = 10
+SELECT date_order_placed FROM Orders WHERE invoice_number = 10
+SELECT count(*) , product_id FROM order_items GROUP BY product_id
+SELECT p.product_id, COUNT(*) FROM Products p JOIN Order_Items oi ON p.product_id = oi.product_id GROUP BY p.product_id
+SELECT T1.product_name, COUNT(T1.product_id) FROM Products AS T1 INNER JOIN Order_Items AS T2 ON T1.product_id = T2.product_id GROUP BY T1.product_name
+SELECT p.product_name, COUNT(o.order_id) FROM Products p JOIN Order_Items oi ON p.product_id = oi.product_id GROUP BY p.product_name
+SELECT order_id FROM Orders WHERE order_status = 'Shipped' AND date_order_placed > '2000-01-01'
+SELECT order_id FROM Orders WHERE date_order_placed > '2000-01-01'
+SELECT order_id FROM Orders WHERE order_status = 'Shipped' ORDER BY date_order_placed DESC LIMIT 1
+SELECT T2.order_id FROM Shipment AS T1 INNER JOIN Orders AS T2 ON T1.order_id = T2.order_id ORDER BY T1.shipment_date DESC LIMIT 1
+SELECT DISTINCT product_name FROM products ORDER BY product_name
+SELECT DISTINCT product_name FROM products ORDER BY product_name ASC
+SELECT DISTINCT order_id FROM Orders ORDER BY date_order_placed
+SELECT DISTINCT order_id FROM Orders ORDER BY date_order_placed
+SELECT order_id FROM Orders GROUP BY order_id ORDER BY count(*) DESC LIMIT 1
+SELECT order_id FROM Orders GROUP BY order_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT T1.customer_name FROM Customers AS T1 JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_id ORDER BY COUNT(*) DESC LIMIT 1
+SELECT invoice_number FROM Invoices WHERE invoice_date < '1989-09-03' OR invoice_date > '2007-12-25' ORDER BY invoice_date
+SELECT invoice_number FROM Invoices WHERE invoice_date < '1989-09-03' OR invoice_date > '2007-12-25'
+SELECT DISTINCT invoice_details FROM Invoices WHERE invoice_date < '1989-09-03' OR invoice_date > '2007-12-25' ORDER BY invoice_date
+SELECT DISTINCT invoice_details FROM Invoices WHERE invoice_date < '1989-09-03' OR invoice_date > '2007-12-25'
+SELECT T1.customer_name, COUNT(T2.order_id) FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_name HAVING COUNT(T2.order_id) >= 2
+SELECT T1.customer_name, COUNT(T2.order_id) FROM Customers AS T1 JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_name HAVING COUNT(T2.order_id) >= 2
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_id HAVING COUNT(*) <= 2
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id GROUP BY T1.customer_id HAVING COUNT(T2.order_id) <= 2
+SELECT DISTINCT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id INNER JOIN Order_Items AS T3 ON T2.order_id = T3.order_id INNER JOIN Products AS T4 ON T3.product_id = T4.product_id WHERE T4.product_name = 'food'
+SELECT DISTINCT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id INNER JOIN Order_Items AS T3 ON T2.order_id = T3.order_id INNER JOIN Products AS T4 ON T3.product_id = T4.product_id WHERE T4.product_name = 'food'
+SELECT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id INNER JOIN Order_Items AS T3 ON T2.order_id = T3.order_id INNER JOIN Products AS T4 ON T3.product_id = T4.product_id WHERE T4.product_name = 'food' AND T3.order_item_status = 'Cancel'
+SELECT DISTINCT T1.customer_name FROM Customers AS T1 INNER JOIN Orders AS T2 ON T1.customer_id = T2.customer_id INNER JOIN Order_Items AS T3 ON T2.order_id = T3.order_id INNER JOIN Products AS T4 ON T3.product_id = T4.product_id WHERE T4.product_name = 'food' AND T3.order_item_status = 'Cancel'
