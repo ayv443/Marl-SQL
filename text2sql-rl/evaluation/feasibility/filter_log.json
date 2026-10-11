@@ -1,0 +1,19 @@
+{
+  "empty_result": 1616,
+  "gold_error": 3,
+  "kept": 7040,
+  "train": 6631,
+  "val": 409,
+  "val_dbs": [
+    "twitter_1",
+    "club_1",
+    "manufacturer",
+    "election",
+    "insurance_policies",
+    "school_bus",
+    "student_assessment",
+    "tracking_orders",
+    "soccer_1",
+    "insurance_and_eClaims"
+  ]
+}

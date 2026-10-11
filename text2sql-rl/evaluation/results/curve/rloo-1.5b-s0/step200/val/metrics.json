@@ -1,0 +1,8 @@
+{
+  "split": "val",
+  "model": "curve/rloo-1.5b-s0/step200",
+  "n": 409,
+  "EX": 0.726161369193154,
+  "valid_sql_rate": 0.921760391198044,
+  "EX_by_difficulty": {}
+}

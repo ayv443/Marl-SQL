@@ -1,0 +1,146 @@
+nohup: ignoring input
+1534 BIRD dev questions
+base bird_dev: 2 of 1534 predictions over 30 s or 100,000+ rows scored as wrong
+dpo bird_dev: 20 of 1534 predictions over 30 s or 100,000+ rows scored as wrong
+grpo bird_dev: 5 of 1534 predictions over 30 s or 100,000+ rows scored as wrong
+rloo bird_dev: 4 of 1534 predictions over 30 s or 100,000+ rows scored as wrong
+=== base: BIRD ex
+start calculate EX
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    EX    =====================================
+EX                   37.19                16.59                17.93                29.14               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== base: BIRD f1
+Exception ignored in: <function WeakSet.__init__.<locals>._remove at 0x7f6bdb7596c0>
+Traceback (most recent call last):
+  File "/home/sagemaker-user/SageMaker/envs/t2s/lib/python3.11/_weakrefset.py", line 39, in _remove
+    def _remove(item, selfref=ref(self)):
+
+func_timeout.dafunc.FunctionTimedOut-3462848317915027641: Function execute_sql (args=("SELECT T1.format, T2.name FROM legalities AS T1 INNER JOIN cards AS T2 ON T1.uuid = T2.uuid WHERE T1.status = 'Banned' GROUP BY T1.format ORDER BY COUNT(T1.status) DESC LIMIT 1", "WITH MaxBanned AS (SELECT format, COUNT(*) AS count_banned FROM legalities WHERE status = 'Banned' GROUP BY format ORDER BY COUNT(*) DESC LIMIT 1) SELECT T2.format, T1.name FROM cards AS T1 INNER JOIN legalities AS T2 ON T2.uuid = T1.uuid INNER JOIN MaxBanned MB ON MB.format = T2.format WHERE T2.status = 'Banned'", '/home/sagemaker-user/Marl-SQL/text2sql-rl/data/bird_dev/dev_databases/card_games/card_games.sqlite', 'SQLite', <function calculate_f1_score at 0x7f6bdb817f60>)) (kwargs={}) timed out after 30.000000 seconds.
+
+start calculate Soft F1
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    Soft-F1    =====================================
+Soft-F1              39.10                17.56                18.47                30.63               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== dpo: BIRD ex
+start calculate EX
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    EX    =====================================
+EX                   35.78                17.24                11.03                27.84               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== dpo: BIRD f1
+start calculate Soft F1
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    Soft-F1    =====================================
+Soft-F1              38.16                18.49                13.85                29.91               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== grpo: BIRD ex
+start calculate EX
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    EX    =====================================
+EX                   45.73                21.34                22.07                36.11               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== grpo: BIRD f1
+start calculate Soft F1
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    Soft-F1    =====================================
+Soft-F1              47.03                22.96                23.33                37.51               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== rloo: BIRD ex
+start calculate EX
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    EX    =====================================
+EX                   46.81                22.41                20.69                36.96               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== rloo: BIRD f1
+start calculate Soft F1
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    Soft-F1    =====================================
+Soft-F1              48.60                23.61                23.12                38.63               
+===========================================================================================
+Finished EX evaluation for SQLite on Mini Dev set
+
+
+
+=== base: BIRD ves
+start calculate R-VES
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    R-VES    =====================================
+R-VES                34.72                15.52                16.28                27.17               
+===========================================================================================
+Finished R-VES evaluation for SQLite on Mini Dev set
+
+
+
+=== dpo: BIRD ves
+start calculate R-VES
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    R-VES    =====================================
+R-VES                33.29                15.91                9.34                 25.77               
+===========================================================================================
+Finished R-VES evaluation for SQLite on Mini Dev set
+
+
+
+=== grpo: BIRD ves
+start calculate R-VES
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    R-VES    =====================================
+R-VES                43.37                19.98                20.77                34.16               
+===========================================================================================
+Finished R-VES evaluation for SQLite on Mini Dev set
+
+
+
+=== rloo: BIRD ves
+start calculate R-VES
+                     simple               moderate             challenging          total               
+count                925                  464                  145                  1534                
+======================================    R-VES    =====================================
+R-VES                44.04                20.97                19.49                34.74               
+===========================================================================================
+Finished R-VES evaluation for SQLite on Mini Dev set
+
+
+
+done: results/<tag>/bird_dev/official_bird.txt

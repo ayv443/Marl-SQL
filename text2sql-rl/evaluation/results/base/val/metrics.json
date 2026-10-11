@@ -1,0 +1,8 @@
+{
+  "split": "val",
+  "model": "base",
+  "n": 409,
+  "EX": 0.6185819070904646,
+  "valid_sql_rate": 0.8190709046454768,
+  "EX_by_difficulty": {}
+}

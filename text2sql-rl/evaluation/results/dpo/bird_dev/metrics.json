@@ -1,0 +1,12 @@
+{
+  "split": "bird_dev",
+  "model": "dpo",
+  "n": 1534,
+  "EX": 0.2438070404172099,
+  "valid_sql_rate": 0.6558018252933507,
+  "EX_by_difficulty": {
+    "simple": 0.3210810810810811,
+    "moderate": 0.14655172413793102,
+    "challenging": 0.06206896551724138
+  }
+}

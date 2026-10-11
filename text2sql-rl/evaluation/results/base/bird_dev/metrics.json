@@ -1,0 +1,12 @@
+{
+  "split": "bird_dev",
+  "model": "base",
+  "n": 1534,
+  "EX": 0.26792698826597133,
+  "valid_sql_rate": 0.5514993481095176,
+  "EX_by_difficulty": {
+    "simple": 0.3427027027027027,
+    "moderate": 0.15301724137931033,
+    "challenging": 0.15862068965517243
+  }
+}

@@ -1,0 +1,2 @@
+dpo bird_dev: 20 of 1534 predictions over 30 s or 100,000+ rows scored as wrong
+indexes: [49, 59, 106, 151, 223, 321, 354, 391, 393, 458, 591, 605, 641, 708, 773, 889, 890, 1010, 1357, 1503]

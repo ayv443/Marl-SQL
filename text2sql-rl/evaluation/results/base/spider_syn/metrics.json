@@ -1,0 +1,8 @@
+{
+  "split": "spider_syn",
+  "model": "base",
+  "n": 1034,
+  "EX": 0.49806576402321084,
+  "valid_sql_rate": 0.7882011605415861,
+  "EX_by_difficulty": {}
+}

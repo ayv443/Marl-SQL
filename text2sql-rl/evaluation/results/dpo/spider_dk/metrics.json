@@ -1,0 +1,8 @@
+{
+  "split": "spider_dk",
+  "model": "dpo",
+  "n": 535,
+  "EX": 0.5420560747663551,
+  "valid_sql_rate": 0.8859813084112149,
+  "EX_by_difficulty": {}
+}

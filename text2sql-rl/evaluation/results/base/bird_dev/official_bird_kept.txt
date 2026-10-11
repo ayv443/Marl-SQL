@@ -1,0 +1,2 @@
+base bird_dev: 2 of 1534 predictions over 30 s or 100,000+ rows scored as wrong
+indexes: [106, 1118]

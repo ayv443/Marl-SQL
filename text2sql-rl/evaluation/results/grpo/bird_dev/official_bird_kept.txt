@@ -1,0 +1,2 @@
+grpo bird_dev: 5 of 1534 predictions over 30 s or 100,000+ rows scored as wrong
+indexes: [106, 367, 369, 610, 621]

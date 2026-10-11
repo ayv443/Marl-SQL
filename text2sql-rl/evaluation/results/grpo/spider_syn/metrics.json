@@ -1,0 +1,8 @@
+{
+  "split": "spider_syn",
+  "model": "grpo",
+  "n": 1034,
+  "EX": 0.5880077369439072,
+  "valid_sql_rate": 0.9013539651837524,
+  "EX_by_difficulty": {}
+}

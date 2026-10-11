@@ -1,0 +1,8 @@
+{
+  "split": "val",
+  "model": "curve/grpo-1.5b-s0/step200",
+  "n": 409,
+  "EX": 0.7163814180929096,
+  "valid_sql_rate": 0.9364303178484108,
+  "EX_by_difficulty": {}
+}
