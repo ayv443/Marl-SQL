@@ -2,7 +2,7 @@
 
 Qwen2.5-Coder-1.5B-Instruct + LoRA, trained on Spider with DPO, GRPO and RLOO, evaluated on
 Spider dev (EX, TS), Spider-Syn/DK/Realistic, and BIRD dev (EX, Soft-F1, R-VES).
-Who does what is in [TEAM_PLAN.md](TEAM_PLAN.md); the GRPO and RLOO owners' step-by-step plans are in `../team/`.
+Who does what is in [TEAM_PLAN.md](TEAM_PLAN.md).
 
 ## Files
 
@@ -56,7 +56,7 @@ nohup python train_rl.py --method grpo --seed 0 --max_steps 600 --lr 5e-5 > logs
 nohup python train_rl.py --method rloo --seed 0 --max_steps 600 --lr 5e-5 > logs_rloo.txt 2>&1 &
 bash collect_proof.sh dpo-1.5b-s0      # after each run finishes
 
-# 5. evaluation (Phase 4); GRPO / RLOO adapters arrive via Google Drive (readme.txt section 14)
+# 5. evaluation (Phase 4); GRPO / RLOO adapters arrive via Google Drive
 python val_curve.py --runs outputs/dpo-1.5b-s0 outputs/grpo-1.5b-s0 outputs/rloo-1.5b-s0
 python evaluate.py --split spider_dev --tag base
 python evaluate.py --split spider_dev --tag grpo --adapter outputs/grpo-1.5b-s0/checkpoint-XXX   # best on val

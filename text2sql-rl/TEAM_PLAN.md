@@ -8,7 +8,6 @@ happens on one machine (Eby's), so every model is evaluated the same way.
 | --- | --- | --- | --- |
 | Trains | **DPO** | **GRPO** | **RLOO** |
 | Also | Data prep, reward check, feasibility run, `tags.json`, DPO pairs, **all evaluation**, results tables | | Gradio demo (`app.py`) |
-| Instructions | `how-to-run/readme.txt` | `team/GRPO_RETRAIN_PLAN.txt` | `team/RLOO_PLAN.txt` |
 | Report | Data & filtering, reward, DPO, evaluation setup, benchmark results | GRPO method + training dynamics | RLOO method + training dynamics, demo |
 | Together | Intro, related work, comparison / discussion, conclusion, demo rehearsal | | |
 
@@ -23,7 +22,7 @@ temperature 0.8, beta 0.04, only "mixed" questions from `tags.json`, the **same*
 
 | What | How |
 | --- | --- |
-| Code, fixes and plans | This GitHub branch (plans in `team/`). Eby pushes, the others `git pull`. Nobody else pushes to `text2sql-rl`. |
+| Code, fixes and plans | This GitHub branch. Eby pushes, the others `git pull`. Nobody else pushes to `text2sql-rl`. |
 | `tags.json` | Eby commits it after the feasibility run; the others `git pull`. |
 | Code check | Before launching, each trainer sends Eby `git log -1` (must be the latest commit) and a clean `git status`. |
 | Training proof | Each trainer runs `collect_proof.sh` and pushes `proof/<run>/` to their own branch (`grpo-run`, `rloo-run`). |
@@ -38,5 +37,3 @@ temperature 0.8, beta 0.04, only "mixed" questions from `tags.json`, the **same*
 4. All: start DPO, GRPO, RLOO inside your own Studio space (nohup) at the same time. No S3, no training jobs.
 5. Teammates: proof to their branch, checkpoint links to Eby. Aditya: demo while RLOO trains.
 6. Eby: validation curve, final evaluation, statistics, results tables. Then the report together.
-
-If someone drops out, `how-to-run/readme.txt` section 17 is the plan for doing it alone.
