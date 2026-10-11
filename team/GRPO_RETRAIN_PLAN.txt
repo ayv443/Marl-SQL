@@ -18,15 +18,13 @@ Guide:  ~/Marl-SQL/how-to-run/readme.txt (the general guide; this file is the
         GRPO-only version of it)
 Plan:   this file is in the repo: ~/Marl-SQL/team/GRPO_RETRAIN_PLAN.txt. It is updated with git pull,
         like the code, so always read the copy in the repo.
-Claude: if you use Claude Code, link team/CLAUDE_grpo.md as ~/Marl-SQL/CLAUDE.md (section 4.4).
-        It tells Claude the rules below so it doesn't change the code.
 
 Contents
   0.  Why we are retraining (what changes compared to your pilot run)
   1.  The settings (locked values)
   2.  Rules
   3.  AWS setup
-  4.  Get the code (GitHub), Claude Code, install
+  4.  Get the code (GitHub), install
   5.  W&B and settings file
   6.  Check your library versions and your code
   7.  Prepare the data and check it matches Eby's
@@ -123,8 +121,8 @@ from the method, model and seed.
 -------------------------------------------------------------
 2. RULES
 -------------------------------------------------------------
-  1. Use the code on branch text2sql-rl exactly as it is. No local edits, also not by
-     Claude Code. If something breaks, send Eby the error; the fix comes as a git pull.
+  1. Use the code on branch text2sql-rl exactly as it is. No local edits. If something
+     breaks, send Eby the error; the fix comes as a git pull.
   2. Never push to text2sql-rl or main. You may push to your own branch grpo-run (section 15).
   3. Use the versions in requirements.txt (section 6.1).
   4. Don't start the full run before (a) you have tags.json from git (section 10) and
@@ -158,7 +156,7 @@ from the method, model and seed.
 
 
 -------------------------------------------------------------
-4. GET THE CODE (GITHUB), CLAUDE CODE, INSTALL
+4. GET THE CODE (GITHUB), INSTALL
 -------------------------------------------------------------
 4.1 Start your Studio JupyterLab space (storage 50 GB), open a terminal
     (File -> New -> Terminal).
@@ -189,17 +187,6 @@ from the method, model and seed.
       conda create -p ~/SageMaker/envs/t2s python=3.11 -y
       source activate ~/SageMaker/envs/t2s
       pip install --no-cache-dir -r requirements.txt vllm==0.10.2 matplotlib scipy gradio pandas "sagemaker<3" gdown
-
-4.4 If you use Claude Code: your Claude instructions are in the repo as
-    team/CLAUDE_grpo.md. Link them as CLAUDE.md in the repo folder once:
-      cd ~/Marl-SQL
-      rm -f CLAUDE.md GRPO_RETRAIN_PLAN.txt        (old copies sent by WhatsApp, if you put them there)
-      ln -s team/CLAUDE_grpo.md CLAUDE.md
-      head -3 CLAUDE.md                 (shows "# GRPO run for the Text-to-SQL RL project")
-    Claude Code reads CLAUDE.md automatically when you start it in ~/Marl-SQL or below. It
-    tells Claude to follow this plan, not to edit any code, not to upgrade packages, and to
-    give you the full error to send to Eby when something breaks. Because it's a link, a
-    git pull updates it too. git shows CLAUDE.md as "??" (untracked); don't commit it.
 
 
 -------------------------------------------------------------
@@ -620,7 +607,6 @@ zero-variance fraction, completion length, entropy, from W&B).
 -------------------------------------------------------------
   [ ] g4dn Studio space available
   [ ] Code from GitHub, branch text2sql-rl, git status "up to date"
-  [ ] CLAUDE.md link made in ~/Marl-SQL (4.4, if you use Claude Code)
   [ ] New env, versions: trl 0.24.0, transformers 4.56.2, peft 0.17.1 (sent to Eby)
   [ ] Code check (6.2): up to date, no modified files, commit id sent to Eby
   [ ] W&B: account made, team invite accepted, default team set (or public project)
@@ -674,9 +660,8 @@ At the end (section 15):
 -------------------------------------------------------------
 When Eby says there's an update:
       cd ~/Marl-SQL && git pull
-Your data/, outputs/ and logs/ are not touched by a pull. This plan (team/GRPO_RETRAIN_PLAN.txt) and
-your Claude file (team/CLAUDE_grpo.md) are updated by the same pull, so re-read what Eby says
-has changed.
+Your data/, outputs/ and logs/ are not touched by a pull. This plan (team/GRPO_RETRAIN_PLAN.txt) is
+updated by the same pull, so re-read what Eby says has changed.
 Then run the code check (6.2) and send Eby the commit id.
 
 If your GRPO run was already going when the update came, ask Eby whether it has to be
@@ -693,7 +678,7 @@ This part is for Eby, on Eby's own SageMaker space.
      - W&B: invite her to your team (wandb.ai -> your team -> Settings / Members
        -> Invite, with the W&B email). Your team needs the academic or a paid plan; free
        accounts can't have teams. Without a team, the public-project option in 5.1 works.
-     - The plans and Claude files are in team/ in the repo; tell them to git pull after you
+     - The plans are in team/ in the repo; tell them to git pull after you
        change one. Everything else also comes through git (code, tags.json); only the
        adapters at the end come to you through Google Drive.
      - After your feasibility run, commit tags.json so both trainers can pull it:

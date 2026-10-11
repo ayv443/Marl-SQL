@@ -8,7 +8,7 @@ happens on one machine (Eby's), so every model is evaluated the same way.
 | --- | --- | --- | --- |
 | Trains | **DPO** | **GRPO** | **RLOO** |
 | Also | Data prep, reward check, feasibility run, `tags.json`, DPO pairs, **all evaluation**, results tables | | Gradio demo (`app.py`) |
-| Instructions | `how-to-run/readme.txt` | `team/GRPO_RETRAIN_PLAN.txt` + `team/CLAUDE_grpo.md` | `team/RLOO_PLAN.txt` + `team/CLAUDE_rloo.md` |
+| Instructions | `how-to-run/readme.txt` | `team/GRPO_RETRAIN_PLAN.txt` | `team/RLOO_PLAN.txt` |
 | Report | Data & filtering, reward, DPO, evaluation setup, benchmark results | GRPO method + training dynamics | RLOO method + training dynamics, demo |
 | Together | Intro, related work, comparison / discussion, conclusion, demo rehearsal | | |
 

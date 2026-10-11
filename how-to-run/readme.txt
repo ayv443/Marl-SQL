@@ -9,9 +9,8 @@ Who does what (since 8 Oct), three AWS accounts training at the same time:
   - GRPO teammate: GRPO, on her own AWS account.
   - Aditya: RLOO on his own AWS account, plus the Gradio demo.
   Both teammates use this GitHub branch (git pull for updates) and follow their own plan,
-  which is in the repo too: team/GRPO_RETRAIN_PLAN.txt and team/RLOO_PLAN.txt, with
-  team/CLAUDE_grpo.md and team/CLAUDE_rloo.md for Claude Code. When a plan changes, push it
-  and tell them to git pull: no more sending files. Section 22 of each plan explains how
+  which is in the repo too: team/GRPO_RETRAIN_PLAN.txt and team/RLOO_PLAN.txt. When a plan
+  changes, push it and tell them to git pull: no more sending files. Section 22 of each plan explains how
   Eby receives and checks their model. (The plans are generated from one template on Eby's
   laptop, plan-generator/gen_plans.py, so both stay identical apart from the method.)
   (Where this guide says "Person A" / "Person B", read it with this split in mind.
@@ -29,10 +28,10 @@ WHERE WE ARE (updated as we go)
   [x] Reward check passed (section 5), also after the extract_sql() fix.
   [x] vLLM works on the T4. 50-question feasibility test after the fix: pass@1 0.615,
       pass@8 0.90, 62% mixed, valid SQL 0.76.
-  [x] GRPO plan, CLAUDE.md and code bundle sent to the teammate.
+  [x] GRPO plan and code bundle sent to the teammate.
   [x] 8 Oct: Aditya added her to GitHub, so no more bundles: both teammates use git pull.
-      Aditya trains RLOO (+ demo). Their plans + Claude files are now in team/ in the repo
-      (no more WhatsApp files); each links team/CLAUDE_<method>.md as ~/Marl-SQL/CLAUDE.md.
+      Aditya trains RLOO (+ demo). Their plans are now in team/ in the repo (no more
+      WhatsApp files).
   [x] 6.1 failure check: only 3 of 400 attempts "no SQL found", 94 real SQL errors
       (wrong tables/columns). Reward is fine.
   [x] First full feasibility attempt crashed: a few training prompts are ~8,850 tokens
