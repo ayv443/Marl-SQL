@@ -9,9 +9,8 @@ Who does what (since 8 Oct), three AWS accounts training at the same time:
   - GRPO teammate: GRPO, on her own AWS account.
   - Aditya: RLOO on his own AWS account, plus the Gradio demo.
   Both teammates use this GitHub branch (git pull for updates) and follow their own plan,
-  which is in the repo too: team/GRPO_RETRAIN_PLAN.txt and team/RLOO_PLAN.txt, with
-  team/CLAUDE_grpo.md and team/CLAUDE_rloo.md for Claude Code. When a plan changes, push it
-  and tell them to git pull: no more sending files. Section 22 of each plan explains how
+  which is in the repo too: team/GRPO_RETRAIN_PLAN.txt and team/RLOO_PLAN.txt. When a plan
+  changes, push it and tell them to git pull: no more sending files. Section 22 of each plan explains how
   Eby receives and checks their model. (The plans are generated from one template on Eby's
   laptop, plan-generator/gen_plans.py, so both stay identical apart from the method.)
   (Where this guide says "Person A" / "Person B", read it with this split in mind.
@@ -29,10 +28,10 @@ WHERE WE ARE (updated as we go)
   [x] Reward check passed (section 5), also after the extract_sql() fix.
   [x] vLLM works on the T4. 50-question feasibility test after the fix: pass@1 0.615,
       pass@8 0.90, 62% mixed, valid SQL 0.76.
-  [x] GRPO plan, CLAUDE.md and code bundle sent to the teammate.
+  [x] GRPO plan and code bundle sent to the teammate.
   [x] 8 Oct: Aditya added her to GitHub, so no more bundles: both teammates use git pull.
-      Aditya trains RLOO (+ demo). Their plans + Claude files are now in team/ in the repo
-      (no more WhatsApp files); each links team/CLAUDE_<method>.md as ~/Marl-SQL/CLAUDE.md.
+      Aditya trains RLOO (+ demo). Their plans are now in team/ in the repo (no more
+      WhatsApp files).
   [x] 6.1 failure check: only 3 of 400 attempts "no SQL found", 94 real SQL errors
       (wrong tables/columns). Reward is fine.
   [x] First full feasibility attempt crashed: a few training prompts are ~8,850 tokens
@@ -62,6 +61,78 @@ WHERE WE ARE (updated as we go)
   [x] Decided 8 Oct: 1.5B model, max_steps 600 for both GRPO and RLOO. If their smoke test
       passes (rules in their plan, section 10.3) they start the full run without waiting.
       Their real run must print "training on 3457 questions (only_mixed=True)".
+  [x] DPO full run FINISHED 7 Oct 19:40 UTC: 495/495 steps in 4h 15m (~30.8 s/step),
+      checkpoints 100-400, 495, final. W&B run mkbi5h4u.
+  [x] GRPO (teammate) FINISHED 8 Oct 03:09 UTC: 600/600 steps in 5h 47m (34.7 s/step, peak
+      8.48 GB), commit ad2d4b0, correct settings and versions. Training reward 0.57 -> 0.79,
+      valid SQL 0.80 -> 0.94, two short KL spikes (steps 99, 357; one fp16 overflow step
+      skipped). Proof on branch grpo-run; adapters archive checked (all checkpoints, trained
+      weights, no NaN, final == checkpoint-600).
+  [x] DPO proof collected (Project-RL space, peak 11.87 GB).
+  [x] RLOO (Aditya) FINISHED 8 Oct 10:46 UTC: 600/600 steps in 6h 32m (39.3 s/step, peak
+      8.48 GB), commit 1e7310a (same code as GRPO's ad2d4b0: only docs differ), correct
+      settings and versions. Execution reward 0.62 -> 0.81 (GRPO: 0.65 -> 0.81), valid SQL
+      0.79 -> 0.93. 3 steps with NaN grad_norm (fp16 overflow, step skipped, loss fine).
+      For the report: RLOO's logged "reward" includes the KL penalty, so compare
+      rewards/execution_reward/mean between GRPO and RLOO, not "reward"; and RLOO's
+      frac_reward_zero_std is ~0 because KL-adjusted rewards never tie (not comparable).
+  [x] All three adapters unpacked on Eby's space and checked (1.5B, r 16, 7 modules, 495/495,
+      600/600, 600/600). Load test on 20 val questions: base 0.35, DPO 0.25, GRPO 0.55,
+      RLOO 0.45 EX (too few questions to judge, only proves they load). Proofs committed.
+  [x] First val_curve attempt: CUDA out of memory in vLLM's FlexAttention on the long val
+      prompts. Fixed: gpu_memory_utilization 0.85 -> 0.6 in generation.py.
+  [x] Validation curve (409 val questions, base 0.619): DPO 0.579 / 0.491 / 0.443 / 0.428 /
+      0.411 (steps 100-495, falls below base: likelihood displacement, chosen logp -30.8 ->
+      -47.1); GRPO 0.709 / 0.716 / 0.736 / 0.743 / 0.738 / 0.741; RLOO 0.707 / 0.726 / 0.719 /
+      0.736 / 0.736 / 0.743. Best: DPO step 100, GRPO step 400, RLOO step 600.
+  [x] Final evaluation (our EX, greedy):
+                   Spider dev  Spider-Syn  Spider-DK  BIRD dev   (valid SQL on Spider dev)
+        base         0.617       0.498       0.548      0.268     0.837
+        dpo  (100)   0.596       0.467       0.542      0.244     0.894
+        grpo (400)   0.715       0.588       0.622      0.332     0.929
+        rloo (600)   0.721       0.585       0.617      0.337     0.939
+  [x] Statistics (analysis.py compare, our EX): GRPO and RLOO beat base on every benchmark
+      (McNemar p < 0.0001); GRPO vs RLOO never significant (p 0.48 / 0.84 / 0.75 / 0.62);
+      DPO below base, significant on Spider-Syn (p 0.043) and BIRD (p 0.040) only.
+  [x] Official Spider: base done (Spider dev EX 0.652 / TS 0.561, Syn 0.531 / 0.431, DK EX
+      0.590 on 532 of 535 questions: 3 broken gold queries). DPO hung: one very slow predicted
+      query and the official timeout doesn't work. Fixed with a real 60 s pre-check.
+  [x] 10 Oct: the gold check wrongly flagged 2 Spider dev / Syn gold queries as broken (it
+      didn't ignore non-UTF-8 text like the official script does). Fixed; re-run the official
+      Spider scores for ALL four models so every model uses the same questions.
+  [x] 10 Oct: run_official_eval.sh can now carry on after a restart: each finished split
+      writes official_done.txt and is skipped next time. Splits finished by the run started
+      before this change have no such file: check logs_spider_official3.txt to see which.
+  [x] 10 Oct: the run froze the space during dpo / spider_syn (terminal unresponsive), most
+      likely a predicted query with a huge result filling the memory. Fixed (11.2): the
+      pre-check now also runs on the test-suite databases and catches 100,000+ row results,
+      plus a ~20 GB memory cap. Re-run all four models so they use the same rules.
+  [x] 10-11 Oct: official Spider done for all four (11.2), memory cap active, no freeze.
+      Spider-DK: 534 of 535 kept (1 broken gold query). Slow or huge predictions scored as
+      wrong: DPO 10 dev / 12 syn / 8 dk, all other models 0.
+                   Spider dev EX / TS   Spider-Syn EX / TS   Spider-DK EX
+        base         0.652 / 0.561        0.531 / 0.431        0.590
+        dpo  (100)   0.627 / 0.529        0.488 / 0.398        0.560
+        grpo (400)   0.746 / 0.653        0.614 / 0.502        0.654
+        rloo (600)   0.756 / 0.661        0.619 / 0.516        0.661
+      Official EX is ~3 points above our EX because it ignores column order. Same picture:
+      GRPO and RLOO about +10 points over base, RLOO a hair ahead, DPO below base.
+  [x] run_bird_eval.sh got the same protection before its first run: pre-check (30 s
+      limit, 100,000+ rows), ~3.5 GB memory cap per process, skips finished metrics.
+  [x] 11 Oct: BIRD official (11.3), full dev set, 1534 questions (the scripts print "mini dev
+      set" but we gave them the full dev set). In %, total (simple / moderate / challenging):
+                   EX                         Soft-F1    R-VES
+        base       29.14 (37.19/16.59/17.93)  30.63      27.17
+        dpo        27.84 (35.78/17.24/11.03)  29.91      25.77
+        grpo       36.11 (45.73/21.34/22.07)  37.51      34.16
+        rloo       36.96 (46.81/22.41/20.69)  38.63      34.74
+      Slow or huge predictions scored as wrong: base 2, dpo 20, grpo 5, rloo 4 (question 106
+      for every model). Same picture as Spider: GRPO and RLOO about +7 points over base, RLOO a
+      hair ahead (not significant in our McNemar test), DPO a bit below base.
+  [x] 11 Oct: all results are in the repo: RESULTS.md (every table, with links) and
+      text2sql-rl/evaluation/ (results/ from Studio, statistics from analysis.py compare,
+      feasibility files, evaluation logs). Training records are in text2sql-rl/proof/.
+  [ ] NOW: all evaluation done. Next: fill Table 5 in the report.
   [x] 8 Oct (question from Aditya): TRL 0.24's GRPO and RLOO differ in more than the advantage
       (KL in the loss per token vs in the reward per answer; token- vs sequence-level loss).
       Kept as is (standard TRL implementations); explain in the report (README "Settings
@@ -528,7 +599,7 @@ Get and check them with section 22 of their plans:
       git fetch origin grpo-run
       git checkout origin/grpo-run -- text2sql-rl/proof/grpo-1.5b-s0
       cd text2sql-rl && mkdir -p outputs
-      gdown --fuzzy "<Google Drive link>" -O /tmp/grpo.tar.gz
+      gdown "<Google Drive link>" -O /tmp/grpo.tar.gz
       tar xzf /tmp/grpo.tar.gz -C outputs
     (same with rloo), then the checks in 22.4 and 22.5 of their plans.
 
@@ -577,26 +648,51 @@ NEVER pick checkpoints using Spider dev or BIRD dev.
        predict_dev.json    for the BIRD official scripts
 
 11.2 Official Spider EX and Test-Suite accuracy (also gives EX by easy/medium/hard/extra):
+     The test-suite script needs two extra packages (once):
+       pip install sqlparse nltk
+       python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
       bash run_official_eval.sh base
       bash run_official_eval.sh dpo
       bash run_official_eval.sh grpo
       bash run_official_eval.sh rloo
      Results are printed and saved in results/<tag>/<split>/official_ex.txt and official_ts.txt.
      Use the "execution" row, "all" column.
+     To run only some splits: bash run_official_eval.sh grpo spider_dk
+     Each finished split gets results/<tag>/<split>/official_done.txt and is skipped the next
+     time, so if the run stops (space restarted, terminal died) just start the same command
+     again and it carries on. To redo a split, delete its official_done.txt first.
+     To watch it (progress bar, current step, memory use, updates every 30 s):
+       bash progress_official.sh logs_spider_official5.txt
+     Ctrl+C closes the view only (not Ctrl+Z); the run keeps going in the background.
+     Questions whose gold query is broken in the dataset are left out for every model; the
+     count is in results/<tag>/<split>/official_kept.txt. Report it in the paper.
+     The official script's 60 s timeout does not work (it can't interrupt a running sqlite
+     query), so one very slow predicted query can block it for hours. run_official_eval.sh
+     therefore runs every prediction once with a real 60 s limit first and scores the slow ones
+     as wrong, which is what the official timeout is meant to do. Also counted in
+     official_kept.txt.
+     Since 10 Oct this check runs on every database the official script uses (the original
+     one AND the test-suite copies) and also catches predictions that return 100,000+ rows:
+     the official script loads the whole result into memory, and one such query froze the
+     Studio space (terminal stopped responding) during dpo / spider_syn. The script also
+     caps its memory at ~20 GB so it stops with an error instead of freezing the space.
      Spider-DK only gets EX, no TS: it has 3 extra databases (new_concert_singer,
      new_orchestra, new_pets_1) that the test-suite databases don't include. Say so in the report.
 
-11.3 BIRD official EX, Soft-F1 and R-VES:
-     Open eval_repos/mini_dev/evaluation/run_evaluation.sh and set the paths at the top to:
-       predicted sql json : results/<tag>/bird_dev/predict_dev.json
-       ground truth sql   : data/bird_dev/dev.sql
-       db root            : data/bird_dev/dev_databases/
-       difficulty json    : data/bird_dev/dev.json
-       dialect            : SQLite
-     then run it once per model:
-       cd eval_repos/mini_dev/evaluation && sh run_evaluation.sh && cd -
-     R-VES measures speed, so run it when NO training or other eval is running on
-     that machine, and do all four models in the same session.
+11.3 BIRD official EX, Soft-F1 and R-VES (needs results/<tag>/bird_dev/ from 11.1):
+      pip install func-timeout psycopg2-binary pymysql      (once; BIRD's scripts import these)
+      setsid nohup bash run_bird_eval.sh base dpo grpo rloo > logs_bird.txt 2>&1 &
+      bash progress_official.sh logs_bird.txt bird           (live progress, Ctrl+C closes it)
+     Before scoring, each prediction is run once with a real 30 s limit; ones that time out or
+     return 100,000+ rows are scored as wrong (the official scripts would too, but they can't
+     interrupt sqlite and load the whole result into memory). Count in
+     results/<tag>/bird_dev/official_bird_kept.txt. Each finished metric is skipped if you run
+     the command again (after a restart), see the top of run_bird_eval.sh.
+     It runs BIRD's own evaluation_ex.py, evaluation_f1.py and evaluation_ves.py for each model
+     and writes results/<tag>/bird_dev/official_bird.txt (scores per simple / moderate /
+     challenging / total, in %). EX and Soft-F1 take minutes; R-VES runs every correct query
+     100 times, so it can take hours. R-VES measures speed: run it when nothing else is
+     running on the machine, all four models in the same session (the script does that).
 
 11.4 Fill in the two results tables from the plan using these numbers.
      Save the final table as results/results_table.md (the Gradio demo shows it).
@@ -655,9 +751,11 @@ Model checkpoints (on different Studio spaces, no S3): Google Drive.
 
   Eby (on the evaluation space):
       cd ~/Marl-SQL/text2sql-rl && mkdir -p outputs
-      gdown --fuzzy "<link>" -O /tmp/grpo.tar.gz
+      gdown "<link>" -O /tmp/grpo.tar.gz
       tar xzf /tmp/grpo.tar.gz -C outputs
-  If gdown fails, download it in the browser and upload it with the file browser instead.
+  The link must be a Google Drive FILE link (https://drive.google.com/file/d/.../view...),
+  not a W&B / CoreWeave profile link. If gdown fails, or you already have the file on your
+  laptop, upload it with the JupyterLab file browser (upload button) into your home folder.
   When done, the trainer can switch the Drive link back to "Restricted".
 
 
@@ -714,6 +812,19 @@ Script printed "FINISHED after ..." but the process is still running
        run. The results were already saved (FINISHED is printed after saving). Stop it:
          pkill -f sample.py; pkill -f evaluate.py; pkill -f EngineCore
        and check nvidia-smi is empty. git pull to get the fix.
+
+"AssertionError: gold query ... has error on database file ..." from the Spider script
+    -> the dataset itself has a broken gold query (Spider-DK has at least one, a missing comma
+       in "SELECT T1.fname , T1.LName T1.age ..."). Since 9 Oct run_official_eval.sh leaves
+       questions with a broken gold query out for every model and saves the count in
+       results/<tag>/<split>/official_kept.txt (also "our EX" on the same kept questions).
+       Re-run just that split: bash run_official_eval.sh <tag> spider_dk
+
+"torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.31 GiB" inside
+ flex_attention / create_block_mask (during evaluate.py or val_curve.py)
+    -> vLLM reserved 85% of the T4, and FlexAttention's block mask on long validation
+       prompts didn't fit in the rest. Fixed 8 Oct: generation.py now uses
+       gpu_memory_utilization=0.6. git pull, check nvidia-smi is empty, run it again.
 
 "ValueError: The decoder prompt (length ...) is longer than the maximum model length"
     -> you have old code (vLLM limit 8192). git pull: the limit is now 32768 and sample.py
