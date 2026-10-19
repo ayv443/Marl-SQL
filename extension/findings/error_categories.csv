@@ -1,0 +1,113 @@
+split,model,category,count,total
+spider_dev,base,Correct,638,1034
+spider_dev,dpo,Correct,616,1034
+spider_dev,grpo,Correct,739,1034
+spider_dev,rloo,Correct,746,1034
+spider_dev,base,SQL error,169,1034
+spider_dev,dpo,SQL error,110,1034
+spider_dev,grpo,SQL error,73,1034
+spider_dev,rloo,SQL error,63,1034
+spider_dev,base,Wrong tables,75,1034
+spider_dev,dpo,Wrong tables,97,1034
+spider_dev,grpo,Wrong tables,66,1034
+spider_dev,rloo,Wrong tables,68,1034
+spider_dev,base,Nesting / set operation,38,1034
+spider_dev,dpo,Nesting / set operation,49,1034
+spider_dev,grpo,Nesting / set operation,29,1034
+spider_dev,rloo,Nesting / set operation,40,1034
+spider_dev,base,Aggregation,19,1034
+spider_dev,dpo,Aggregation,29,1034
+spider_dev,grpo,Aggregation,25,1034
+spider_dev,rloo,Aggregation,19,1034
+spider_dev,base,Grouping / ordering,18,1034
+spider_dev,dpo,Grouping / ordering,38,1034
+spider_dev,grpo,Grouping / ordering,14,1034
+spider_dev,rloo,Grouping / ordering,19,1034
+spider_dev,base,Columns / conditions,77,1034
+spider_dev,dpo,Columns / conditions,95,1034
+spider_dev,grpo,Columns / conditions,88,1034
+spider_dev,rloo,Columns / conditions,79,1034
+spider_syn,base,Correct,515,1034
+spider_syn,dpo,Correct,483,1034
+spider_syn,grpo,Correct,608,1034
+spider_syn,rloo,Correct,605,1034
+spider_syn,base,SQL error,219,1034
+spider_syn,dpo,SQL error,169,1034
+spider_syn,grpo,SQL error,102,1034
+spider_syn,rloo,SQL error,107,1034
+spider_syn,base,Wrong tables,135,1034
+spider_syn,dpo,Wrong tables,158,1034
+spider_syn,grpo,Wrong tables,150,1034
+spider_syn,rloo,Wrong tables,145,1034
+spider_syn,base,Nesting / set operation,35,1034
+spider_syn,dpo,Nesting / set operation,38,1034
+spider_syn,grpo,Nesting / set operation,39,1034
+spider_syn,rloo,Nesting / set operation,36,1034
+spider_syn,base,Aggregation,17,1034
+spider_syn,dpo,Aggregation,37,1034
+spider_syn,grpo,Aggregation,22,1034
+spider_syn,rloo,Aggregation,17,1034
+spider_syn,base,Grouping / ordering,26,1034
+spider_syn,dpo,Grouping / ordering,34,1034
+spider_syn,grpo,Grouping / ordering,18,1034
+spider_syn,rloo,Grouping / ordering,23,1034
+spider_syn,base,Columns / conditions,87,1034
+spider_syn,dpo,Columns / conditions,115,1034
+spider_syn,grpo,Columns / conditions,95,1034
+spider_syn,rloo,Columns / conditions,101,1034
+spider_dk,base,Correct,293,535
+spider_dk,dpo,Correct,290,535
+spider_dk,grpo,Correct,333,535
+spider_dk,rloo,Correct,330,535
+spider_dk,base,SQL error,86,535
+spider_dk,dpo,SQL error,61,535
+spider_dk,grpo,SQL error,44,535
+spider_dk,rloo,SQL error,32,535
+spider_dk,base,Wrong tables,49,535
+spider_dk,dpo,Wrong tables,56,535
+spider_dk,grpo,Wrong tables,53,535
+spider_dk,rloo,Wrong tables,56,535
+spider_dk,base,Nesting / set operation,29,535
+spider_dk,dpo,Nesting / set operation,26,535
+spider_dk,grpo,Nesting / set operation,25,535
+spider_dk,rloo,Nesting / set operation,30,535
+spider_dk,base,Aggregation,13,535
+spider_dk,dpo,Aggregation,20,535
+spider_dk,grpo,Aggregation,12,535
+spider_dk,rloo,Aggregation,15,535
+spider_dk,base,Grouping / ordering,14,535
+spider_dk,dpo,Grouping / ordering,18,535
+spider_dk,grpo,Grouping / ordering,9,535
+spider_dk,rloo,Grouping / ordering,12,535
+spider_dk,base,Columns / conditions,51,535
+spider_dk,dpo,Columns / conditions,64,535
+spider_dk,grpo,Columns / conditions,59,535
+spider_dk,rloo,Columns / conditions,60,535
+bird_dev,base,Correct,411,1534
+bird_dev,dpo,Correct,374,1534
+bird_dev,grpo,Correct,510,1534
+bird_dev,rloo,Correct,517,1534
+bird_dev,base,SQL error,688,1534
+bird_dev,dpo,SQL error,528,1534
+bird_dev,grpo,SQL error,494,1534
+bird_dev,rloo,SQL error,484,1534
+bird_dev,base,Wrong tables,175,1534
+bird_dev,dpo,Wrong tables,252,1534
+bird_dev,grpo,Wrong tables,193,1534
+bird_dev,rloo,Wrong tables,206,1534
+bird_dev,base,Nesting / set operation,56,1534
+bird_dev,dpo,Nesting / set operation,74,1534
+bird_dev,grpo,Nesting / set operation,110,1534
+bird_dev,rloo,Nesting / set operation,105,1534
+bird_dev,base,Aggregation,39,1534
+bird_dev,dpo,Aggregation,71,1534
+bird_dev,grpo,Aggregation,44,1534
+bird_dev,rloo,Aggregation,47,1534
+bird_dev,base,Grouping / ordering,73,1534
+bird_dev,dpo,Grouping / ordering,106,1534
+bird_dev,grpo,Grouping / ordering,81,1534
+bird_dev,rloo,Grouping / ordering,71,1534
+bird_dev,base,Columns / conditions,92,1534
+bird_dev,dpo,Columns / conditions,129,1534
+bird_dev,grpo,Columns / conditions,102,1534
+bird_dev,rloo,Columns / conditions,104,1534
