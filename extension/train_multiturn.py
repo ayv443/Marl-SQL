@@ -1,4 +1,4 @@
-# Multi-turn RLOO: training inside the multi-turn environment.
+# Multi-turn RLOO / GRPO: training inside the multi-turn environment.
 #
 # One episode = one question. The model answers, the environment runs the SQL and (if it failed, or in
 # --mode all always) sends back the error or the first rows, and the model can answer again, for up to
@@ -9,6 +9,8 @@
 # For each question K episodes are sampled. Advantage = RLOO leave-one-out baseline:
 #     A_i = R_i - mean(R_j for j != i)
 # with a per-sequence KL penalty to the starting policy subtracted from R (as in TRL's RLOO).
+# --method grpo instead uses A_i = (R_i - group mean) / group std and adds the KL to the loss per token
+# (k3 estimator), the same way TRL's GRPO trainer does in the single-turn runs.
 # The policy gradient uses the log-probabilities of every token the model wrote in every turn of the
 # episode; the prompt and the environment feedback are masked out. One update per batch (on-policy).
 #
@@ -182,6 +184,17 @@ def ref_logps(model, ids, mask, args):
 
 # ---------------------------------------------------------------- training
 
+def grpo_advantages(eps, k):
+    # GRPO: (R - group mean) / group std, on the reward without KL (KL is a loss term instead)
+    adv = []
+    for g in range(0, len(eps), k):
+        rs = [e["reward"] for e in eps[g:g + k]]
+        mean = sum(rs) / k
+        std = (sum((r - mean) ** 2 for r in rs) / (k - 1)) ** 0.5
+        adv += [(r - mean) / (std + 1e-4) for r in rs]
+    return adv
+
+
 def rloo_advantages(eps, k):
     adv = []
     for g in range(0, len(eps), k):
@@ -215,17 +228,27 @@ def train_step(model, tok, opt, scaler, questions, args):
             with torch.autocast(args.device, dtype=torch.float16, enabled=args.device == "cuda"):
                 lp = token_logps(model, e["ids"], e["mask"], args.device)
             e["kl"] = float((lp - e["ref"]).sum())
-    for e in eps:
-        e["reward_kl"] = e["reward"] - args.beta * e["kl"]
-    adv = rloo_advantages(eps, args.num_generations)
+    if args.method == "rloo":  # RLOO: KL subtracted from the reward, leave-one-out baseline
+        for e in eps:
+            e["reward_kl"] = e["reward"] - args.beta * e["kl"]
+        adv = rloo_advantages(eps, args.num_generations)
+    else:  # GRPO: normalised group advantage, KL added to the loss per token
+        for e in eps:
+            e["reward_kl"] = e["reward"]
+        adv = grpo_advantages(eps, args.num_generations)
 
     # policy gradient: -A * mean log-prob of the episode's own tokens, averaged over episodes
     for e, a in zip(eps, adv):
-        if e["ref"] is None or a == 0:
+        kl_in_loss = args.method == "grpo" and args.beta > 0
+        if e["ref"] is None or (a == 0 and not kl_in_loss):
             continue
         with torch.autocast(args.device, dtype=torch.float16, enabled=args.device == "cuda"):
             lp = token_logps(model, e["ids"], e["mask"], args.device)
-            loss = -a * lp.mean() / len(eps)
+            loss = -a * lp.mean()
+            if kl_in_loss:  # k3 estimator of KL(policy || ref), per token, as in TRL GRPO
+                d = e["ref"] - lp
+                loss = loss + args.beta * (torch.exp(d) - d - 1).mean()
+            loss = loss / len(eps)
         scaler.scale(loss).backward()
         stats["loss"] += loss.item()
     scaler.unscale_(opt)
@@ -256,6 +279,7 @@ def main():
     ap.add_argument("--init_adapter", default=None, help="start from this LoRA checkpoint (e.g. RLOO step 600)")
     ap.add_argument("--run_name", default="mt-rloo-1.5b-s0")
     ap.add_argument("--output_root", default=os.path.expanduser("~/outputs"))
+    ap.add_argument("--method", default="rloo", choices=["rloo", "grpo"])
     ap.add_argument("--mode", default="errors", choices=["errors", "all"])
     ap.add_argument("--turns", type=int, default=3)
     ap.add_argument("--turn_penalty", type=float, default=0.05)

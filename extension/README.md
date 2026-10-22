@@ -69,7 +69,7 @@ Then the same for BIRD dev if there is time (`--split bird_dev`). Run long jobs 
 closed browser tab does not stop them, and keep every `findings/multiturn/` folder: commit them to this
 branch afterwards (`per_question.jsonl` and `metrics.json` are small text files).
 
-## 3. Multi-turn RLOO training (GPU)
+## 3. Multi-turn RLOO and GRPO training (GPU)
 
 `train_multiturn.py` trains the policy inside the multi-turn environment, so the agent learns to use the
 execution feedback instead of only seeing it at test time.
@@ -81,6 +81,9 @@ execution feedback instead of only seeing it at test time.
 - RLOO: 4 episodes per question, advantage = reward minus the mean of the other 3 episodes, KL to the
   starting policy subtracted from the reward (beta 0.04, same as before). The gradient goes through every
   token the model wrote in every turn; the prompt and the feedback are masked out.
+- `--method grpo` uses the GRPO advantage instead ((reward minus group mean) / group std) and adds the KL
+  to the loss per token, as TRL's GRPO trainer did in the single-turn runs. It starts from the GRPO step
+  400 adapter. Everything else (episodes, reward, settings) is the same for both.
 - Starts from the single-turn RLOO step 600 adapter, so the only difference from plain RLOO is the
   multi-turn training. Same LoRA, learning rate, temperature and questions per step as the main runs.
 
@@ -96,6 +99,14 @@ nohup python extension/train_multiturn.py --init_adapter ~/demo_models/outputs/r
 tail -f mt_train.log
 ```
 
+GRPO (can run at the same time on a second space, since each run needs the whole T4):
+
+```bash
+nohup python extension/train_multiturn.py --method grpo \
+    --init_adapter ~/demo_models/outputs/grpo-1.5b-s0/checkpoint-400 \
+    --run_name mt-grpo-1.5b-s0 --max_steps 150 > mt_grpo_train.log 2>&1 &
+```
+
 Checkpoints go to `~/outputs/mt-rloo-1.5b-s0/checkpoint-50, -100, -150`; the step log is in
 `~/outputs/mt-rloo-1.5b-s0/logs/steps.jsonl`. Then evaluate it the same way as the other models (turn 1
 is generated because there is no saved single-turn answer for it):
@@ -105,6 +116,7 @@ for MODE in errors all; do
   python extension/multiturn_eval.py --tag mt-rloo --adapter ~/outputs/mt-rloo-1.5b-s0/checkpoint-150 \
       --split spider_dev --mode $MODE --regenerate
 done
+# and the same with --tag mt-grpo --adapter ~/outputs/mt-grpo-1.5b-s0/checkpoint-150
 python extension/multiturn_eval.py --summary
 mkdir -p extension/findings/mt_training && cp ~/outputs/mt-rloo-1.5b-s0/logs/*.jsonl extension/findings/mt_training/
 git add -f extension/findings && git commit -m "Multi-turn training results" && git push
