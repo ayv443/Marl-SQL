@@ -47,6 +47,26 @@ def feedback(sql, db_file):
                   f"If it does not, write a corrected query. {ANSWER_RULE}")
 
 
+def clean_sql(sql):
+    """For answers after feedback: drop a trailing ';' and brackets around the whole query, and treat an
+    answer that is not a query at all (for example 'Yes') as no new SQL."""
+    if not sql:
+        return None
+    s = sql.strip().rstrip(";").strip()
+    while s.startswith("(") and s.endswith(")"):
+        depth = 0
+        for k, ch in enumerate(s):
+            depth += ch == "("
+            depth -= ch == ")"
+            if depth == 0 and k < len(s) - 1:
+                break
+        else:
+            s = s[1:-1].strip()
+            continue
+        break
+    return s if s.lower().startswith(("select", "with")) else None
+
+
 def same_query(a, b):
     return " ".join((a or "").lower().split()).rstrip(";") == " ".join((b or "").lower().split()).rstrip(";")
 
@@ -101,7 +121,7 @@ def run(args):
         for i, o in zip(todo, outs):
             text = o[0]
             convs[i].append({"role": "assistant", "content": text})
-            new_sql = extract_sql(text) or sqls[i][-1]  # no new SQL after feedback = keep the previous query
+            new_sql = clean_sql(extract_sql(text)) or sqls[i][-1]  # no new SQL after feedback = keep the previous query
             repeated = same_query(new_sql, sqls[i][-1])
             sqls[i].append(new_sql)
             if not repeated:

@@ -31,7 +31,7 @@ sys.path.insert(0, HERE)
 
 from common import (MAX_COMPLETION_LEN, MAX_PROMPT_LEN, MODEL_NAME, PROCESSED_DIR,  # noqa: E402
                     db_full_path, extract_sql, load_jsonl, lora_config)
-from multiturn_eval import feedback, same_query  # noqa: E402
+from multiturn_eval import clean_sql, feedback, same_query  # noqa: E402
 from reward import gold_cache, has_order_by, score  # noqa: E402
 
 
@@ -122,6 +122,8 @@ def rollout(model, tok, questions, args):
         for e, text in zip(live, texts):
             e["conv"].append({"role": "assistant", "content": text})
             sql = extract_sql(text)
+            if e["sqls"]:  # turn 1 is read exactly as in the single-turn evaluation
+                sql = clean_sql(sql)
             if sql is None and e["sqls"]:  # no new SQL after feedback = keep the previous query
                 sql = e["sqls"][-1]
                 e["no_sql"] = e.get("no_sql", 0) + 1
