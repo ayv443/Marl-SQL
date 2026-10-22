@@ -15,7 +15,7 @@
 #     from R; loss = -A_i * (sum of the episode's token log-probs), averaged over episodes
 #   - GRPO: A_i = (R_i - group mean) / (group std + 1e-4) on R without KL; per-token loss
 #     -A_i * logp + beta * KL (k3 estimator), summed over all tokens and divided by the number of
-#     model-written tokens in the step ("dapo", TRL's default)
+#     model-written tokens in the step ("dapo", TRL's default) and by the 4 accumulation steps (HF Trainer)
 # The "completion" is every token the model wrote in every turn of the episode; the prompt and the
 # environment feedback are masked out. One update per batch (on-policy), gradient clipping 1.0.
 #
@@ -23,6 +23,7 @@
 #   python extension/train_multiturn.py --init_adapter <rloo checkpoint-600> --max_steps 150
 import argparse
 import json
+import math
 import os
 import random
 import sys
@@ -101,6 +102,13 @@ def set_trainable(model):
 def generate(model, tok, convs, args, temperature):
     import torch
 
+    from transformers import GenerationConfig
+
+    # same sampling as TRL 0.24: plain temperature sampling, no top-p / top-k / repetition penalty
+    # (an explicit config, so Qwen's own defaults of top_p 0.8, top_k 20, repetition_penalty 1.05 are not used)
+    gen_config = GenerationConfig(max_new_tokens=MAX_COMPLETION_LEN, do_sample=True, temperature=temperature,
+                                  top_p=1.0, top_k=None, min_p=None, repetition_penalty=1.0,
+                                  pad_token_id=tok.pad_token_id, eos_token_id=tok.eos_token_id)
     texts = [tok.apply_chat_template(c, tokenize=False, add_generation_prompt=True) for c in convs]
     outs = [None] * len(texts)
     model.eval()
@@ -109,9 +117,7 @@ def generate(model, tok, convs, args, temperature):
         idx = order[s:s + args.gen_batch]
         enc = tok([texts[i] for i in idx], return_tensors="pt", padding=True).to(args.device)
         with torch.no_grad():
-            out = model.generate(**enc, max_new_tokens=MAX_COMPLETION_LEN, do_sample=temperature > 0,
-                                 temperature=temperature if temperature > 0 else None, top_p=None, top_k=None,
-                                 pad_token_id=tok.pad_token_id, use_cache=True)
+            out = model.generate(**enc, generation_config=gen_config, use_cache=True)
         dec = tok.batch_decode(out[:, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         for j, i in enumerate(idx):
             outs[i] = dec[j]
@@ -276,7 +282,8 @@ def train_step(model, tok, opt, scaler, questions, args):
                 if kl_in_loss:  # k3 estimator, as in TRL
                     d = (e["ref"] - lp).clamp(-20, 20)  # (clamp only guards against overflow)
                     per_token = per_token + args.beta * (torch.exp(d) - d - 1)
-                loss = per_token.sum() / n_tokens
+                # the HF Trainer also divides by the gradient accumulation steps (prompts per step)
+                loss = per_token.sum() / n_tokens / args.prompts_per_step
         scaler.scale(loss).backward()
         stats["loss"] += loss.item()
         n_backward += 1
@@ -353,9 +360,9 @@ def main():
     params = [p for p in model.parameters() if p.requires_grad]
     print(f"trainable parameters: {sum(p.numel() for p in params):,}")
     opt = torch.optim.AdamW(params, lr=args.lr, weight_decay=0.0)
-    warmup = max(1, int(0.03 * args.max_steps))
-    sched = torch.optim.lr_scheduler.LambdaLR(
-        opt, lambda s: min(1.0, (s + 1) / warmup) * max(0.0, 1 - s / args.max_steps))
+    from transformers import get_linear_schedule_with_warmup
+    # same schedule as the HF Trainer in the single-turn runs: linear, warmup_ratio 0.03 rounded up
+    sched = get_linear_schedule_with_warmup(opt, math.ceil(0.03 * args.max_steps), args.max_steps)
     scaler = torch.amp.GradScaler(enabled=args.device == "cuda")
 
     run = None
