@@ -3,8 +3,9 @@
 # One episode = one question. The model answers, the environment runs the SQL and (if it failed, or in
 # --mode all always) sends back the error or the first rows, and the model can answer again, for up to
 # --turns turns. The reward comes only at the end of the episode:
-#     reward = score of the FINAL query (+1 correct, 0 wrong, -0.1 error)  -  turn_penalty * (turns - 1)
-# so a query that is right the first time is worth a bit more than one fixed after feedback.
+#     reward = score of the FINAL query (+1 correct, 0 wrong, -0.1 error)  -  turn_penalty * (times changed)
+# so a query that is right the first time is worth a bit more than one fixed after feedback. Repeating
+# the same query to confirm it does not cost anything.
 #
 # For each question K episodes are sampled. Advantage = RLOO leave-one-out baseline:
 #     A_i = R_i - mean(R_j for j != i)
@@ -38,15 +39,17 @@ from reward import gold_cache, has_order_by, score  # noqa: E402
 
 def load_questions(args, tok):
     rows = load_jsonl(os.path.join(PROCESSED_DIR, "train.jsonl"))
+    tags = json.load(open(os.path.join(PROCESSED_DIR, "tags.json")))
     if args.only_mixed:
-        tags = json.load(open(os.path.join(PROCESSED_DIR, "tags.json")))
         rows = [r for r in rows if tags.get(r["qid"]) == "mixed"]
+    elif args.skip_all_right:  # questions the untrained model always solved give almost no signal
+        rows = [r for r in rows if tags.get(r["qid"]) != "all_right"]
     keep = []
     for r in rows:
         n = len(tok.apply_chat_template(r["prompt"], tokenize=True, add_generation_prompt=True))
         if n <= MAX_PROMPT_LEN:
             keep.append(r)
-    print(f"training questions: {len(keep)} (only_mixed={args.only_mixed})")
+    print(f"training questions: {len(keep)} (only_mixed={args.only_mixed}, skip_all_right={args.skip_all_right})")
     return keep
 
 
@@ -133,7 +136,9 @@ def rollout(model, tok, questions, args):
         r_first = score(e["db"], e["sqls"][0], gold[q["qid"]], has_order_by(q["gold_sql"]))[0]
         r_final = score(e["db"], e["sqls"][-1], gold[q["qid"]], has_order_by(q["gold_sql"]))[0]
         e["r_first"], e["r_final"], e["turns"] = r_first, r_final, len(e["sqls"])
-        e["reward"] = r_final - args.turn_penalty * (e["turns"] - 1)
+        # the turn cost is only paid when the model changes its query (repeating it to confirm is free)
+        e["changes"] = sum(not same_query(a, b) for a, b in zip(e["sqls"], e["sqls"][1:]))
+        e["reward"] = r_final - args.turn_penalty * e["changes"]
     return eps
 
 
@@ -264,6 +269,8 @@ def train_step(model, tok, opt, scaler, questions, args):
         "final_error": sum(e["r_final"] < 0 for e in eps) / n,
         "fixed_after_feedback": sum(e["r_first"] != 1.0 and e["r_final"] == 1.0 for e in eps) / n,
         "mean_turns": sum(e["turns"] for e in eps) / n,
+        "changed_query": sum(e["changes"] > 0 for e in eps) / n,
+        "broken_by_change": sum(e["r_first"] == 1.0 and e["r_final"] != 1.0 for e in eps) / n,
         "kl": sum(e["kl"] for e in eps) / n,
         "zero_adv_groups": sum(len({e["reward_kl"] for e in eps[g:g + args.num_generations]}) == 1
                                for g in range(0, n, args.num_generations)),
@@ -280,7 +287,7 @@ def main():
     ap.add_argument("--run_name", default="mt-rloo-1.5b-s0")
     ap.add_argument("--output_root", default=os.path.expanduser("~/outputs"))
     ap.add_argument("--method", default="rloo", choices=["rloo", "grpo"])
-    ap.add_argument("--mode", default="errors", choices=["errors", "all"])
+    ap.add_argument("--mode", default="all", choices=["errors", "all"])
     ap.add_argument("--turns", type=int, default=3)
     ap.add_argument("--turn_penalty", type=float, default=0.05)
     ap.add_argument("--max_steps", type=int, default=150)
@@ -291,6 +298,7 @@ def main():
     ap.add_argument("--lr", type=float, default=5e-5)
     ap.add_argument("--lora_rank", type=int, default=16)
     ap.add_argument("--only_mixed", type=int, default=0)
+    ap.add_argument("--skip_all_right", type=int, default=1)
     ap.add_argument("--gen_batch", type=int, default=16)
     ap.add_argument("--max_episode_len", type=int, default=3584)
     ap.add_argument("--save_steps", type=int, default=50)

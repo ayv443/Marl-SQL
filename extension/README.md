@@ -74,10 +74,16 @@ branch afterwards (`per_question.jsonl` and `metrics.json` are small text files)
 `train_multiturn.py` trains the policy inside the multi-turn environment, so the agent learns to use the
 execution feedback instead of only seeing it at test time.
 
-- Episode: the model answers, the SQL is run, and (in `--mode errors`) a failed query gets the error
-  message back and the model answers again, up to 3 turns.
-- Reward only at the end of the episode: score of the final query (+1 / 0 / -0.1) minus 0.05 for every
-  extra turn, so getting it right the first time is still the best outcome.
+- Episode: the model answers, the SQL is run, and the model sees the error message or the first rows of
+  the result (`--mode all`, the default). It can keep the query (write it again, which ends the episode)
+  or write a new one, up to 3 turns. `--mode errors` only gives feedback to failed queries, but a quick
+  test showed the RLOO model almost never fails to run a query on the training questions, so that mode
+  gives almost no multi-turn episodes.
+- Reward only at the end of the episode: score of the final query (+1 / 0 / -0.1) minus 0.05 every time
+  the model changes its query, so getting it right the first time is still the best outcome and
+  replacing a correct query with a wrong one is punished. Repeating the query to confirm it is free.
+- Training questions: the 4,347 training questions the untrained model did not always get right
+  (`--skip_all_right 1`); the always-solved ones give almost no learning signal.
 - RLOO: 4 episodes per question, advantage = reward minus the mean of the other 3 episodes, KL to the
   starting policy subtracted from the reward (beta 0.04, same as before). The gradient goes through every
   token the model wrote in every turn; the prompt and the feedback are masked out.
@@ -91,10 +97,10 @@ execution feedback instead of only seeing it at test time.
 source ~/SageMaker/.bashrc_t2s
 cd ~/Marl-SQL && git pull
 # 3 step test (check memory and seconds per step)
-python extension/train_multiturn.py --init_adapter ~/demo_models/outputs/rloo-1.5b-s0/checkpoint-600 \
+python extension/train_multiturn.py --init_adapter ~/Marl-SQL/text2sql-rl/outputs/rloo-1.5b-s0/checkpoint-600 \
     --run_name mt-test --max_steps 3 --save_steps 3 --wandb 0
 # full run in the background
-nohup python extension/train_multiturn.py --init_adapter ~/demo_models/outputs/rloo-1.5b-s0/checkpoint-600 \
+nohup python extension/train_multiturn.py --init_adapter ~/Marl-SQL/text2sql-rl/outputs/rloo-1.5b-s0/checkpoint-600 \
     --run_name mt-rloo-1.5b-s0 --max_steps 150 > mt_train.log 2>&1 &
 tail -f mt_train.log
 ```
@@ -103,7 +109,7 @@ GRPO (can run at the same time on a second space, since each run needs the whole
 
 ```bash
 nohup python extension/train_multiturn.py --method grpo \
-    --init_adapter ~/demo_models/outputs/grpo-1.5b-s0/checkpoint-400 \
+    --init_adapter ~/Marl-SQL/text2sql-rl/outputs/grpo-1.5b-s0/checkpoint-400 \
     --run_name mt-grpo-1.5b-s0 --max_steps 150 > mt_grpo_train.log 2>&1 &
 ```
 
