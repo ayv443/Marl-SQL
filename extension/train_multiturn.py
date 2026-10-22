@@ -325,6 +325,7 @@ def main():
     ap.add_argument("--wandb", type=int, default=1)
     ap.add_argument("--questions_file", default=None, help="jsonl of questions instead of train.jsonl (tests)")
     args = ap.parse_args()
+    sys.stdout.reconfigure(line_buffering=True)  # print each line straight away, also under nohup
 
     import torch
 
