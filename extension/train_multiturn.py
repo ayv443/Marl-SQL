@@ -44,12 +44,19 @@ def load_questions(args, tok):
         rows = [r for r in rows if tags.get(r["qid"]) == "mixed"]
     elif args.skip_all_right:  # questions the untrained model always solved give almost no signal
         rows = [r for r in rows if tags.get(r["qid"]) != "all_right"]
-    keep = []
+    gold = gold_cache()
+    keep, dropped = [], {"long prompt": 0, "missing database": 0, "missing or empty gold result": 0}
     for r in rows:
-        n = len(tok.apply_chat_template(r["prompt"], tokenize=True, add_generation_prompt=True))
-        if n <= MAX_PROMPT_LEN:
+        if not os.path.exists(db_full_path(r["db_path"])):
+            dropped["missing database"] += 1
+        elif not gold.get(r["qid"]):
+            dropped["missing or empty gold result"] += 1
+        elif len(tok.apply_chat_template(r["prompt"], tokenize=True, add_generation_prompt=True)) > MAX_PROMPT_LEN:
+            dropped["long prompt"] += 1
+        else:
             keep.append(r)
-    print(f"training questions: {len(keep)} (only_mixed={args.only_mixed}, skip_all_right={args.skip_all_right})")
+    print(f"training questions: {len(keep)} (only_mixed={args.only_mixed}, skip_all_right={args.skip_all_right}) "
+          f"dropped: {dropped}")
     return keep
 
 
@@ -100,7 +107,7 @@ def generate(model, tok, convs, args, temperature):
         with torch.no_grad():
             out = model.generate(**enc, max_new_tokens=MAX_COMPLETION_LEN, do_sample=temperature > 0,
                                  temperature=temperature if temperature > 0 else None, top_p=None, top_k=None,
-                                 pad_token_id=tok.pad_token_id)
+                                 pad_token_id=tok.pad_token_id, use_cache=True)
         dec = tok.batch_decode(out[:, enc["input_ids"].shape[1]:], skip_special_tokens=True)
         for j, i in enumerate(idx):
             outs[i] = dec[j]
@@ -180,7 +187,7 @@ def token_logps(model, ids, mask, device):
 def ref_logps(model, ids, mask, args):
     import torch
 
-    with torch.no_grad():
+    with torch.no_grad(), torch.autocast(args.device, dtype=torch.float16, enabled=args.device == "cuda"):
         if args.init_adapter:
             model.set_adapter("ref")
             lp = token_logps(model, ids, mask, args.device)
@@ -226,10 +233,10 @@ def train_step(model, tok, opt, scaler, questions, args):
         e["ids"], e["mask"] = tokenise_episode(tok, e["conv"], len(e["q"]["prompt"]))
         e["ids"], e["mask"] = e["ids"][:args.max_episode_len], e["mask"][:args.max_episode_len]
         e["ref"] = ref_logps(model, e["ids"], e["mask"], args) if 1 in e["mask"] else None
-    model.train()
     stats = {"loss": 0.0, "kl": 0.0}
     opt.zero_grad(set_to_none=True)
-    # first pass (no grad) for the KL value with the current policy, then the reward with KL
+    # first pass (no grad, no dropout, like the reference pass) for the KL value with the current policy
+    model.eval()
     with torch.no_grad():
         for e in eps:
             if e["ref"] is None:
@@ -248,6 +255,8 @@ def train_step(model, tok, opt, scaler, questions, args):
         adv = grpo_advantages(eps, args.num_generations)
 
     # policy gradient: -A * mean log-prob of the episode's own tokens, averaged over episodes
+    model.train()
+    n_backward = 0
     for e, a in zip(eps, adv):
         kl_in_loss = args.method == "grpo" and args.beta > 0
         if e["ref"] is None or (a == 0 and not kl_in_loss):
@@ -261,10 +270,13 @@ def train_step(model, tok, opt, scaler, questions, args):
             loss = loss / len(eps)
         scaler.scale(loss).backward()
         stats["loss"] += loss.item()
-    scaler.unscale_(opt)
-    torch.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], 1.0)
-    scaler.step(opt)
-    scaler.update()
+        n_backward += 1
+    if n_backward:  # (a batch with no learning signal at all is skipped instead of crashing the scaler)
+        scaler.unscale_(opt)
+        stats["grad_norm"] = float(torch.nn.utils.clip_grad_norm_(
+            [p for p in model.parameters() if p.requires_grad], 1.0))
+        scaler.step(opt)
+        scaler.update()
 
     n = len(eps)
     stats.update({
