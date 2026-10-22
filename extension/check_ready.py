@@ -50,9 +50,9 @@ def data_checks(tok):
     check(not missing_db, f"all {len(dbs)} training databases exist (missing: {len(missing_db)})")
     check(all(r["prompt"][0]["role"] == "system" and r["prompt"][0]["content"] == SYSTEM_PROMPT for r in rows),
           "every prompt starts with the same system prompt as training")
-    used = [r for r in rows if tags.get(r["qid"]) != "all_right"]
+    used = [r for r in rows if tags.get(r["qid"]) == "mixed"]
     lens = [plens[r["qid"]] for r in used]
-    print(f"         questions used (not all_right): {len(used)}, longest prompt {max(lens)} tokens, "
+    print(f"         questions used (mixed, as in the single-turn runs): {len(used)}, longest prompt {max(lens)} tokens, "
           f"over {MAX_PROMPT_LEN}: {sum(n > MAX_PROMPT_LEN for n in lens)} (these are dropped)")
     worst = max(lens[i] for i in range(len(lens)) if lens[i] <= MAX_PROMPT_LEN)
     # prompt + 3 answers of 256 tokens + 2 feedback messages (at most ~250 tokens each)

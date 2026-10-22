@@ -82,8 +82,8 @@ execution feedback instead of only seeing it at test time.
 - Reward only at the end of the episode: score of the final query (+1 / 0 / -0.1) minus 0.05 every time
   the model changes its query, so getting it right the first time is still the best outcome and
   replacing a correct query with a wrong one is punished. Repeating the query to confirm it is free.
-- Training questions: the 4,347 training questions the untrained model did not always get right
-  (`--skip_all_right 1`); the always-solved ones give almost no learning signal.
+- Training questions: the same 3,457 "mixed" questions as the single-turn GRPO and RLOO runs
+  (`--only_mixed 1`, the untrained model got them right in some samples and wrong in others).
 - The update copies TRL 0.24, which trained the single-turn checkpoints: log-probabilities use
   logits / temperature, the KL is measured against the untrained base model (LoRA switched off), RLOO
   subtracts the KL (summed over the episode) from the reward and uses the summed log-probability of the

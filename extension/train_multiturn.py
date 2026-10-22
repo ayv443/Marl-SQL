@@ -99,44 +99,71 @@ def set_trainable(model):
 
 # ---------------------------------------------------------------- rollouts
 
-def generate(model, tok, convs, args, temperature):
+def generate_ids(model, tok, inputs, args):
+    """Samples one answer for each token-id list in `inputs`. Returns the exact sampled ids, cut after the
+    first end token (<|im_end|>) like TRL's completion mask, and whether the answer was cut off at
+    max_new_tokens without an end token."""
     import torch
-
     from transformers import GenerationConfig
 
     # same sampling as TRL 0.24: plain temperature sampling, no top-p / top-k / repetition penalty
     # (an explicit config, so Qwen's own defaults of top_p 0.8, top_k 20, repetition_penalty 1.05 are not used)
-    gen_config = GenerationConfig(max_new_tokens=MAX_COMPLETION_LEN, do_sample=True, temperature=temperature,
+    gen_config = GenerationConfig(max_new_tokens=MAX_COMPLETION_LEN, do_sample=True, temperature=args.temperature,
                                   top_p=1.0, top_k=None, min_p=None, repetition_penalty=1.0,
                                   pad_token_id=tok.pad_token_id, eos_token_id=tok.eos_token_id)
-    texts = [tok.apply_chat_template(c, tokenize=False, add_generation_prompt=True) for c in convs]
-    outs = [None] * len(texts)
+    outs = [None] * len(inputs)
     model.eval()
-    order = sorted(range(len(texts)), key=lambda i: len(texts[i]))
+    order = sorted(range(len(inputs)), key=lambda i: len(inputs[i]))
     for s in range(0, len(order), args.gen_batch):
         idx = order[s:s + args.gen_batch]
-        enc = tok([texts[i] for i in idx], return_tensors="pt", padding=True).to(args.device)
+        width = max(len(inputs[i]) for i in idx)
+        ids = torch.tensor([[tok.pad_token_id] * (width - len(inputs[i])) + inputs[i] for i in idx], device=args.device)
+        att = torch.tensor([[0] * (width - len(inputs[i])) + [1] * len(inputs[i]) for i in idx], device=args.device)
         with torch.no_grad():
-            out = model.generate(**enc, generation_config=gen_config, use_cache=True)
-        dec = tok.batch_decode(out[:, enc["input_ids"].shape[1]:], skip_special_tokens=True)
+            out = model.generate(input_ids=ids, attention_mask=att, generation_config=gen_config, use_cache=True)
         for j, i in enumerate(idx):
-            outs[i] = dec[j]
+            g = out[j, width:].tolist()
+            if tok.eos_token_id in g:
+                outs[i] = (g[:g.index(tok.eos_token_id) + 1], False)
+            else:
+                outs[i] = (g, True)  # ran to max_new_tokens without an end token
     return outs
 
 
+def suffix_ids(tok, before, after, add_generation_prompt):
+    """Token ids of the chat-template text that `after` adds to `before` (both lists of messages)."""
+    a = tok.apply_chat_template(before, tokenize=False, add_generation_prompt=False)
+    b = tok.apply_chat_template(after, tokenize=False, add_generation_prompt=add_generation_prompt)
+    assert b.startswith(a), "chat template is not prefix-consistent"
+    return tok(b[len(a):], add_special_tokens=False)["input_ids"]
+
+
 def rollout(model, tok, questions, args):
-    """K episodes per question, all run in parallel turn by turn."""
+    """K episodes per question, all run in parallel turn by turn. Each episode keeps the exact token ids:
+    prompt and feedback (mask 0) and the ids the model sampled (mask 1), as TRL does for one turn."""
     eps = []
     for q in questions:
         db = db_full_path(q["db_path"])
+        prompt_ids = tok(tok.apply_chat_template(q["prompt"], tokenize=False, add_generation_prompt=True),
+                         add_special_tokens=False)["input_ids"]
         for _ in range(args.num_generations):
-            eps.append({"q": q, "db": db, "conv": list(q["prompt"]), "sqls": [], "done": False})
+            eps.append({"q": q, "db": db, "conv": list(q["prompt"]), "sqls": [], "done": False,
+                        "ids": list(prompt_ids), "mask": [0] * len(prompt_ids), "cut_off": 0})
+    im_end_nl = tok("<|im_end|>\n", add_special_tokens=False)["input_ids"]
+    nl = tok("\n", add_special_tokens=False)["input_ids"]
     for turn in range(1, args.turns + 1):
         live = [e for e in eps if not e["done"]]
         if not live:
             break
-        texts = generate(model, tok, [e["conv"] for e in live], args, args.temperature)
-        for e, text in zip(live, texts):
+        outs = generate_ids(model, tok, [e["ids"] for e in live], args)
+        for e, (g, cut_off) in zip(live, outs):
+            text = tok.decode(g, skip_special_tokens=True)
+            e["ids"] += g
+            e["mask"] += [1] * len(g)  # exactly what the model sampled (incl. its end token)
+            closing = im_end_nl if cut_off else nl  # close the message; not trained (the model did not write it)
+            e["ids"] += closing
+            e["mask"] += [0] * len(closing)
+            e["cut_off"] += cut_off
             e["conv"].append({"role": "assistant", "content": text})
             sql = extract_sql(text)
             if e["sqls"]:  # turn 1 is read exactly as in the single-turn evaluation
@@ -151,7 +178,11 @@ def rollout(model, tok, questions, args):
             if stop:
                 e["done"] = True
             else:
-                e["conv"].append({"role": "user", "content": msg})
+                before = e["conv"]
+                e["conv"] = before + [{"role": "user", "content": msg}]
+                fb = suffix_ids(tok, before, e["conv"], add_generation_prompt=True)  # feedback + assistant header
+                e["ids"] += fb
+                e["mask"] += [0] * len(fb)
     gold = gold_cache()
     for e in eps:
         q = e["q"]
@@ -165,20 +196,6 @@ def rollout(model, tok, questions, args):
 
 
 # ---------------------------------------------------------------- log-probabilities
-
-def tokenise_episode(tok, conv, n_prompt):
-    """Token ids of the whole episode and a mask that is 1 only on tokens the model wrote."""
-    ids = tok.apply_chat_template(conv, tokenize=True, add_generation_prompt=False)
-    mask = [0] * len(ids)
-    for k in range(n_prompt, len(conv)):
-        if conv[k]["role"] != "assistant":
-            continue
-        start = len(tok.apply_chat_template(conv[:k], tokenize=True, add_generation_prompt=True))
-        end = len(tok.apply_chat_template(conv[:k + 1], tokenize=True, add_generation_prompt=False))
-        for t in range(start, min(end, len(ids))):
-            mask[t] = 1
-    return ids, mask
-
 
 def token_logps(model, ids, mask, device, temperature):
     """Log-probabilities of the masked tokens under logits / temperature, as TRL computes them
@@ -241,7 +258,6 @@ def train_step(model, tok, opt, scaler, questions, args):
 
     # KL to the starting policy, per sequence, subtracted from the reward (as in TRL RLOO)
     for e in eps:
-        e["ids"], e["mask"] = tokenise_episode(tok, e["conv"], len(e["q"]["prompt"]))
         e["ids"], e["mask"] = e["ids"][:args.max_episode_len], e["mask"][:args.max_episode_len]
         e["ref"] = ref_logps(model, e["ids"], e["mask"], args) if 1 in e["mask"] else None
     stats = {"loss": 0.0, "kl": 0.0}
@@ -304,6 +320,7 @@ def train_step(model, tok, opt, scaler, questions, args):
         "mean_turns": sum(e["turns"] for e in eps) / n,
         "changed_query": sum(e["changes"] > 0 for e in eps) / n,
         "no_sql_reply": sum(e.get("no_sql", 0) > 0 for e in eps) / n,
+        "cut_off_answers": sum(e["cut_off"] for e in eps),
         "broken_by_change": sum(e["r_first"] == 1.0 and e["r_final"] != 1.0 for e in eps) / n,
         "kl": sum(e["kl"] for e in eps) / n,  # summed over each episode's tokens
         "kl_per_token": sum(e["kl"] for e in eps) / n_tokens,  # what TRL logged as "kl" in the single-turn runs
@@ -334,7 +351,7 @@ def main():
                     help="KL reference: untrained base model (as TRL did in the single-turn runs) or the starting adapter")
     ap.add_argument("--lr", type=float, default=5e-5)
     ap.add_argument("--lora_rank", type=int, default=16)
-    ap.add_argument("--only_mixed", type=int, default=0)
+    ap.add_argument("--only_mixed", type=int, default=1)  # same 3,457 questions as the single-turn runs
     ap.add_argument("--skip_all_right", type=int, default=1)
     ap.add_argument("--gen_batch", type=int, default=16)
     ap.add_argument("--max_episode_len", type=int, default=3584)
