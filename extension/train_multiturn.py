@@ -7,13 +7,17 @@
 # so a query that is right the first time is worth a bit more than one fixed after feedback. Repeating
 # the same query to confirm it does not cost anything.
 #
-# For each question K episodes are sampled. Advantage = RLOO leave-one-out baseline:
-#     A_i = R_i - mean(R_j for j != i)
-# with a per-sequence KL penalty to the starting policy subtracted from R (as in TRL's RLOO).
-# --method grpo instead uses A_i = (R_i - group mean) / group std and adds the KL to the loss per token
-# (k3 estimator), the same way TRL's GRPO trainer does in the single-turn runs.
-# The policy gradient uses the log-probabilities of every token the model wrote in every turn of the
-# episode; the prompt and the environment feedback are masked out. One update per batch (on-policy).
+# The update follows TRL 0.24 (the trainers used for the single-turn runs) as closely as possible, so the
+# only change from the single-turn training is the multi-turn episode:
+#   - log-probabilities use logits / temperature, as TRL does
+#   - the KL is measured against the untrained base model (LoRA switched off), as TRL does with LoRA
+#   - RLOO: A_i = R_i - mean(R_j for j != i), with the KL (summed over the episode's tokens) subtracted
+#     from R; loss = -A_i * (sum of the episode's token log-probs), averaged over episodes
+#   - GRPO: A_i = (R_i - group mean) / (group std + 1e-4) on R without KL; per-token loss
+#     -A_i * logp + beta * KL (k3 estimator), summed over all tokens and divided by the number of
+#     model-written tokens in the step ("dapo", TRL's default)
+# The "completion" is every token the model wrote in every turn of the episode; the prompt and the
+# environment feedback are masked out. One update per batch (on-policy), gradient clipping 1.0.
 #
 # Usage (from the repository root, T4 GPU):
 #   python extension/train_multiturn.py --init_adapter <rloo checkpoint-600> --max_steps 150
@@ -74,11 +78,11 @@ def load_policy(args):
     dtype = torch.float16 if args.device == "cuda" else torch.float32
     base = AutoModelForCausalLM.from_pretrained(args.model, dtype=dtype).to(args.device)
     if args.init_adapter:
-        # "default" is trained, "ref" is a frozen copy of the starting adapter for the KL term
         model = PeftModel.from_pretrained(base, args.init_adapter, adapter_name="default", is_trainable=True)
-        model.load_adapter(args.init_adapter, adapter_name="ref", is_trainable=False)
+        if args.kl_ref == "init":  # frozen copy of the starting adapter as the KL reference
+            model.load_adapter(args.init_adapter, adapter_name="ref", is_trainable=False)
     else:
-        model = get_peft_model(base, lora_config(args.lora_rank))  # ref = base model (adapter disabled)
+        model = get_peft_model(base, lora_config(args.lora_rank))
     model.set_adapter("default")
     set_trainable(model)
     model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
@@ -170,8 +174,9 @@ def tokenise_episode(tok, conv, n_prompt):
     return ids, mask
 
 
-def token_logps(model, ids, mask, device):
-    """Log-probabilities of the masked tokens (only computes logits from the first answer onwards)."""
+def token_logps(model, ids, mask, device, temperature):
+    """Log-probabilities of the masked tokens under logits / temperature, as TRL computes them
+    (only computes logits from the first answer onwards)."""
     import torch
 
     x = torch.tensor([ids], device=device)
@@ -180,7 +185,7 @@ def token_logps(model, ids, mask, device):
     logits = model(input_ids=x, logits_to_keep=keep).logits[0, :-1]
     targets = x[0, first:]
     m = torch.tensor(mask[first:], device=device, dtype=torch.bool)
-    logits = logits[m].float()  # only the model's own tokens (saves memory)
+    logits = logits[m].float() / temperature  # only the model's own tokens (saves memory)
     return logits.gather(1, targets[m][:, None])[:, 0] - torch.logsumexp(logits, dim=-1)
 
 
@@ -188,14 +193,14 @@ def ref_logps(model, ids, mask, args):
     import torch
 
     with torch.no_grad(), torch.autocast(args.device, dtype=torch.float16, enabled=args.device == "cuda"):
-        if args.init_adapter:
+        if args.kl_ref == "init" and args.init_adapter:
             model.set_adapter("ref")
-            lp = token_logps(model, ids, mask, args.device)
+            lp = token_logps(model, ids, mask, args.device, args.temperature)
             model.set_adapter("default")
             set_trainable(model)
-        else:
+        else:  # untrained base model (LoRA switched off), as TRL does
             with model.disable_adapter():
-                lp = token_logps(model, ids, mask, args.device)
+                lp = token_logps(model, ids, mask, args.device, args.temperature)
     return lp
 
 
@@ -243,8 +248,8 @@ def train_step(model, tok, opt, scaler, questions, args):
                 e["kl"] = 0.0
                 continue
             with torch.autocast(args.device, dtype=torch.float16, enabled=args.device == "cuda"):
-                lp = token_logps(model, e["ids"], e["mask"], args.device)
-            e["kl"] = float((lp - e["ref"]).sum())
+                lp = token_logps(model, e["ids"], e["mask"], args.device, args.temperature)
+            e["kl"] = float((lp - e["ref"]).sum())  # summed over the episode's tokens (TRL RLOO)
     if args.method == "rloo":  # RLOO: KL subtracted from the reward, leave-one-out baseline
         for e in eps:
             e["reward_kl"] = e["reward"] - args.beta * e["kl"]
@@ -254,20 +259,24 @@ def train_step(model, tok, opt, scaler, questions, args):
             e["reward_kl"] = e["reward"]
         adv = grpo_advantages(eps, args.num_generations)
 
-    # policy gradient: -A * mean log-prob of the episode's own tokens, averaged over episodes
+    # policy gradient, one episode at a time (gradients add up), scaled as in TRL
     model.train()
     n_backward = 0
+    n_tokens = max(1, sum(sum(e["mask"]) for e in eps))  # model-written tokens in the step (GRPO "dapo")
     for e, a in zip(eps, adv):
         kl_in_loss = args.method == "grpo" and args.beta > 0
         if e["ref"] is None or (a == 0 and not kl_in_loss):
             continue
         with torch.autocast(args.device, dtype=torch.float16, enabled=args.device == "cuda"):
-            lp = token_logps(model, e["ids"], e["mask"], args.device)
-            loss = -a * lp.mean()
-            if kl_in_loss:  # k3 estimator of KL(policy || ref), per token, as in TRL GRPO
-                d = e["ref"] - lp
-                loss = loss + args.beta * (torch.exp(d) - d - 1).mean()
-            loss = loss / len(eps)
+            lp = token_logps(model, e["ids"], e["mask"], args.device, args.temperature)
+            if args.method == "rloo":  # TRL RLOO: -A * sequence log-prob (sum over tokens), mean over episodes
+                loss = -a * lp.sum() / len(eps)
+            else:  # TRL GRPO (dapo): per-token -A * logp + beta * KL, summed, / tokens in the step
+                per_token = -a * lp
+                if kl_in_loss:  # k3 estimator, as in TRL
+                    d = (e["ref"] - lp).clamp(-20, 20)  # (clamp only guards against overflow)
+                    per_token = per_token + args.beta * (torch.exp(d) - d - 1)
+                loss = per_token.sum() / n_tokens
         scaler.scale(loss).backward()
         stats["loss"] += loss.item()
         n_backward += 1
@@ -289,7 +298,8 @@ def train_step(model, tok, opt, scaler, questions, args):
         "changed_query": sum(e["changes"] > 0 for e in eps) / n,
         "no_sql_reply": sum(e.get("no_sql", 0) > 0 for e in eps) / n,
         "broken_by_change": sum(e["r_first"] == 1.0 and e["r_final"] != 1.0 for e in eps) / n,
-        "kl": sum(e["kl"] for e in eps) / n,
+        "kl": sum(e["kl"] for e in eps) / n,  # summed over each episode's tokens
+        "kl_per_token": sum(e["kl"] for e in eps) / n_tokens,  # what TRL logged as "kl" in the single-turn runs
         "zero_adv_groups": sum(len({e["reward_kl"] for e in eps[g:g + args.num_generations]}) == 1
                                for g in range(0, n, args.num_generations)),
         "rollout_s": round(t_roll, 1),
@@ -313,6 +323,8 @@ def main():
     ap.add_argument("--num_generations", type=int, default=4)
     ap.add_argument("--temperature", type=float, default=0.8)
     ap.add_argument("--beta", type=float, default=0.04)
+    ap.add_argument("--kl_ref", default="base", choices=["base", "init"],
+                    help="KL reference: untrained base model (as TRL did in the single-turn runs) or the starting adapter")
     ap.add_argument("--lr", type=float, default=5e-5)
     ap.add_argument("--lora_rank", type=int, default=16)
     ap.add_argument("--only_mixed", type=int, default=0)
