@@ -84,12 +84,13 @@ execution feedback instead of only seeing it at test time.
   replacing a correct query with a wrong one is punished. Repeating the query to confirm it is free.
 - Training questions: the 4,347 training questions the untrained model did not always get right
   (`--skip_all_right 1`); the always-solved ones give almost no learning signal.
-- RLOO: 4 episodes per question, advantage = reward minus the mean of the other 3 episodes, KL to the
-  starting policy subtracted from the reward (beta 0.04, same as before). The gradient goes through every
-  token the model wrote in every turn; the prompt and the feedback are masked out.
-- `--method grpo` uses the GRPO advantage instead ((reward minus group mean) / group std) and adds the KL
-  to the loss per token, as TRL's GRPO trainer did in the single-turn runs. It starts from the GRPO step
-  400 adapter. Everything else (episodes, reward, settings) is the same for both.
+- The update copies TRL 0.24, which trained the single-turn checkpoints: log-probabilities use
+  logits / temperature, the KL is measured against the untrained base model (LoRA switched off), RLOO
+  subtracts the KL (summed over the episode) from the reward and uses the summed log-probability of the
+  episode, GRPO normalises the advantage by the group std and adds a per-token KL to the loss, divided by
+  the number of tokens in the step ("dapo"). Same beta (0.04), learning rate, temperature, LoRA and
+  4 x 4 episodes per step as the main runs. The gradient goes through every token the model wrote in
+  every turn; the prompt and the feedback are masked out.
 - Starts from the single-turn RLOO step 600 adapter, so the only difference from plain RLOO is the
   multi-turn training. Same LoRA, learning rate, temperature and questions per step as the main runs.
 
