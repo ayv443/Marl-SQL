@@ -78,10 +78,11 @@ def turn_one(args, rows):
         by_qid = {r["qid"]: r for r in load_jsonl(saved)}
         if all(r["qid"] in by_qid for r in rows):
             print(f"turn 1: reusing the saved answers from {saved}")
-            return [by_qid[r["qid"]]["raw_output"] for r in rows], None
+            return ([by_qid[r["qid"]]["raw_output"] for r in rows],
+                    [bool(by_qid[r["qid"]]["correct"]) for r in rows], None)
     print("turn 1: generating")
     gen = make_generator(args)
-    return [o[0] for o in gen.generate([r["prompt"] for r in rows], n=1, temperature=0.0)], gen
+    return [o[0] for o in gen.generate([r["prompt"] for r in rows], n=1, temperature=0.0)], None, gen
 
 
 def make_generator(args):
@@ -97,7 +98,7 @@ def run(args):
     db_files = [db_full_path(r["db_path"]) for r in rows]
     ordered = [has_order_by(r["gold_sql"]) for r in rows]
 
-    first, gen = turn_one(args, rows)
+    first, saved_correct, gen = turn_one(args, rows)
     convs = [list(r["prompt"]) + [{"role": "assistant", "content": out}] for r, out in zip(rows, first)]
     sqls = [[extract_sql(out)] for out in first]
     active = list(range(len(rows)))
@@ -130,7 +131,20 @@ def run(args):
     # score every turn against the gold result (the model never saw it)
     per_q, by_turn = [], [0] * args.turns
     for i, r in enumerate(rows):
-        correct = [score(db_files[i], s, golds[i], ordered[i])[0] == R_CORRECT for s in sqls[i]]
+        # a query is scored once; a turn that repeats the turn-1 query reuses the saved turn-1 result, so
+        # turn 1 matches the single-turn evaluation exactly and slow (BIRD) queries near the 5 s limit
+        # cannot show up as fake fixes or breaks
+        saved_first = saved_correct[i] if saved_correct is not None else None
+        cache = {}
+        correct = []
+        for k, s in enumerate(sqls[i]):
+            key = " ".join((s or "").lower().split()).rstrip(";")
+            if key not in cache:
+                if saved_first is not None and same_query(s, sqls[i][0]):
+                    cache[key] = saved_first
+                else:
+                    cache[key] = score(db_files[i], s, golds[i], ordered[i])[0] == R_CORRECT
+            correct.append(cache[key])
         for t in range(args.turns):
             by_turn[t] += correct[min(t, len(correct) - 1)]
         per_q.append({"qid": r["qid"], "db_id": r["db_id"], "question": r["question"], "gold_sql": r["gold_sql"],
