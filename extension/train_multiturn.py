@@ -69,9 +69,8 @@ def load_policy(args):
         model = get_peft_model(base, lora_config(args.lora_rank))  # ref = base model (adapter disabled)
     model.set_adapter("default")
     set_trainable(model)
-    if args.device == "cuda":
-        model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
-        model.enable_input_require_grads()
+    model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
+    model.enable_input_require_grads()
     return model, tok
 
 
@@ -159,11 +158,11 @@ def token_logps(model, ids, mask, device):
     x = torch.tensor([ids], device=device)
     first = mask.index(1)
     keep = len(ids) - first + 1  # logits for positions first-1 ... end
-    logits = model(input_ids=x, logits_to_keep=keep).logits[0, :-1].float()
+    logits = model(input_ids=x, logits_to_keep=keep).logits[0, :-1]
     targets = x[0, first:]
     m = torch.tensor(mask[first:], device=device, dtype=torch.bool)
-    logp = torch.log_softmax(logits, dim=-1).gather(1, targets[:, None])[:, 0]
-    return logp[m]
+    logits = logits[m].float()  # only the model's own tokens (saves memory)
+    return logits.gather(1, targets[m][:, None])[:, 0] - torch.logsumexp(logits, dim=-1)
 
 
 def ref_logps(model, ids, mask, args):
