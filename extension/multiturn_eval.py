@@ -159,7 +159,7 @@ def summary():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", choices=["base", "dpo", "grpo", "rloo"])
+    ap.add_argument("--tag", help="base, dpo, grpo, rloo, or a new name such as mt-rloo (then turn 1 is generated)")
     ap.add_argument("--adapter", default=None, help="LoRA checkpoint folder (none for base)")
     ap.add_argument("--split", default="spider_dev", choices=["spider_dev", "spider_syn", "spider_dk", "bird_dev", "val"])
     ap.add_argument("--mode", default="all", choices=["errors", "all"])

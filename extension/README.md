@@ -68,3 +68,44 @@ python extension/multiturn_eval.py --summary     # -> findings/multiturn/summary
 Then the same for BIRD dev if there is time (`--split bird_dev`). Run long jobs with `nohup ... &` so a
 closed browser tab does not stop them, and keep every `findings/multiturn/` folder: commit them to this
 branch afterwards (`per_question.jsonl` and `metrics.json` are small text files).
+
+## 3. Multi-turn RLOO training (GPU)
+
+`train_multiturn.py` trains the policy inside the multi-turn environment, so the agent learns to use the
+execution feedback instead of only seeing it at test time.
+
+- Episode: the model answers, the SQL is run, and (in `--mode errors`) a failed query gets the error
+  message back and the model answers again, up to 3 turns.
+- Reward only at the end of the episode: score of the final query (+1 / 0 / -0.1) minus 0.05 for every
+  extra turn, so getting it right the first time is still the best outcome.
+- RLOO: 4 episodes per question, advantage = reward minus the mean of the other 3 episodes, KL to the
+  starting policy subtracted from the reward (beta 0.04, same as before). The gradient goes through every
+  token the model wrote in every turn; the prompt and the feedback are masked out.
+- Starts from the single-turn RLOO step 600 adapter, so the only difference from plain RLOO is the
+  multi-turn training. Same LoRA, learning rate, temperature and questions per step as the main runs.
+
+```bash
+source ~/SageMaker/.bashrc_t2s
+cd ~/Marl-SQL && git pull
+# 3 step test (check memory and seconds per step)
+python extension/train_multiturn.py --init_adapter ~/demo_models/outputs/rloo-1.5b-s0/checkpoint-600 \
+    --run_name mt-test --max_steps 3 --save_steps 3 --wandb 0
+# full run in the background
+nohup python extension/train_multiturn.py --init_adapter ~/demo_models/outputs/rloo-1.5b-s0/checkpoint-600 \
+    --run_name mt-rloo-1.5b-s0 --max_steps 150 > mt_train.log 2>&1 &
+tail -f mt_train.log
+```
+
+Checkpoints go to `~/outputs/mt-rloo-1.5b-s0/checkpoint-50, -100, -150`; the step log is in
+`~/outputs/mt-rloo-1.5b-s0/logs/steps.jsonl`. Then evaluate it the same way as the other models (turn 1
+is generated because there is no saved single-turn answer for it):
+
+```bash
+for MODE in errors all; do
+  python extension/multiturn_eval.py --tag mt-rloo --adapter ~/outputs/mt-rloo-1.5b-s0/checkpoint-150 \
+      --split spider_dev --mode $MODE --regenerate
+done
+python extension/multiturn_eval.py --summary
+mkdir -p extension/findings/mt_training && cp ~/outputs/mt-rloo-1.5b-s0/logs/*.jsonl extension/findings/mt_training/
+git add -f extension/findings && git commit -m "Multi-turn training results" && git push
+```
