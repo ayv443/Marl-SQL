@@ -122,6 +122,9 @@ def rollout(model, tok, questions, args):
         for e, text in zip(live, texts):
             e["conv"].append({"role": "assistant", "content": text})
             sql = extract_sql(text)
+            if sql is None and e["sqls"]:  # no new SQL after feedback = keep the previous query
+                sql = e["sqls"][-1]
+                e["no_sql"] = e.get("no_sql", 0) + 1
             repeated = bool(e["sqls"]) and same_query(sql, e["sqls"][-1])
             e["sqls"].append(sql)
             ran_ok, msg = feedback(sql, e["db"])
@@ -270,6 +273,7 @@ def train_step(model, tok, opt, scaler, questions, args):
         "fixed_after_feedback": sum(e["r_first"] != 1.0 and e["r_final"] == 1.0 for e in eps) / n,
         "mean_turns": sum(e["turns"] for e in eps) / n,
         "changed_query": sum(e["changes"] > 0 for e in eps) / n,
+        "no_sql_reply": sum(e.get("no_sql", 0) > 0 for e in eps) / n,
         "broken_by_change": sum(e["r_first"] == 1.0 and e["r_final"] != 1.0 for e in eps) / n,
         "kl": sum(e["kl"] for e in eps) / n,
         "zero_adv_groups": sum(len({e["reward_kl"] for e in eps[g:g + args.num_generations]}) == 1
@@ -347,10 +351,11 @@ def main():
         print(json.dumps(stats))
         log.write(json.dumps(stats) + "\n")
         log.flush()
-        if step % 10 == 0:  # keep one episode for reading later
-            e = eps[0]
-            samples.write(json.dumps({"step": step, "qid": e["q"]["qid"], "reward": e["reward"],
-                                      "conversation": e["conv"][len(e["q"]["prompt"]):]}) + "\n")
+        if step <= 2 or step % 10 == 0:  # every episode of the first steps, then one every 10 steps
+            for e in (eps if step <= 2 else eps[:1]):
+                samples.write(json.dumps({"step": step, "qid": e["q"]["qid"], "reward": e["reward"],
+                                          "sqls": e["sqls"], "gold_sql": e["q"]["gold_sql"],
+                                          "conversation": e["conv"][len(e["q"]["prompt"]):]}) + "\n")
             samples.flush()
         if run:
             run.log(stats, step=step)

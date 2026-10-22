@@ -101,7 +101,7 @@ def run(args):
         for i, o in zip(todo, outs):
             text = o[0]
             convs[i].append({"role": "assistant", "content": text})
-            new_sql = extract_sql(text)
+            new_sql = extract_sql(text) or sqls[i][-1]  # no new SQL after feedback = keep the previous query
             repeated = same_query(new_sql, sqls[i][-1])
             sqls[i].append(new_sql)
             if not repeated:
