@@ -36,7 +36,11 @@ def data_checks(tok):
     gold = gold_cache()
     print(f"         train questions: {len(rows)}")
     check(all(k in rows[0] for k in ("prompt", "qid", "db_path", "gold_sql")), "train rows have prompt, qid, db_path, gold_sql")
-    check(sum(r["qid"] in tags for r in rows) == len(rows), f"every train question has a tag ({sum(r['qid'] in tags for r in rows)} / {len(rows)})")
+    plens = {r["qid"]: len(tok.apply_chat_template(r["prompt"], tokenize=True, add_generation_prompt=True)) for r in rows}
+    untagged = [r for r in rows if r["qid"] not in tags]
+    check(all(plens[r["qid"]] > MAX_PROMPT_LEN for r in untagged),
+          f"every train question that fits the prompt limit has a tag ({len(untagged)} untagged, all over "
+          f"{MAX_PROMPT_LEN} tokens and dropped, as in the original runs)")
     missing_gold = sum(r["qid"] not in gold for r in rows)
     empty_gold = sum(r["qid"] in gold and not gold[r["qid"]] for r in rows)
     check(missing_gold == 0, f"every train question has a cached gold result (missing: {missing_gold})")
@@ -47,7 +51,7 @@ def data_checks(tok):
     check(all(r["prompt"][0]["role"] == "system" and r["prompt"][0]["content"] == SYSTEM_PROMPT for r in rows),
           "every prompt starts with the same system prompt as training")
     used = [r for r in rows if tags.get(r["qid"]) != "all_right"]
-    lens = [len(tok.apply_chat_template(r["prompt"], tokenize=True, add_generation_prompt=True)) for r in used]
+    lens = [plens[r["qid"]] for r in used]
     print(f"         questions used (not all_right): {len(used)}, longest prompt {max(lens)} tokens, "
           f"over {MAX_PROMPT_LEN}: {sum(n > MAX_PROMPT_LEN for n in lens)} (these are dropped)")
     worst = max(lens[i] for i in range(len(lens)) if lens[i] <= MAX_PROMPT_LEN)
